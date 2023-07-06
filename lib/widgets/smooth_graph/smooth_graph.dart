@@ -1,3 +1,5 @@
+// ignore_for_file: implementation_imports, invalid_use_of_visible_for_testing_member
+
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -26,7 +28,6 @@ class SmoothChart extends HookConsumerWidget {
     );
     final lastT = useRef<double>(0);
 
-    // final movingPoints = useState<List<FlSpot>>([]);
     final points = useState(
       List.generate(
         pointsNum + 4,
@@ -53,10 +54,11 @@ class SmoothChart extends HookConsumerWidget {
                       .map((p) => p.copyWith(x: p.x - pointSpace))
                       .toList() +
                   [
-                    FlSpot(1 + pointSpace * 2,
-                        Random().nextDouble() * 0.4 + 0.3 * mod.value)
+                    FlSpot(
+                      1 + pointSpace * 2,
+                      Random().nextDouble() * 0.4 + 0.3 * mod.value,
+                    ),
                   ];
-              print(points.value);
               maxYAC.animateTo(
                 max(
                   1,
@@ -96,26 +98,8 @@ class SmoothChart extends HookConsumerWidget {
             ),
             spots: points.value,
             isCurved: true,
-            // gradient: LinearGradient(
-            //   colors: gradientColors,
-            // ),
             barWidth: 1,
             isStrokeCapRound: true,
-            // dotData: const FlDotData(
-            //   show: false,
-            // ),
-            belowBarData: BarAreaData(
-              show: false,
-              // TODO(flafydev): fix sudden change in gradient.
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.lightBlue.withOpacity(0.4),
-                  Colors.black.withOpacity(0),
-                ],
-              ),
-            ),
           );
           final data = LineChartData(
             clipData: FlClipData.none(),
@@ -134,11 +118,7 @@ class SmoothChart extends HookConsumerWidget {
             maxY: maxYAC.value,
             lineBarsData: [barData],
           );
-          print(maxYAC.value);
-          // final graph = LineChart(
-          //   data,
-          //   swapAnimationDuration: Duration.zero, // Optional
-          // );
+
           return LayoutBuilder(
             builder: (context, constraints) {
               final graph = CustomPaint(
@@ -208,7 +188,6 @@ class SmoothChart extends HookConsumerWidget {
                           ],
                         ),
                       ),
-                      // child: AnimatedGraph(),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           lastT.value = t;
@@ -325,20 +304,21 @@ class _PathPainter extends CustomPainter {
             )
           : null;
     if (glow) {
-      canvas.saveLayer(Rect.largest, Paint());
-      canvas.drawPath(path, _paint);
+      canvas
+        ..saveLayer(Rect.largest, Paint())
+        ..drawPath(path, _paint);
       final closedPath = path.shift(Offset.zero)
         ..relativeLineTo(0, -size.height)
         ..relativeLineTo(-size.width * 2, 0)
         ..close();
-      // ..close();
-      canvas.drawPath(
-        closedPath,
-        Paint()
-          ..style = PaintingStyle.fill
-          ..blendMode = BlendMode.clear,
-      );
-      canvas.restore();
+      canvas
+        ..drawPath(
+          closedPath,
+          Paint()
+            ..style = PaintingStyle.fill
+            ..blendMode = BlendMode.clear,
+        )
+        ..restore();
     } else {
       canvas.drawPath(path, _paint);
     }
@@ -392,171 +372,3 @@ class _GradientPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => oldDelegate != this;
 }
-
-// TRASH
-
-          // AnimatedBuilder(
-          //   animation: moveAC,
-          //   builder: (context, child) {
-          //     return Container(
-          //       clipBehavior: Clip.hardEdge,
-          //       decoration: BoxDecoration(
-          //         border: Border.all(color: Colors.lightBlue),
-          //         borderRadius: BorderRadius.circular(10),
-          //       ),
-          //       child: Stack(
-          //         children: [
-          //           Positioned(
-          //             left: -moveAC.value *
-          //                 (constraints.maxWidth / pointsNum),
-          //             width: constraints.maxWidth,
-          //             height: constraints.maxHeight,
-          //             child: child!,
-          //           ),
-          //         ],
-          //       ),
-          //     );
-          //   },
-          //   child: Container(
-          //     width: constraints.maxWidth,
-          //     height: constraints.maxHeight,
-          //     child: LineChartLeaf(
-          //       data: LineChartData(
-          //         gridData: FlGridData(
-          //           show: false,
-          //         ),
-          //         titlesData: FlTitlesData(
-          //           show: false,
-          //         ),
-          //         borderData: FlBorderData(
-          //           show: false,
-          //         ),
-          //         minX: 0,
-          //         maxX: 1,
-          //         minY: -0.05,
-          //         maxY: maxYAC.value,
-          //         lineBarsData: [
-          //           LineChartBarData(
-          //             color: Colors.lightBlue,
-          //
-          //             dotData: FlDotData(
-          //               show: true,
-          //             ),
-          //             spots: points.value
-          //                 .skip(points.value.length - 4)
-          //                 .take(3)
-          //                 .toList(),
-          //             isCurved: true,
-          //             // gradient: LinearGradient(
-          //             //   colors: gradientColors,
-          //             // ),
-          //             barWidth: 1,
-          //             // dotData: const FlDotData(
-          //             //   show: false,
-          //             // ),
-          //           ),
-          //         ],
-          //       ),
-          //       targetData: LineChartData(
-          //         gridData: FlGridData(
-          //           show: false,
-          //         ),
-          //         titlesData: FlTitlesData(
-          //           show: false,
-          //         ),
-          //         borderData: FlBorderData(
-          //           show: false,
-          //         ),
-          //         minX: 0,
-          //         maxX: 1,
-          //         minY: -0.05,
-          //         maxY: maxYAC.value,
-          //         lineBarsData: [
-          //           LineChartBarData(
-          //             color: Colors.lightBlue,
-          //             dotData: FlDotData(
-          //               show: true,
-          //             ),
-          //             spots: points.value,
-          //             isCurved: true,
-          //             barWidth: 1,
-          //             isStrokeCapRound: true,
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
-
-                        // AnimatedBuilder(
-                        //   animation: moveAC,
-                        //   builder: (context, child) {
-                        //     return LineChartLeaf(
-                        //       dotOffset: moveAC.value *
-                        //     (constraints.maxWidth / pointsNum),
-                        //       data: LineChartData(
-                        //         gridData: FlGridData(
-                        //           show: false,
-                        //         ),
-                        //         titlesData: FlTitlesData(
-                        //           show: false,
-                        //         ),
-                        //         borderData: FlBorderData(
-                        //           show: false,
-                        //         ),
-                        //         minX: 0,
-                        //         maxX: 1,
-                        //         minY: -0.05,
-                        //         maxY: maxYAC.value,
-                        //         lineBarsData: [
-                        //           LineChartBarData(
-                        //             color: Colors.red,
-                        //
-                        //             dotData: FlDotData(
-                        //               show: true,
-                        //             ),
-                        //             spots: points.value
-                        //                 .skip(points.value.length - 4)
-                        //                 .toList(),
-                        //             isCurved: true,
-                        //             // gradient: LinearGradient(
-                        //             //   colors: gradientColors,
-                        //             // ),
-                        //             barWidth: 1,
-                        //             // dotData: const FlDotData(
-                        //             //   show: false,
-                        //             // ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //       targetData: LineChartData(
-                        //         gridData: FlGridData(
-                        //           show: false,
-                        //         ),
-                        //         titlesData: FlTitlesData(
-                        //           show: false,
-                        //         ),
-                        //         borderData: FlBorderData(
-                        //           show: false,
-                        //         ),
-                        //         minX: 0,
-                        //         maxX: 1,
-                        //         minY: -0.05,
-                        //         maxY: maxYAC.value,
-                        //         lineBarsData: [
-                        //           LineChartBarData(
-                        //             color: Colors.lightBlue,
-                        //             dotData: FlDotData(
-                        //               show: true,
-                        //             ),
-                        //             spots: points.value,
-                        //             isCurved: true,
-                        //             barWidth: 1,
-                        //             isStrokeCapRound: true,
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     );
-                        //   },
-                        // ),
