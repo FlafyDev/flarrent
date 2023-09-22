@@ -3,7 +3,7 @@
 }:
 
 buildFlutterApp {
-  pname = "torrent-frontend";
+  pname = "flarrent";
   version = "0.1.0";
 
   src = ../.;
