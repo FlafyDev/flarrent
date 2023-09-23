@@ -32,7 +32,7 @@ class TorrentQuickData with _$TorrentQuickData {
     required TorrentPriority priority,
   }) = _TorrentQuickData;
 
-  factory _TorrentQuickData.fromJson(Map<String, Object?> json)
+  factory TorrentQuickData.fromJson(Map<String, Object?> json)
       => _$TorrentQuickDataFromJson(json);
 }
 
@@ -61,7 +61,7 @@ class TorrentData with _$TorrentData {
     required List<String> trackers,
   }) = _TorrentData;
 
-  factory _TorrentData.fromJson(Map<String, Object?> json)
+  factory TorrentData.fromJson(Map<String, Object?> json)
       => _$TorrentDataFromJson(json);
 }
 
@@ -75,6 +75,6 @@ class TorrentFileData with _$TorrentFileData {
     required TorrentPriority priority,
   }) = _TorrentFileData;
 
-  factory _TorrentFileData.fromJson(Map<String, Object?> json)
+  factory TorrentFileData.fromJson(Map<String, Object?> json)
       => _$TorrentFileDataFromJson(json);
 }

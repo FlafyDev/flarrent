@@ -16,7 +16,8 @@ dependencies:
   json_annotation: ^4.8.1
   responsive_grid_list: ^1.3.2
   simple_grid: ^0.1.2
-  transmission: ^0.1.1
+  transmission_rpc:
+    path: /home/flafy/repos/flafydev/transmission_rpc
 
 dev_dependencies:
   very_good_analysis: ^5.0.0+1

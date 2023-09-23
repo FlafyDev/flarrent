@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/get_y_from_x.dart';
+import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 
 class SmoothChart extends HookConsumerWidget {
   const SmoothChart({
@@ -150,7 +151,7 @@ class SmoothChart extends HookConsumerWidget {
                 child: graph,
                 builder: (context, graph) {
                   const ballSize = 12.0;
-                  const ballOffset = 6;
+                  const ballOffset = 0;
                   final (y, t) = getYFromX(
                     constraints.maxWidth -
                         ballOffset +
@@ -246,17 +247,27 @@ class SmoothChart extends HookConsumerWidget {
                                     ballOffset -
                                     ballSize / 2,
                                 top: y - ballSize / 2,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white.withOpacity(0.8),
-                                    border: Border.all(
-                                      color: Colors.lightBlue,
-                                      width: 1.5,
+                                child: ClipRect(
+                                  clipper: RectCustomClipper(
+                                    (size) => Rect.fromLTRB(
+                                      0,
+                                      0,
+                                      size.width/2-1,
+                                      size.height,
                                     ),
                                   ),
-                                  width: ballSize,
-                                  height: ballSize,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.lightBlue,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    width: ballSize,
+                                    height: ballSize,
+                                  ),
                                 ),
                               ),
                             ],

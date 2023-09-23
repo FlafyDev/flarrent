@@ -38,6 +38,7 @@ const _$TorrentStateEnumMap = {
   TorrentState.seeding: 'seeding',
   TorrentState.paused: 'paused',
   TorrentState.queued: 'queued',
+  TorrentState.completed: 'completed',
 };
 
 const _$TorrentPriorityEnumMap = {
