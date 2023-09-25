@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-import 'package:simple_grid/simple_grid.dart';
 import 'package:torrent_frontend/models/torrent.dart';
-import 'package:torrent_frontend/providers/transmission.dart';
 import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/button.dart';
+import 'package:torrent_frontend/widgets/common/responsive_horizontal_grid.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/smooth_graph.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
-
-import '../test.dart';
+import 'dart:math' as math;
 
 class TorrentBottomOverview extends HookConsumerWidget {
   const TorrentBottomOverview({super.key, required this.id});
@@ -20,8 +18,7 @@ class TorrentBottomOverview extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transmission = ref.watch(transmissionProvider);
-    transmission.getTorrents().then((value) => print(value));
+    // final transmission = ref.watch(transmissionProvider);
     final theme = Theme.of(context);
     final pageController = usePageController();
 
@@ -188,7 +185,15 @@ class _TorrentInfoTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title),
-          Text(value),
+          SizedBox(
+            width: 10,
+          ),
+          Flexible(
+              child: Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          )),
         ],
       ),
     );
@@ -207,115 +212,162 @@ class _TorrentInfo extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Row(
-      children: [
-        SizedBox(
-          width: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Consumer(
+    return LayoutBuilder(
+      builder: (context, contraints) {
+      final maxWidth = contraints.maxWidth;
+        return Row(
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxHeight: 400),
+              width: (maxWidth / 3).clamp(300, 500),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(
+                  2,
+                  (i) {
+                    final provider = i == 0
+                        ? torrentDownloadSpeedProvider(id)
+                        : torrentUploadSpeedProvider(id);
+                    return Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: SmoothChart(
+                                tint: i == 0 ? Colors.lightBlue : Colors.purple,
+                                getInitialPointsY: (i) {
+                                  return ref
+                                          .read(
+                                            provider.notifier,
+                                          )
+                                          .state[i]
+                                          .toDouble() /
+                                      1024 /
+                                      1024;
+                                },
+                                getNextPointY: () {
+                                  return ref
+                                          .read(
+                                            provider.notifier,
+                                          )
+                                          .state
+                                          .last
+                                          .toDouble() /
+                                      1024 /
+                                      1024;
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 100,
+                              child: Consumer(
+                                builder: (context, ref, child) {
+                                  final bytesPerSecond = ref.watch(
+                                    torrentsProvider.select(
+                                      (v) => i == 0
+                                          ? v
+                                              .firstWhere(
+                                                (element) => element.id == id,
+                                              )
+                                              .downloadBytesPerSecond
+                                          : v
+                                              .firstWhere(
+                                                (element) => element.id == id,
+                                              )
+                                              .uploadBytesPerSecond,
+                                    ),
+                                  );
+
+                                  final unit = detectUnit(bytesPerSecond);
+
+                                  return RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: fromBytesToUnit(
+                                            bytesPerSecond,
+                                            unit: unit,
+                                          ),
+                                          style: const TextStyle(fontSize: 24),
+                                        ),
+                                        TextSpan(
+                                          text: ' ${unit.name}/s',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: theme.colorScheme.onPrimary,
+                                          ),
+                                        ),
+                                        WidgetSpan(
+                                          child: Icon(
+                                            i == 0
+                                                ? Icons.arrow_downward
+                                                : Icons.arrow_upward,
+                                            size: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  // const SizedBox(
+                  //   height: 100,
+                  //   child: SmoothChart(),
+                  // ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Consumer(
                 builder: (context, ref, child) {
-                  final downloadBytesPerSecond = ref.watch(
+                  final data = ref.watch(
                     torrentsProvider.select(
-                      (v) => v
-                          .firstWhere(
-                            (element) => element.id == id,
-                          )
-                          .downloadBytesPerSecond,
+                      (v) => v.firstWhere(
+                        (element) => element.id == id,
+                      ),
                     ),
                   );
 
-                  final unit = detectUnit(downloadBytesPerSecond);
-
-                  return SizedBox(
-                    height: 100,
-                    child: Row(
+                  return Center(
+                    child: ResponsiveHorizontalGrid(
+                      maxWidgetWidth: 500,
+                      minWidgetWidth: 250,
+                      widgetHeight: 30,
                       children: [
-                        const Expanded(child: SmoothChart()),
-                        const SizedBox(width: 12),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: fromBytesToUnit(
-                                  downloadBytesPerSecond,
-                                  unit: unit,
-                                ).toStringAsFixed(2),
-                                style: const TextStyle(fontSize: 24),
-                              ),
-
-                              /// Mb/s
-                              TextSpan(
-                                text: ' ${unit.name}/s',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: theme.colorScheme.onPrimary,
-                                ),
-                              ),
-                              const WidgetSpan(
-                                child: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  size: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _TorrentInfoTile(
+                            'Size', stringBytesWithUnits(data.sizeBytes)),
+                        _TorrentInfoTile(
+                            'Added on', dateTimeToString(data.addedOn)),
+                        if (data.completedOn != null)
+                          _TorrentInfoTile(
+                              'Completed on', dateTimeToString(data.completedOn!)),
+                        _TorrentInfoTile('Ratio', data.ratio.toStringAsFixed(2)),
+                        _TorrentInfoTile(
+                            'Uploaded', stringBytesWithUnits(data.uploadedBytes)),
+                        _TorrentInfoTile('Comment', ''),
+                        _TorrentInfoTile('Origin', data.origin),
+                        _TorrentInfoTile('Limit', ''),
+                        _TorrentInfoTile('location', data.location),
                       ],
                     ),
                   );
                 },
               ),
-              const SizedBox(
-                height: 100,
-                child: SmoothChart(),
-              ),
-            ],
-          ),
-        ),
-        Consumer(
-          builder: (context, ref, child) {
-            final data = ref.watch(
-              torrentsProvider.select(
-                (v) => v.firstWhere(
-                  (element) => element.id == id,
-                ),
-              ),
-            );
-
-            return Expanded(
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 500,
-                  ),
-                  child: ResponsiveHorizontalGrid(
-                    minWidgetWidth: 250,
-                    widgetHeight: 30,
-                    children: [
-                      _TorrentInfoTile(
-                          'Size', printBytesWithUnits(data.sizeBytes)),
-                      _TorrentInfoTile(
-                          'Added on', dateTimeToString(data.addedOn)),
-                      if (data.completedOn != null)
-                        _TorrentInfoTile('Completed on',
-                            dateTimeToString(data.completedOn!)),
-                      _TorrentInfoTile('Ratio', data.ratio.toStringAsFixed(2)),
-                      _TorrentInfoTile(
-                          'Uploaded', printBytesWithUnits(data.uploadedBytes)),
-                      _TorrentInfoTile('Comment', ''),
-                      _TorrentInfoTile('Origin', data.origin),
-                      _TorrentInfoTile('Limit', ''),
-                      _TorrentInfoTile('location', data.location),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

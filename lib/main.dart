@@ -8,7 +8,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/units.dart';
-import 'package:torrent_frontend/widgets/bottom_overview.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/smooth_graph.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent_bottom_overview.dart';
@@ -76,7 +75,6 @@ class AppEntry extends HookConsumerWidget {
     final theme = Theme.of(context);
     final sideOpen = false;
     final sideOnTop = 0.0;
-    final torrentsQuickData = ref.watch(quickTorrentsProvider);
 
     return Row(
       children: [
@@ -107,91 +105,111 @@ class AppEntry extends HookConsumerWidget {
                             color: Colors.transparent,
                             child: Container(
                               padding: EdgeInsets.all(10).copyWith(bottom: 0),
-                              child: ListView(
-                                children: torrentsQuickData
-                                    .map((d) => TorrentTile(quickData: d))
-                                    .toList(),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //     onPressed: () {
-                                //       // showDialog(
-                                //       //   context: context,
-                                //       //   builder: (context) => Scaffold(body: const TorrentBottomOverview()),
-                                //       // );
-                                //       Navigator.push(
-                                //         context,
-                                //         MaterialPageRoute(
-                                //           builder: (context) => Scaffold(
-                                //               body:
-                                //                   const TorrentBottomOverview()),
-                                //         ),
-                                //       );
-                                //     },
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                //   TorrentTile(
-                                //     bytes: 12582912,
-                                //     bytesToDownload: 12582912,
-                                //     bytesDownloadSpeed: 524288,
-                                //     bytesDownloaded: 1048576,
-                                //     isFile: false,
-                                //     timeLeft: Duration(seconds: 24),
-                                //   ),
-                                //   SizedBox(
-                                //     height: 10,
-                                //   ),
-                                // ],
+                              child: Consumer(
+                                builder: (context, ref, child) {
+                                  final torrentsQuickData =
+                                      ref.watch(quickTorrentsProvider);
+                                  return ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(
+                                      height: 10,
+                                    ),
+                                    itemCount: torrentsQuickData.length,
+                                    itemBuilder: (context, index) {
+                                      return TorrentTile(
+                                        quickData: torrentsQuickData[index],
+                                        onPressed: () {
+                                          ref
+                                              .read(selectedTorrentId.notifier)
+                                              .state = torrentsQuickData[
+                                                  index]
+                                              .id;
+                                        },
+                                      );
+                                    },
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //     onPressed: () {
+                                    //       // showDialog(
+                                    //       //   context: context,
+                                    //       //   builder: (context) => Scaffold(body: const TorrentBottomOverview()),
+                                    //       // );
+                                    //       Navigator.push(
+                                    //         context,
+                                    //         MaterialPageRoute(
+                                    //           builder: (context) => Scaffold(
+                                    //               body:
+                                    //                   const TorrentBottomOverview()),
+                                    //         ),
+                                    //       );
+                                    //     },
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    //   TorrentTile(
+                                    //     bytes: 12582912,
+                                    //     bytesToDownload: 12582912,
+                                    //     bytesDownloadSpeed: 524288,
+                                    //     bytesDownloaded: 1048576,
+                                    //     isFile: false,
+                                    //     timeLeft: Duration(seconds: 24),
+                                    //   ),
+                                    //   SizedBox(
+                                    //     height: 10,
+                                    //   ),
+                                    // ],
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -250,7 +268,16 @@ class AppEntry extends HookConsumerWidget {
                               },
                             ),
                           ),
-                          TorrentBottomOverview(id: 0),
+                          Consumer(
+                            builder: (context, ref, child) {
+                              final id = ref.watch(selectedTorrentId);
+                              if (id == null) {
+                                return Container();
+                              }
+                              print("MEE");
+                              return TorrentBottomOverview(id: id);
+                            },
+                          ),
                           // BottomOverview()
                         ],
                       ),

@@ -1,22 +1,20 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:transmission/transmission.dart';
+import 'package:transmission_rpc/transmission_rpc.dart';
 
 final transmissionProvider = Provider(
-  (ref) => Transmission(
-    baseUrl: 'http://127.0.0.1:9091/transmission/rpc',
-    enableLog: false,
-  ),
+  (ref) => Transmission(),
 );
 
-final transmissionRefreshDelayProvider =
-    Provider((ref) => const Duration(seconds: 1));
+Stream<dynamic> counterStream() async* {
+  yield 0;
+  yield* Stream.periodic(const Duration(milliseconds: 500), (i) => 1 + i);
+}
 
 final transmissionTorrentsProvider = StreamProvider(
   (ref) async* {
     final transmission = ref.watch(transmissionProvider);
-    final refreshDelay = ref.watch(transmissionRefreshDelayProvider);
 
-    await for (final _ in Stream<Duration>.periodic(refreshDelay)) {
+    await for (final _ in counterStream()) {
       yield await transmission.getTorrents();
     }
   },

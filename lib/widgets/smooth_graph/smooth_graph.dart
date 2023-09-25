@@ -9,74 +9,111 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/get_y_from_x.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 
 class SmoothChart extends HookConsumerWidget {
   const SmoothChart({
     super.key,
+    required this.getInitialPointsY,
+    required this.getNextPointY,
+    required this.tint,
   });
+
+  final double Function(int index) getInitialPointsY;
+  final double Function() getNextPointY;
+  final Color tint;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const pointsNum = 4;
+    const pointsNum = 15;
     const pointSpace = 1 / pointsNum;
     final moveAC =
-        useAnimationController(duration: const Duration(milliseconds: 1000));
+        useAnimationController(duration: const Duration(milliseconds: 500));
     final maxYAC = useAnimationController(
       initialValue: 1,
       upperBound: double.infinity,
     );
     final lastT = useRef<double>(0);
+    // final torrentDownloadSpeed = ref.watch(torrentDownloadSpeedProvider(100));
 
     final points = useState(
-      List.generate(
-        pointsNum + 4,
-        (i) => FlSpot(
-          i * pointSpace - pointSpace,
-          0,
-        ),
-      ),
+      <FlSpot>[],
+      // List.generate(
+      //   pointsNum + 4,
+      //   (i) => FlSpot(
+      //     i * pointSpace - pointSpace,
+      //     getInitialPointsY(i),
+      //   ),
+      // ),
     );
+
+    // useEffect(
+    //   () {
+    //
+    //     return;
+    //   },
+    //   [getInitialPointsY],
+    // );
+
     final mod = useRef<double>(1);
 
     useEffect(
       () {
-        moveAC
-          ..forward()
-          ..addListener(() {
-            if (moveAC.status == AnimationStatus.completed) {
-              lastT.value = 0;
-              moveAC
-                ..reset()
-                ..forward();
-              points.value = points.value
-                      .skip(1)
-                      .map((p) => p.copyWith(x: p.x - pointSpace))
-                      .toList() +
-                  [
-                    FlSpot(
-                      1 + pointSpace * 2,
-                      Random().nextDouble() * 0.4 + 0.3 * mod.value,
-                    ),
-                  ];
-              maxYAC.animateTo(
-                max(
-                  1,
-                  ([...points.value]..sort((a, b) => a.y.compareTo(b.y)))
-                          .last
-                          .y *
-                      1.2,
-                ),
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.easeOut,
-              );
-            }
-          });
-        return null;
+        points.value = List.generate(
+          pointsNum + 4,
+          (i) => FlSpot(
+            i * pointSpace - pointSpace,
+            getInitialPointsY(i),
+          ),
+        );
+
+        void moveACListener() {
+          if (moveAC.status == AnimationStatus.completed) {
+            lastT.value = 0;
+            moveAC
+              ..reset()
+              ..forward();
+            points.value = points.value
+                    .skip(1)
+                    .map((p) => p.copyWith(x: p.x - pointSpace))
+                    .toList() +
+                [
+                  FlSpot(
+                    1 + pointSpace * 2,
+                    getNextPointY(),
+                    // Random().nextDouble() * 0.4 + 0.3 * mod.value,
+                  ),
+                ];
+            maxYAC.animateTo(
+              max(
+                1,
+                ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y *
+                    1.2,
+              ),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOut,
+            );
+          }
+        }
+
+        moveAC.addListener(moveACListener);
+
+        moveAC.forward(from: 0);
+
+        return () => moveAC.removeListener(moveACListener);
       },
-      [],
+      [getInitialPointsY, getNextPointY],
     );
+
+    // useEffect(
+    //   () {
+    //     moveAC.forward();
+    //     return;
+    //   },
+    //   [],
+    // );
 
     return KeyboardListener(
       focusNode: FocusNode(),
@@ -92,8 +129,7 @@ class SmoothChart extends HookConsumerWidget {
         animation: maxYAC,
         builder: (context, child) {
           final barData = LineChartBarData(
-            color: Colors.lightBlue,
-
+            color: tint,
             dotData: FlDotData(
               show: false,
             ),
@@ -130,7 +166,7 @@ class SmoothChart extends HookConsumerWidget {
                     barData.spots,
                     PaintHolder(data, data, 1),
                   ),
-                  color: Colors.lightBlue,
+                  color: tint,
                   glow: false,
                 ),
               );
@@ -142,7 +178,7 @@ class SmoothChart extends HookConsumerWidget {
                     barData.spots,
                     PaintHolder(data, data, 1),
                   ),
-                  color: Colors.lightBlue,
+                  color: tint,
                   glow: true,
                 ),
               );
@@ -162,118 +198,143 @@ class SmoothChart extends HookConsumerWidget {
                     barData.spots.skip(barData.spots.length - 4).toList(),
                     PaintHolder(data, data, 1),
                   );
-                  return Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.withOpacity(0)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: CustomPaint(
-                      painter: _GradientPainter(
-                        strokeWidth: 1,
-                        radius: 10,
-                        gradient: LinearGradient(
-                          end: Alignment(
-                            1,
-                            y / constraints.maxWidth * 2 * 2 - 1,
-                          ),
-                          stops: const [
-                            0.0,
-                            0.9,
-                            1.0,
-                          ],
-                          colors: [
-                            Colors.blue.withOpacity(0.1),
-                            Colors.blue.withOpacity(0.3),
-                            Colors.blue.withOpacity(0.7),
-                          ],
+                  return CustomPaint(
+                    painter: _GradientPainter(
+                      strokeWidth: 1,
+                      radius: 10,
+                      gradient: LinearGradient(
+                        end: Alignment(
+                          1,
+                          y / constraints.maxWidth * 2 * 2 - 1,
                         ),
+                        stops: const [
+                          0.0,
+                          0.9,
+                          1.0,
+                        ],
+                        colors: [
+                          tint.withOpacity(0.1),
+                          tint.withOpacity(0.3),
+                          tint.withOpacity(0.7),
+                        ],
                       ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          lastT.value = t;
-                          return Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Positioned(
-                                left: constraints.maxWidth -
-                                    ballOffset -
-                                    ballSize / 2,
-                                top: y - ballSize / 2,
-                                child: const SizedBox(
-                                  width: ballSize,
-                                  height: ballSize,
-                                  child: Center(
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.lightBlue,
-                                            blurRadius: 60,
-                                            spreadRadius: 30,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: -moveAC.value *
-                                    (constraints.maxWidth / pointsNum),
-                                width: constraints.maxWidth,
-                                height: constraints.maxHeight,
-                                child: graphGlow,
-                              ),
-                              Container(
-                                clipBehavior: Clip.hardEdge,
-                                decoration: const BoxDecoration(),
-                                width: constraints.maxWidth - ballOffset,
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        lastT.value = t;
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              // left: constraints.maxWidth/2 -
+                              //     ballOffset -
+                              //     ballSize / 2,
+                              // top: y - ballSize / 2,
+                              width: constraints.maxWidth,
+                              height: constraints.maxHeight,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
                                 child: Stack(
                                   children: [
                                     Positioned(
-                                      left: -moveAC.value *
-                                          (constraints.maxWidth / pointsNum),
-                                      width: constraints.maxWidth,
-                                      height: constraints.maxHeight,
-                                      child: graph!,
+                                      left: constraints.maxWidth -
+                                          ballOffset -
+                                          ballSize / 2,
+                                      top: y - ballSize / 2,
+                                      child: SizedBox(
+                                        width: ballSize,
+                                        height: ballSize,
+                                        child: Center(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: tint,
+                                                  blurRadius: 60,
+                                                  spreadRadius: 30,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Positioned(
-                                left: constraints.maxWidth -
-                                    ballOffset -
-                                    ballSize / 2,
-                                top: y - ballSize / 2,
-                                child: ClipRect(
-                                  clipper: RectCustomClipper(
-                                    (size) => Rect.fromLTRB(
+                            ),
+                            Positioned(
+                              left: -moveAC.value *
+                                  (constraints.maxWidth / pointsNum),
+                              width: constraints.maxWidth,
+                              height: constraints.maxHeight,
+                              child: ClipRRect(
+                                clipper: RRectCustomClipper(
+                                  (size) => RRect.fromRectAndRadius(
+                                    Rect.fromLTRB(
+                                      moveAC.value *
+                                          (constraints.maxWidth / pointsNum),
                                       0,
-                                      0,
-                                      size.width/2-1,
+                                      size.width +
+                                          moveAC.value *
+                                              (constraints.maxWidth /
+                                                  pointsNum),
                                       size.height,
                                     ),
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: Colors.lightBlue,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    width: ballSize,
-                                    height: ballSize,
+                                    Radius.circular(10),
                                   ),
                                 ),
+                                child: graphGlow,
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                            ),
+                            Container(
+                              clipBehavior: Clip.hardEdge,
+                              decoration: const BoxDecoration(),
+                              width: constraints.maxWidth - ballOffset,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    left: -moveAC.value *
+                                        (constraints.maxWidth / pointsNum),
+                                    width: constraints.maxWidth,
+                                    height: constraints.maxHeight,
+                                    child: graph!,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Positioned(
+                              left: constraints.maxWidth -
+                                  ballOffset -
+                                  ballSize / 2,
+                              top: y - ballSize / 2,
+                              child: ClipRect(
+                                clipper: RectCustomClipper(
+                                  (size) => Rect.fromLTRB(
+                                    0,
+                                    0,
+                                    size.width,
+                                    size.height,
+                                  ),
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: tint,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  width: ballSize,
+                                  height: ballSize,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   );
                 },

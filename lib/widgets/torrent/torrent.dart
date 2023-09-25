@@ -102,7 +102,7 @@ class TorrentTile extends HookConsumerWidget {
                   Row(
                     children: [
                       Text(
-                        '''${fromBytesToUnit(quickData.downloadedBytes, unit: sizeUnit).toStringAsFixed(2)} of ${fromBytesToUnit(quickData.sizeToDownloadBytes, unit: sizeUnit).toStringAsFixed(2)} ${sizeUnit.name}    ${(progress * 100).floor()}%''',
+                        '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeToDownloadBytes)}    ${(progress * 100).floor()}%''',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 62, 107, 159),
@@ -129,7 +129,7 @@ class TorrentTile extends HookConsumerWidget {
                             const WidgetSpan(child: SizedBox(width: 10)),
                             TextSpan(
                               text:
-                                  '${fromBytesToUnit(quickData.downloadBytesPerSecond).toStringAsFixed(2)} ${detectUnit(quickData.downloadBytesPerSecond).name}/s',
+                                  '${stringBytesWithUnits(quickData.downloadBytesPerSecond)}/s',
                               style: quickData.limited
                                   ? const TextStyle(
                                       color: Color.fromARGB(255, 150, 107, 159),
@@ -238,7 +238,7 @@ class TorrentFileTile extends HookConsumerWidget {
                         ),
                         TextSpan(
                           text:
-                              '''${fromBytesToUnit(fileData.downloadedBytes, unit: sizeUnit).toStringAsFixed(2)} of ${fromBytesToUnit(fileData.sizeBytes, unit: sizeUnit).toStringAsFixed(2)} ${sizeUnit.name} (${(progress * 100).floor()}%)''',
+                              '''${stringBytesOfWithUnits(fileData.downloadedBytes, fileData.sizeBytes)} (${(progress * 100).floor()}%)''',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Color.fromARGB(255, 62, 107, 159),
@@ -319,6 +319,20 @@ class _PriorityIcon extends StatelessWidget {
       size: size,
     );
   }
+}
+
+class RRectCustomClipper extends CustomClipper<RRect> {
+  const RRectCustomClipper(RRect Function(Size size) getClip)
+      : _getClip = getClip;
+
+  final RRect Function(Size size) _getClip;
+
+  @override
+  RRect getClip(Size size) => _getClip(size);
+
+  @override
+  bool shouldReclip(covariant CustomClipper<RRect> oldClipper) =>
+      oldClipper != this;
 }
 
 class RectCustomClipper extends CustomClipper<Rect> {
