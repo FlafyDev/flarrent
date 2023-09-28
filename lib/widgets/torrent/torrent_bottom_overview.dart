@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/state/torrents.dart';
+import 'package:torrent_frontend/state/transmission.dart';
+import 'package:torrent_frontend/utils/equal.dart';
+import 'package:torrent_frontend/utils/generic-join.dart';
 import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/button.dart';
 import 'package:torrent_frontend/widgets/common/responsive_horizontal_grid.dart';
@@ -91,6 +95,13 @@ class _TorrentFiles extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final path = useState(<String>[]);
+    ref.listen(selectedTorrentIdProvider, (prev, next) {
+      path.value = [];
+    });
+    final displayPathsList = ['/', ...path.value];
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         Stack(
@@ -98,73 +109,185 @@ class _TorrentFiles extends HookConsumerWidget {
             Container(
               padding: EdgeInsets.all(8).copyWith(left: 0),
               child: Row(
-                children: [
-                  InkButton(
-                    padding: EdgeInsets.all(6),
-                    color: Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(6),
-                      bottomLeft: Radius.circular(6),
-                    ),
-                    onPressed: () {},
-                    child: Text("ROOT"),
-                  ),
-                  SizedBox(width: 6),
-                  InkButton(
-                    padding: EdgeInsets.all(6),
-                    color: Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(6),
-                      bottomRight: Radius.circular(6),
-                    ),
-                    onPressed: () {},
-                    child: Text("Season 1"),
-                  ),
-                ],
+                children: displayPathsList
+                    .asMap()
+                    .entries
+                    .map<Widget>(
+                      (e) {
+                        final dirName = e.value;
+                        const radius = 10.0;
+                        final radiuses = e.key == 0
+                            ? const BorderRadius.only(
+                                topLeft: Radius.circular(radius),
+                                bottomLeft: Radius.circular(radius),
+                              )
+                            : (e.key == displayPathsList.length - 1
+                                ? const BorderRadius.only(
+                                    topRight: Radius.circular(radius),
+                                    bottomRight: Radius.circular(radius),
+                                  )
+                                : BorderRadius.zero);
+
+                        return Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 200,
+                          ),
+                          child: InkButton(
+                            padding: const EdgeInsets.all(6),
+                            color: Colors.blue.withOpacity(0.2),
+                            borderRadius: radiuses,
+                            onPressed: () {
+                              path.value = path.value.sublist(0, e.key);
+                            },
+                            child: Text(
+                              dirName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                    .toList()
+                    .genericJoin(const SizedBox(width: 4)),
               ),
             ),
           ],
         ),
         Expanded(
-          child: Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.only(right: 8),
-                width: double.infinity,
-                child: ResponsiveGridList(
-                  verticalGridMargin: 0,
-                  horizontalGridMargin: 0,
-                  horizontalGridSpacing:
-                      4, // Horizontal space between grid items
-                  verticalGridSpacing: 4, // Vertical space between grid items
-                  minItemWidth:
-                      230, // The minimum item width (can be smaller, if the layout constraints are smaller)
-                  minItemsPerRow:
-                      1, // The minimum items to show in a single row. Takes precedence over minItemWidth
-                  // maxItemsPerRow:
-                  //     5, // The maximum items to show in a single row. Can be useful on large screens
-                  listViewBuilderOptions:
-                      ListViewBuilderOptions(), // Options that are getting passed to the ListView.builder() function
-                  children: List.generate(
-                    6,
-                    (index) => const TorrentFileTile(
-                      fileData: TorrentFileData(
-                        name: 'test',
-                        wanted: true,
-                        downloadedBytes: 0,
-                        sizeBytes: 920020000,
-                        priority: TorrentPriority.low,
-                      ),
-                    ),
-                  ), // The list of widgets in the list
+          child: Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(right: 8),
+                  width: double.infinity,
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final files = ref
+                          .watch(
+                            torrentsProvider.select(
+                              (a) => Equal(
+                                a.firstWhere((data) => data.id == id).files,
+                                const DeepCollectionEquality().equals,
+                              ),
+                            ),
+                          )
+                          .value;
+
+                      // final directories = files
+                      //     .map((f) {
+                      //       final list = f.name.split('/');
+                      //       return list.take(list.length - 1);
+                      //     })
+                      //     .where((element) => element.isNotEmpty)
+                      //     .toSet()
+                      //     .toList();
+                      // print(files);
+                      final hierarchy = convertToDirectoryHierarchy(
+                        files.map((e) => e.name).toList(),
+                      );
+                      var currentDirectory = hierarchy;
+                      for (final dir in path.value) {
+                        currentDirectory =
+                            currentDirectory[dir] as Map<String, dynamic>;
+                      }
+                      return ResponsiveGridList(
+                        verticalGridMargin: 0,
+                        horizontalGridMargin: 0,
+                        horizontalGridSpacing:
+                            4, // Horizontal space between grid items
+                        verticalGridSpacing:
+                            4, // Vertical space between grid items
+                        minItemWidth:
+                            230, // The minimum item width (can be smaller, if the layout constraints are smaller)
+                        minItemsPerRow:
+                            1, // The minimum items to show in a single row. Takes precedence over minItemWidth
+                        // maxItemsPerRow:
+                        //     5, // The maximum items to show in a single row. Can be useful on large screens
+                        listViewBuilderOptions:
+                            ListViewBuilderOptions(), // Options that are getting passed to the ListView.builder() function
+                        children: currentDirectory.entries.map(
+                          (e) {
+                            if (e.value != null) {
+                              // Directory
+                              return InkButton(
+                                key: ValueKey(e.key),
+                                borderRadius: BorderRadius.circular(5),
+                                onPressed: () {
+                                  path.value = [...path.value, e.key];
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(
+                                      color: theme.colorScheme.onSecondary
+                                          .withOpacity(0.2),
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(5),
+                                  width: double.infinity,
+                                  child: Text(
+                                    e.key,
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      color: theme.colorScheme.onSecondary.withRed(255).withGreen(255),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final file = files[int.parse(e.key)];
+
+                            return TorrentFileTile(
+                              key: ValueKey(e.key),
+                              fileData: TorrentFileData(
+                                name: file.name.split('/').last,
+                                wanted: file.wanted,
+                                downloadedBytes: file.downloadedBytes,
+                                sizeBytes: file.sizeBytes,
+                                priority: TorrentPriority.low,
+                              ),
+                              onPressed: () {},
+                            );
+                          },
+                        ).toList(), // The list of widgets in the list
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+Map<String, dynamic> convertToDirectoryHierarchy(List<String> filePaths) {
+  final directoryHierarchy = <String, dynamic>{};
+
+  var i = 0;
+  for (final filePath in filePaths) {
+    final parts = filePath.split('/');
+    var currentDir = directoryHierarchy;
+
+    for (var j = 0; j < parts.length - 1; j++) {
+      final directoryName = parts[j];
+      currentDir.putIfAbsent(directoryName, () => <String, dynamic>{});
+      currentDir = currentDir[directoryName] as Map<String, dynamic>;
+    }
+
+    final fileName = i.toString();
+    currentDir.putIfAbsent(fileName, () => null);
+    i++;
+  }
+
+  return directoryHierarchy;
 }
 
 class _TorrentInfoTile extends StatelessWidget {
@@ -214,7 +337,7 @@ class _TorrentInfo extends HookConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, contraints) {
-      final maxWidth = contraints.maxWidth;
+        final maxWidth = contraints.maxWidth;
         return Row(
           children: [
             Container(
@@ -263,7 +386,7 @@ class _TorrentInfo extends HookConsumerWidget {
                             ),
                             const SizedBox(width: 12),
                             SizedBox(
-                              width: 100,
+                              width: 120,
                               child: Consumer(
                                 builder: (context, ref, child) {
                                   final bytesPerSecond = ref.watch(
@@ -350,11 +473,12 @@ class _TorrentInfo extends HookConsumerWidget {
                         _TorrentInfoTile(
                             'Added on', dateTimeToString(data.addedOn)),
                         if (data.completedOn != null)
-                          _TorrentInfoTile(
-                              'Completed on', dateTimeToString(data.completedOn!)),
-                        _TorrentInfoTile('Ratio', data.ratio.toStringAsFixed(2)),
+                          _TorrentInfoTile('Completed on',
+                              dateTimeToString(data.completedOn!)),
                         _TorrentInfoTile(
-                            'Uploaded', stringBytesWithUnits(data.uploadedBytes)),
+                            'Ratio', data.ratio.toStringAsFixed(2)),
+                        _TorrentInfoTile('Uploaded',
+                            stringBytesWithUnits(data.uploadedBytes)),
                         _TorrentInfoTile('Comment', ''),
                         _TorrentInfoTile('Origin', data.origin),
                         _TorrentInfoTile('Limit', ''),

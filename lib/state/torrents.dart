@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/state/transmission.dart';
 
-final selectedTorrentId = StateProvider<int?>((ref) => null);
+final selectedTorrentIdProvider = StateProvider<int?>((ref) => null);
 
 final torrentDownloadSpeedProvider =
     StateProvider.family<List<int>, int>((ref, id) {
@@ -79,19 +79,24 @@ final torrentsProvider = StateProvider<List<TorrentData>>(
             downloadBytesPerSecond: torrent.rateDownload!,
             state: TorrentState.downloading,
             limited: torrent.downloadLimited!,
-            priority: TorrentPriority.high,
+            priority: TorrentPriority.high, // TODO
             uploadedBytes: torrent.uploadedEver!,
             uploadBytesPerSecond: torrent.rateUpload!,
             ratio: torrent.uploadRatio!,
-            files: [
-              const TorrentFileData(
-                name: 'ubuntu.iso',
-                wanted: true,
-                downloadedBytes: 100000000,
-                sizeBytes: 1000000000,
-                priority: TorrentPriority.high,
-              ),
-            ],
+            files: torrent.files!.asMap().entries.map(
+              (entry) {
+                final i = entry.key;
+                final file = entry.value;
+                final stats = torrent.fileStats![i];
+                return TorrentFileData(
+                  name: file.name,
+                  wanted: stats.wanted,
+                  downloadedBytes: file.bytesCompleted,
+                  sizeBytes: file.length,
+                  priority: TorrentPriority.high, // TODO
+                );
+              },
+            ).toList(),
             completedOn: torrent.doneDate,
             addedOn: torrent.addedDate!,
             peers: [''],

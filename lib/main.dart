@@ -120,7 +120,7 @@ class AppEntry extends HookConsumerWidget {
                                         quickData: torrentsQuickData[index],
                                         onPressed: () {
                                           ref
-                                              .read(selectedTorrentId.notifier)
+                                              .read(selectedTorrentIdProvider.notifier)
                                               .state = torrentsQuickData[
                                                   index]
                                               .id;
@@ -270,11 +270,10 @@ class AppEntry extends HookConsumerWidget {
                           ),
                           Consumer(
                             builder: (context, ref, child) {
-                              final id = ref.watch(selectedTorrentId);
+                              final id = ref.watch(selectedTorrentIdProvider);
                               if (id == null) {
                                 return Container();
                               }
-                              print("MEE");
                               return TorrentBottomOverview(id: id);
                             },
                           ),

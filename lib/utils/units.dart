@@ -8,11 +8,11 @@ enum Unit {
 }
 
 Unit detectUnit(int bytes) {
-  if (bytes >= 1024 * 1024 * 1024) {
+  if (bytes >= 1000 * 1000 * 1000) {
     return Unit.GiB;
-  } else if (bytes >= 1024 * 1024) {
+  } else if (bytes >= 1000 * 1000) {
     return Unit.MiB;
-  } else if (bytes >= 1024) {
+  } else if (bytes >= 1000) {
     return Unit.KiB;
   } else {
     return Unit.KiB;
@@ -78,5 +78,6 @@ String formatDuration(Duration duration) {
 }
 
 String dateTimeToString(DateTime dateTime) {
-  return '''${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}''';
+  pad(int num) => num.toString().padLeft(2, '0');
+  return '''${dateTime.year}-${pad(dateTime.month)}-${pad(dateTime.day)} ${pad(dateTime.hour)}:${pad(dateTime.minute)}:${pad(dateTime.second)}''';
 }
