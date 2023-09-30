@@ -1,3 +1,5 @@
+// ignore_for_file: test_types_in_equals
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 @immutable

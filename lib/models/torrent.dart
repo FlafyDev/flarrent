@@ -10,6 +10,7 @@ enum TorrentState {
   paused,
   queued,
   completed,
+  error,
 }
 
 enum TorrentPriority {
@@ -25,6 +26,7 @@ class TorrentQuickData with _$TorrentQuickData {
     required String name,
     required int downloadedBytes,
     required int sizeToDownloadBytes,
+    required int sizeBytes,
     required Duration estimatedTimeLeft,
     required int downloadBytesPerSecond,
     required TorrentState state,
@@ -77,4 +79,18 @@ class TorrentFileData with _$TorrentFileData {
 
   factory TorrentFileData.fromJson(Map<String, Object?> json)
       => _$TorrentFileDataFromJson(json);
+}
+
+
+@freezed
+class TorrentsState with _$TorrentsState {
+  const factory TorrentsState({
+    required Map<int, List<int>> downloadSpeeds,
+    required Map<int, List<int>> uploadSpeeds,
+    required List<TorrentQuickData> quickTorrents,
+    required List<TorrentData> torrents,
+  }) = _TorrentsState;
+
+  factory TorrentsState.fromJson(Map<String, Object?> json)
+      => _$TorrentsStateFromJson(json);
 }

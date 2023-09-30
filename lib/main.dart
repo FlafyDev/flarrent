@@ -1,16 +1,7 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'dart:math';
-
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/units.dart';
-import 'package:torrent_frontend/widgets/smooth_graph/smooth_graph.dart';
+import 'package:torrent_frontend/widgets/main_view.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent_bottom_overview.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -32,31 +23,17 @@ class MyApp extends HookConsumerWidget {
           surface: Colors.transparent,
           onPrimary: Colors.white,
           shadow: Colors.black.withOpacity(0.2),
-          onSecondary: Color.fromARGB(255, 85, 188, 228),
-          // onBackground: Colors.white,
-          // onSurface: Colors.white,
+          onSecondary: const Color.fromARGB(255, 85, 188, 228),
         ),
         shadowColor: Colors.black.withOpacity(0.2),
-        // textTheme: const TextTheme(
-        //   // bodyLarge: TextStyle(),
-        //   // bodyMedium: TextStyle(),
-        //   // titleMedium: TextStyle(),
-        //   // labelMedium: TextStyle(),
-        //   // labelLarge: TextStyle(),
-        //   // labelSmall: TextStyle(),
-        //   // titleLarge: TextStyle(),
-        //   // titleSmall: TextStyle(),
-        // ).apply(
-        //   bodyColor: Colors.white,
-        //   displayColor: Colors.white,
-        // ),
       ),
-      home: Scaffold(
+      home: const Scaffold(
         body: AppEntry(),
       ),
     );
   }
 }
+
 
 class AppEntry extends HookConsumerWidget {
   const AppEntry({
@@ -64,14 +41,7 @@ class AppEntry extends HookConsumerWidget {
   });
 
   @override
-  Widget build(context, ref) {
-    final bottomExpandedAC =
-        useAnimationController(duration: Duration(milliseconds: 300));
-    final _easeOutAnimation = CurvedAnimation(
-      parent: bottomExpandedAC,
-      curve: Curves.easeOutExpo,
-      reverseCurve: Curves.easeOutExpo.flipped,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final sideOpen = false;
     final sideOnTop = 0.0;
@@ -96,203 +66,7 @@ class AppEntry extends HookConsumerWidget {
                     size.height,
                   ),
                 ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: Container(
-                              padding: EdgeInsets.all(10).copyWith(bottom: 0),
-                              child: Consumer(
-                                builder: (context, ref, child) {
-                                  final torrentsQuickData =
-                                      ref.watch(quickTorrentsProvider);
-                                  return ListView.separated(
-                                    separatorBuilder: (context, index) =>
-                                        const SizedBox(
-                                      height: 10,
-                                    ),
-                                    itemCount: torrentsQuickData.length,
-                                    itemBuilder: (context, index) {
-                                      return TorrentTile(
-                                        quickData: torrentsQuickData[index],
-                                        onPressed: () {
-                                          ref
-                                              .read(selectedTorrentIdProvider.notifier)
-                                              .state = torrentsQuickData[
-                                                  index]
-                                              .id;
-                                        },
-                                      );
-                                    },
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //     onPressed: () {
-                                    //       // showDialog(
-                                    //       //   context: context,
-                                    //       //   builder: (context) => Scaffold(body: const TorrentBottomOverview()),
-                                    //       // );
-                                    //       Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //           builder: (context) => Scaffold(
-                                    //               body:
-                                    //                   const TorrentBottomOverview()),
-                                    //         ),
-                                    //       );
-                                    //     },
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    //   TorrentTile(
-                                    //     bytes: 12582912,
-                                    //     bytesToDownload: 12582912,
-                                    //     bytesDownloadSpeed: 524288,
-                                    //     bytesDownloaded: 1048576,
-                                    //     isFile: false,
-                                    //     timeLeft: Duration(seconds: 24),
-                                    //   ),
-                                    //   SizedBox(
-                                    //     height: 10,
-                                    //   ),
-                                    // ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          IgnorePointer(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.black.withOpacity(0),
-                                      Colors.black.withOpacity(0.1),
-                                      Colors.black.withOpacity(0.2),
-                                      Colors.black.withOpacity(0.3),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    AnimatedBuilder(
-                      animation: _easeOutAnimation,
-                      builder: (context, child) {
-                        const hidePoint = 0.90;
-                        return _easeOutAnimation.value < hidePoint
-                            ? Opacity(
-                                opacity:
-                                    1 - _easeOutAnimation.value / hidePoint,
-                                child: Divider(
-                                  color: Colors.lightBlue,
-                                  height: 1,
-                                ),
-                              )
-                            : Container();
-                      },
-                    ),
-                    AnimatedBuilder(
-                      animation: _easeOutAnimation,
-                      child: Stack(
-                        children: [
-                          SizedBox(
-                            height: 48,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (bottomExpandedAC.isCompleted) {
-                                  bottomExpandedAC.reverse();
-                                } else {
-                                  bottomExpandedAC.forward();
-                                }
-                              },
-                            ),
-                          ),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              final id = ref.watch(selectedTorrentIdProvider);
-                              if (id == null) {
-                                return Container();
-                              }
-                              return TorrentBottomOverview(id: id);
-                            },
-                          ),
-                          // BottomOverview()
-                        ],
-                      ),
-                      builder: (context, child) {
-                        final height =
-                            max(MediaQuery.of(context).size.height * 0.3, 200);
-                        return SizedBox(
-                          height: height +
-                              (MediaQuery.of(context).size.height - height) *
-                                  _easeOutAnimation.value,
-                          child: child,
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                child: MainView(),
               ),
               if (sideOpen)
                 IgnorePointer(

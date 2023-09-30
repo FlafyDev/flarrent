@@ -4,24 +4,125 @@ import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/button.dart';
 
+Color _stateToColor(TorrentState state) => switch (state) {
+      TorrentState.queued => Colors.yellowAccent,
+      TorrentState.paused => Colors.grey,
+      TorrentState.error => Colors.pinkAccent,
+      TorrentState.downloading => Colors.greenAccent,
+      TorrentState.seeding => Colors.purpleAccent,
+      TorrentState.completed => Colors.lightBlue,
+    };
+
+class _Shell extends StatelessWidget {
+  const _Shell({
+    required this.borderRadius,
+    required this.progress,
+    required this.color,
+    required this.selected,
+    required this.child,
+    super.key,
+  });
+
+  final double borderRadius;
+  final double progress;
+  final Color color;
+  final bool selected;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(
+                color: theme.colorScheme.onSecondary.withOpacity(0.2),
+              ),
+              color: selected ? Colors.blue.withOpacity(0.2) : null,
+            ),
+          ),
+        ),
+
+        Positioned.fill(
+          child: ClipRect(
+            clipper: RectCustomClipper(
+              (size) => Rect.fromLTWH(
+                0,
+                size.height - 5,
+                size.width,
+                size.height - 5,
+              ),
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                    color: color.withOpacity(color.alpha / 255 * 0.2)),
+              ),
+            ),
+          ),
+        ),
+
+        // Progress
+        Positioned.fill(
+          child: ClipRect(
+            clipper: RectCustomClipper(
+              (size) => Rect.fromLTWH(
+                0,
+                size.height - 5,
+                size.width * progress,
+                size.height - 5,
+              ),
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(color: color),
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: CustomPaint(
+              painter: _GlowPainter(
+                color: color.withOpacity(0.7),
+                progress: progress,
+              ),
+            ),
+          ),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
 class TorrentTile extends HookConsumerWidget {
   const TorrentTile({
     super.key,
     required this.quickData,
+    required this.selected,
     this.onPressed,
   });
 
   final TorrentQuickData quickData;
   final void Function()? onPressed;
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 10.0;
     final theme = Theme.of(context);
     final progress = quickData.downloadedBytes / quickData.sizeToDownloadBytes;
-    final sizeUnit = detectUnit(quickData.sizeToDownloadBytes);
+    final color = _stateToColor(quickData.state);
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
@@ -32,7 +133,8 @@ class TorrentTile extends HookConsumerWidget {
           ),
         ],
       ),
-      child: Stack(
+      child: _Shell(
+        child: 
         children: [
           Positioned.fill(
             child: Container(
@@ -41,9 +143,32 @@ class TorrentTile extends HookConsumerWidget {
                 border: Border.all(
                   color: theme.colorScheme.onSecondary.withOpacity(0.2),
                 ),
+                color: selected ? Colors.blue.withOpacity(0.2) : null,
               ),
             ),
           ),
+
+          Positioned.fill(
+            child: ClipRect(
+              clipper: RectCustomClipper(
+                (size) => Rect.fromLTWH(
+                  0,
+                  size.height - 5,
+                  size.width,
+                  size.height - 5,
+                ),
+              ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  border: Border.all(
+                      color: color.withOpacity(color.alpha / 255 * 0.2)),
+                ),
+              ),
+            ),
+          ),
+
+          // Progress
           Positioned.fill(
             child: ClipRect(
               clipper: RectCustomClipper(
@@ -57,7 +182,7 @@ class TorrentTile extends HookConsumerWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(borderRadius),
-                  border: Border.all(color: Colors.lightBlue),
+                  border: Border.all(color: color),
                 ),
               ),
             ),
@@ -67,7 +192,7 @@ class TorrentTile extends HookConsumerWidget {
               borderRadius: BorderRadius.circular(borderRadius),
               child: CustomPaint(
                 painter: _GlowPainter(
-                  color: Colors.lightBlue.withOpacity(0.7),
+                  color: color.withOpacity(0.7),
                   progress: progress,
                 ),
               ),
@@ -102,7 +227,7 @@ class TorrentTile extends HookConsumerWidget {
                   Row(
                     children: [
                       Text(
-                        '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeToDownloadBytes)}    ${(progress * 100).floor()}%''',
+                        '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeBytes)}    ${(progress * 100).floor()}%''',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 62, 107, 159),
@@ -166,7 +291,6 @@ class TorrentFileTile extends HookConsumerWidget {
     const borderRadius = 5.0;
     final theme = Theme.of(context);
     final progress = fileData.downloadedBytes / fileData.sizeBytes;
-    final sizeUnit = detectUnit(fileData.sizeBytes);
 
     return Stack(
       children: [
@@ -209,55 +333,53 @@ class TorrentFileTile extends HookConsumerWidget {
             ),
           ),
         ),
-        Positioned(
-          child: InkButton(
-            borderRadius: BorderRadius.circular(borderRadius),
-            onPressed: onPressed ?? () {},
-            child: Container(
-              padding: const EdgeInsets.all(5),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: fileData.name,
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            color: theme.colorScheme.onSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
+        InkButton(
+          borderRadius: BorderRadius.circular(borderRadius),
+          onPressed: onPressed ?? () {},
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: fileData.name,
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          color: theme.colorScheme.onSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const WidgetSpan(
-                          child: SizedBox(
-                            width: 5,
-                          ),
+                      ),
+                      const WidgetSpan(
+                        child: SizedBox(
+                          width: 5,
                         ),
-                        TextSpan(
-                          text:
-                              '''${stringBytesOfWithUnits(fileData.downloadedBytes, fileData.sizeBytes)} (${(progress * 100).floor()}%)''',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Color.fromARGB(255, 62, 107, 159),
-                          ),
+                      ),
+                      TextSpan(
+                        text:
+                            '''${stringBytesOfWithUnits(fileData.downloadedBytes, fileData.sizeBytes)} (${(progress * 100).floor()}%)''',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color.fromARGB(255, 62, 107, 159),
                         ),
-                        WidgetSpan(
-                          child: _PriorityIcon(
-                            fileData.priority,
-                            size: 15,
-                          ),
-                        )
-                      ],
-                    ),
+                      ),
+                      WidgetSpan(
+                        child: _PriorityIcon(
+                          fileData.priority,
+                          size: 15,
+                        ),
+                      )
+                    ],
                   ),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(
+                  height: 2,
+                ),
+              ],
             ),
           ),
         ),
@@ -301,7 +423,7 @@ class _GlowPainter extends CustomPainter {
 }
 
 class _PriorityIcon extends StatelessWidget {
-  const _PriorityIcon(this.priority, {super.key, required this.size});
+  const _PriorityIcon(this.priority, {required this.size});
 
   final TorrentPriority priority;
   final double size;

@@ -24,6 +24,7 @@ mixin _$TorrentQuickData {
   String get name => throw _privateConstructorUsedError;
   int get downloadedBytes => throw _privateConstructorUsedError;
   int get sizeToDownloadBytes => throw _privateConstructorUsedError;
+  int get sizeBytes => throw _privateConstructorUsedError;
   Duration get estimatedTimeLeft => throw _privateConstructorUsedError;
   int get downloadBytesPerSecond => throw _privateConstructorUsedError;
   TorrentState get state => throw _privateConstructorUsedError;
@@ -47,6 +48,7 @@ abstract class $TorrentQuickDataCopyWith<$Res> {
       String name,
       int downloadedBytes,
       int sizeToDownloadBytes,
+      int sizeBytes,
       Duration estimatedTimeLeft,
       int downloadBytesPerSecond,
       TorrentState state,
@@ -71,6 +73,7 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
     Object? name = null,
     Object? downloadedBytes = null,
     Object? sizeToDownloadBytes = null,
+    Object? sizeBytes = null,
     Object? estimatedTimeLeft = null,
     Object? downloadBytesPerSecond = null,
     Object? state = null,
@@ -93,6 +96,10 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
       sizeToDownloadBytes: null == sizeToDownloadBytes
           ? _value.sizeToDownloadBytes
           : sizeToDownloadBytes // ignore: cast_nullable_to_non_nullable
+              as int,
+      sizeBytes: null == sizeBytes
+          ? _value.sizeBytes
+          : sizeBytes // ignore: cast_nullable_to_non_nullable
               as int,
       estimatedTimeLeft: null == estimatedTimeLeft
           ? _value.estimatedTimeLeft
@@ -131,6 +138,7 @@ abstract class _$$_TorrentQuickDataCopyWith<$Res>
       String name,
       int downloadedBytes,
       int sizeToDownloadBytes,
+      int sizeBytes,
       Duration estimatedTimeLeft,
       int downloadBytesPerSecond,
       TorrentState state,
@@ -153,6 +161,7 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
     Object? name = null,
     Object? downloadedBytes = null,
     Object? sizeToDownloadBytes = null,
+    Object? sizeBytes = null,
     Object? estimatedTimeLeft = null,
     Object? downloadBytesPerSecond = null,
     Object? state = null,
@@ -175,6 +184,10 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
       sizeToDownloadBytes: null == sizeToDownloadBytes
           ? _value.sizeToDownloadBytes
           : sizeToDownloadBytes // ignore: cast_nullable_to_non_nullable
+              as int,
+      sizeBytes: null == sizeBytes
+          ? _value.sizeBytes
+          : sizeBytes // ignore: cast_nullable_to_non_nullable
               as int,
       estimatedTimeLeft: null == estimatedTimeLeft
           ? _value.estimatedTimeLeft
@@ -210,6 +223,7 @@ class _$_TorrentQuickData
       required this.name,
       required this.downloadedBytes,
       required this.sizeToDownloadBytes,
+      required this.sizeBytes,
       required this.estimatedTimeLeft,
       required this.downloadBytesPerSecond,
       required this.state,
@@ -228,6 +242,8 @@ class _$_TorrentQuickData
   @override
   final int sizeToDownloadBytes;
   @override
+  final int sizeBytes;
+  @override
   final Duration estimatedTimeLeft;
   @override
   final int downloadBytesPerSecond;
@@ -240,7 +256,7 @@ class _$_TorrentQuickData
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, state: $state, limited: $limited, priority: $priority)';
+    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, state: $state, limited: $limited, priority: $priority)';
   }
 
   @override
@@ -252,6 +268,7 @@ class _$_TorrentQuickData
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('downloadedBytes', downloadedBytes))
       ..add(DiagnosticsProperty('sizeToDownloadBytes', sizeToDownloadBytes))
+      ..add(DiagnosticsProperty('sizeBytes', sizeBytes))
       ..add(DiagnosticsProperty('estimatedTimeLeft', estimatedTimeLeft))
       ..add(
           DiagnosticsProperty('downloadBytesPerSecond', downloadBytesPerSecond))
@@ -271,6 +288,8 @@ class _$_TorrentQuickData
                 other.downloadedBytes == downloadedBytes) &&
             (identical(other.sizeToDownloadBytes, sizeToDownloadBytes) ||
                 other.sizeToDownloadBytes == sizeToDownloadBytes) &&
+            (identical(other.sizeBytes, sizeBytes) ||
+                other.sizeBytes == sizeBytes) &&
             (identical(other.estimatedTimeLeft, estimatedTimeLeft) ||
                 other.estimatedTimeLeft == estimatedTimeLeft) &&
             (identical(other.downloadBytesPerSecond, downloadBytesPerSecond) ||
@@ -289,6 +308,7 @@ class _$_TorrentQuickData
       name,
       downloadedBytes,
       sizeToDownloadBytes,
+      sizeBytes,
       estimatedTimeLeft,
       downloadBytesPerSecond,
       state,
@@ -315,6 +335,7 @@ abstract class _TorrentQuickData implements TorrentQuickData {
       required final String name,
       required final int downloadedBytes,
       required final int sizeToDownloadBytes,
+      required final int sizeBytes,
       required final Duration estimatedTimeLeft,
       required final int downloadBytesPerSecond,
       required final TorrentState state,
@@ -332,6 +353,8 @@ abstract class _TorrentQuickData implements TorrentQuickData {
   int get downloadedBytes;
   @override
   int get sizeToDownloadBytes;
+  @override
+  int get sizeBytes;
   @override
   Duration get estimatedTimeLeft;
   @override
@@ -1183,5 +1206,252 @@ abstract class _TorrentFileData implements TorrentFileData {
   @override
   @JsonKey(ignore: true)
   _$$_TorrentFileDataCopyWith<_$_TorrentFileData> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+TorrentsState _$TorrentsStateFromJson(Map<String, dynamic> json) {
+  return _TorrentsState.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TorrentsState {
+  Map<int, List<int>> get downloadSpeeds => throw _privateConstructorUsedError;
+  Map<int, List<int>> get uploadSpeeds => throw _privateConstructorUsedError;
+  List<TorrentQuickData> get quickTorrents =>
+      throw _privateConstructorUsedError;
+  List<TorrentData> get torrents => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $TorrentsStateCopyWith<TorrentsState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TorrentsStateCopyWith<$Res> {
+  factory $TorrentsStateCopyWith(
+          TorrentsState value, $Res Function(TorrentsState) then) =
+      _$TorrentsStateCopyWithImpl<$Res, TorrentsState>;
+  @useResult
+  $Res call(
+      {Map<int, List<int>> downloadSpeeds,
+      Map<int, List<int>> uploadSpeeds,
+      List<TorrentQuickData> quickTorrents,
+      List<TorrentData> torrents});
+}
+
+/// @nodoc
+class _$TorrentsStateCopyWithImpl<$Res, $Val extends TorrentsState>
+    implements $TorrentsStateCopyWith<$Res> {
+  _$TorrentsStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? downloadSpeeds = null,
+    Object? uploadSpeeds = null,
+    Object? quickTorrents = null,
+    Object? torrents = null,
+  }) {
+    return _then(_value.copyWith(
+      downloadSpeeds: null == downloadSpeeds
+          ? _value.downloadSpeeds
+          : downloadSpeeds // ignore: cast_nullable_to_non_nullable
+              as Map<int, List<int>>,
+      uploadSpeeds: null == uploadSpeeds
+          ? _value.uploadSpeeds
+          : uploadSpeeds // ignore: cast_nullable_to_non_nullable
+              as Map<int, List<int>>,
+      quickTorrents: null == quickTorrents
+          ? _value.quickTorrents
+          : quickTorrents // ignore: cast_nullable_to_non_nullable
+              as List<TorrentQuickData>,
+      torrents: null == torrents
+          ? _value.torrents
+          : torrents // ignore: cast_nullable_to_non_nullable
+              as List<TorrentData>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$_TorrentsStateCopyWith<$Res>
+    implements $TorrentsStateCopyWith<$Res> {
+  factory _$$_TorrentsStateCopyWith(
+          _$_TorrentsState value, $Res Function(_$_TorrentsState) then) =
+      __$$_TorrentsStateCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {Map<int, List<int>> downloadSpeeds,
+      Map<int, List<int>> uploadSpeeds,
+      List<TorrentQuickData> quickTorrents,
+      List<TorrentData> torrents});
+}
+
+/// @nodoc
+class __$$_TorrentsStateCopyWithImpl<$Res>
+    extends _$TorrentsStateCopyWithImpl<$Res, _$_TorrentsState>
+    implements _$$_TorrentsStateCopyWith<$Res> {
+  __$$_TorrentsStateCopyWithImpl(
+      _$_TorrentsState _value, $Res Function(_$_TorrentsState) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? downloadSpeeds = null,
+    Object? uploadSpeeds = null,
+    Object? quickTorrents = null,
+    Object? torrents = null,
+  }) {
+    return _then(_$_TorrentsState(
+      downloadSpeeds: null == downloadSpeeds
+          ? _value._downloadSpeeds
+          : downloadSpeeds // ignore: cast_nullable_to_non_nullable
+              as Map<int, List<int>>,
+      uploadSpeeds: null == uploadSpeeds
+          ? _value._uploadSpeeds
+          : uploadSpeeds // ignore: cast_nullable_to_non_nullable
+              as Map<int, List<int>>,
+      quickTorrents: null == quickTorrents
+          ? _value._quickTorrents
+          : quickTorrents // ignore: cast_nullable_to_non_nullable
+              as List<TorrentQuickData>,
+      torrents: null == torrents
+          ? _value._torrents
+          : torrents // ignore: cast_nullable_to_non_nullable
+              as List<TorrentData>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
+  const _$_TorrentsState(
+      {required final Map<int, List<int>> downloadSpeeds,
+      required final Map<int, List<int>> uploadSpeeds,
+      required final List<TorrentQuickData> quickTorrents,
+      required final List<TorrentData> torrents})
+      : _downloadSpeeds = downloadSpeeds,
+        _uploadSpeeds = uploadSpeeds,
+        _quickTorrents = quickTorrents,
+        _torrents = torrents;
+
+  factory _$_TorrentsState.fromJson(Map<String, dynamic> json) =>
+      _$$_TorrentsStateFromJson(json);
+
+  final Map<int, List<int>> _downloadSpeeds;
+  @override
+  Map<int, List<int>> get downloadSpeeds {
+    if (_downloadSpeeds is EqualUnmodifiableMapView) return _downloadSpeeds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_downloadSpeeds);
+  }
+
+  final Map<int, List<int>> _uploadSpeeds;
+  @override
+  Map<int, List<int>> get uploadSpeeds {
+    if (_uploadSpeeds is EqualUnmodifiableMapView) return _uploadSpeeds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_uploadSpeeds);
+  }
+
+  final List<TorrentQuickData> _quickTorrents;
+  @override
+  List<TorrentQuickData> get quickTorrents {
+    if (_quickTorrents is EqualUnmodifiableListView) return _quickTorrents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_quickTorrents);
+  }
+
+  final List<TorrentData> _torrents;
+  @override
+  List<TorrentData> get torrents {
+    if (_torrents is EqualUnmodifiableListView) return _torrents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_torrents);
+  }
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'TorrentsState(downloadSpeeds: $downloadSpeeds, uploadSpeeds: $uploadSpeeds, quickTorrents: $quickTorrents, torrents: $torrents)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'TorrentsState'))
+      ..add(DiagnosticsProperty('downloadSpeeds', downloadSpeeds))
+      ..add(DiagnosticsProperty('uploadSpeeds', uploadSpeeds))
+      ..add(DiagnosticsProperty('quickTorrents', quickTorrents))
+      ..add(DiagnosticsProperty('torrents', torrents));
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_TorrentsState &&
+            const DeepCollectionEquality()
+                .equals(other._downloadSpeeds, _downloadSpeeds) &&
+            const DeepCollectionEquality()
+                .equals(other._uploadSpeeds, _uploadSpeeds) &&
+            const DeepCollectionEquality()
+                .equals(other._quickTorrents, _quickTorrents) &&
+            const DeepCollectionEquality().equals(other._torrents, _torrents));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_downloadSpeeds),
+      const DeepCollectionEquality().hash(_uploadSpeeds),
+      const DeepCollectionEquality().hash(_quickTorrents),
+      const DeepCollectionEquality().hash(_torrents));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_TorrentsStateCopyWith<_$_TorrentsState> get copyWith =>
+      __$$_TorrentsStateCopyWithImpl<_$_TorrentsState>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_TorrentsStateToJson(
+      this,
+    );
+  }
+}
+
+abstract class _TorrentsState implements TorrentsState {
+  const factory _TorrentsState(
+      {required final Map<int, List<int>> downloadSpeeds,
+      required final Map<int, List<int>> uploadSpeeds,
+      required final List<TorrentQuickData> quickTorrents,
+      required final List<TorrentData> torrents}) = _$_TorrentsState;
+
+  factory _TorrentsState.fromJson(Map<String, dynamic> json) =
+      _$_TorrentsState.fromJson;
+
+  @override
+  Map<int, List<int>> get downloadSpeeds;
+  @override
+  Map<int, List<int>> get uploadSpeeds;
+  @override
+  List<TorrentQuickData> get quickTorrents;
+  @override
+  List<TorrentData> get torrents;
+  @override
+  @JsonKey(ignore: true)
+  _$$_TorrentsStateCopyWith<_$_TorrentsState> get copyWith =>
       throw _privateConstructorUsedError;
 }

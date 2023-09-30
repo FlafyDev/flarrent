@@ -27,7 +27,7 @@ class SmoothChart extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const pointsNum = 15;
+    const pointsNum = 35;
     const pointSpace = 1 / pointsNum;
     final moveAC =
         useAnimationController(duration: const Duration(milliseconds: 500));
@@ -97,6 +97,11 @@ class SmoothChart extends HookConsumerWidget {
             );
           }
         }
+
+        maxYAC.value = max(
+          1,
+          ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y * 1.2,
+        );
 
         moveAC.addListener(moveACListener);
 

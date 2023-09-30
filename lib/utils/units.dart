@@ -77,7 +77,7 @@ String formatDuration(Duration duration) {
   return format;
 }
 
+String _pad(int num) => num.toString().padLeft(2, '0');
 String dateTimeToString(DateTime dateTime) {
-  pad(int num) => num.toString().padLeft(2, '0');
-  return '''${dateTime.year}-${pad(dateTime.month)}-${pad(dateTime.day)} ${pad(dateTime.hour)}:${pad(dateTime.minute)}:${pad(dateTime.second)}''';
+  return '''${dateTime.year}-${_pad(dateTime.month)}-${_pad(dateTime.day)} ${_pad(dateTime.hour)}:${_pad(dateTime.minute)}:${_pad(dateTime.second)}''';
 }

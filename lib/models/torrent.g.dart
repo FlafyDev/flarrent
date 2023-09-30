@@ -12,6 +12,7 @@ _$_TorrentQuickData _$$_TorrentQuickDataFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       downloadedBytes: json['downloadedBytes'] as int,
       sizeToDownloadBytes: json['sizeToDownloadBytes'] as int,
+      sizeBytes: json['sizeBytes'] as int,
       estimatedTimeLeft:
           Duration(microseconds: json['estimatedTimeLeft'] as int),
       downloadBytesPerSecond: json['downloadBytesPerSecond'] as int,
@@ -26,6 +27,7 @@ Map<String, dynamic> _$$_TorrentQuickDataToJson(_$_TorrentQuickData instance) =>
       'name': instance.name,
       'downloadedBytes': instance.downloadedBytes,
       'sizeToDownloadBytes': instance.sizeToDownloadBytes,
+      'sizeBytes': instance.sizeBytes,
       'estimatedTimeLeft': instance.estimatedTimeLeft.inMicroseconds,
       'downloadBytesPerSecond': instance.downloadBytesPerSecond,
       'state': _$TorrentStateEnumMap[instance.state]!,
@@ -117,4 +119,32 @@ Map<String, dynamic> _$$_TorrentFileDataToJson(_$_TorrentFileData instance) =>
       'downloadedBytes': instance.downloadedBytes,
       'sizeBytes': instance.sizeBytes,
       'priority': _$TorrentPriorityEnumMap[instance.priority]!,
+    };
+
+_$_TorrentsState _$$_TorrentsStateFromJson(Map<String, dynamic> json) =>
+    _$_TorrentsState(
+      downloadSpeeds: (json['downloadSpeeds'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(
+            int.parse(k), (e as List<dynamic>).map((e) => e as int).toList()),
+      ),
+      uploadSpeeds: (json['uploadSpeeds'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(
+            int.parse(k), (e as List<dynamic>).map((e) => e as int).toList()),
+      ),
+      quickTorrents: (json['quickTorrents'] as List<dynamic>)
+          .map((e) => TorrentQuickData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      torrents: (json['torrents'] as List<dynamic>)
+          .map((e) => TorrentData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$$_TorrentsStateToJson(_$_TorrentsState instance) =>
+    <String, dynamic>{
+      'downloadSpeeds':
+          instance.downloadSpeeds.map((k, e) => MapEntry(k.toString(), e)),
+      'uploadSpeeds':
+          instance.uploadSpeeds.map((k, e) => MapEntry(k.toString(), e)),
+      'quickTorrents': instance.quickTorrents,
+      'torrents': instance.torrents,
     };
