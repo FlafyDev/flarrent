@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/state/torrents.dart';
+import 'package:torrent_frontend/utils/capitalize_string.dart';
 import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/responsive_horizontal_grid.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/smooth_graph.dart';
+import 'package:collection/collection.dart';
 
 class OverviewInfo extends HookConsumerWidget {
   const OverviewInfo({
@@ -50,11 +52,12 @@ class OverviewInfo extends HookConsumerWidget {
                 builder: (context, ref, child) {
                   final data = ref.watch(
                     torrentsProvider.select(
-                      (v) => v.torrents.firstWhere(
+                      (v) => v.torrents.firstWhereOrNull(
                         (element) => element.id == id,
                       ),
                     ),
                   );
+                  if (data == null) return Container();
 
                   return Center(
                     child: ResponsiveHorizontalGrid(
@@ -62,31 +65,30 @@ class OverviewInfo extends HookConsumerWidget {
                       minWidgetWidth: 250,
                       widgetHeight: 30,
                       children: [
-                        _TorrentInfoTile(
-                          'Size',
-                          stringBytesWithUnits(data.sizeBytes),
-                        ),
-                        _TorrentInfoTile(
-                          'Added on',
-                          dateTimeToString(data.addedOn),
-                        ),
+                        _TorrentInfoTile('State', capitalizeString(data.state.name)),
+                        _TorrentInfoTile('Size', stringBytesWithUnits(data.sizeBytes)),
+                        if (data.sizeBytes != data.sizeToDownloadBytes)
+                          _TorrentInfoTile('Download size', stringBytesWithUnits(data.sizeToDownloadBytes)),
+                        _TorrentInfoTile('Downloaded', stringBytesWithUnits(data.downloadedBytes)),
+                        if (data.addedOn != null) _TorrentInfoTile('Added on', dateTimeToString(data.addedOn!)),
                         if (data.completedOn != null)
-                          _TorrentInfoTile(
-                            'Completed on',
-                            dateTimeToString(data.completedOn!),
-                          ),
-                        _TorrentInfoTile(
-                          'Ratio',
-                          data.ratio.toStringAsFixed(2),
-                        ),
-                        _TorrentInfoTile(
-                          'Uploaded',
-                          stringBytesWithUnits(data.uploadedBytes),
-                        ),
-                        _TorrentInfoTile('Comment', ''),
-                        _TorrentInfoTile('Origin', data.origin),
-                        _TorrentInfoTile('Limit', ''),
-                        _TorrentInfoTile('location', data.location),
+                          _TorrentInfoTile('Completed on', dateTimeToString(data.completedOn!)),
+                        if (data.lastActivity != null)
+                          _TorrentInfoTile('Last activity', dateTimeToString(data.lastActivity!)),
+                        if (data.timeDownloading != null)
+                          _TorrentInfoTile('Time downloading', formatDuration(data.timeDownloading!)),
+                        if (data.timeSeeding != null)
+                          _TorrentInfoTile('Time seeding', formatDuration(data.timeSeeding!)),
+                        _TorrentInfoTile('Ratio', data.ratio.toStringAsFixed(2)),
+
+                        if (data.downloadedEverBytes != null)
+                          _TorrentInfoTile('Downloaded ever', stringBytesWithUnits(data.downloadedEverBytes!)),
+                        if (data.uploadedEverBytes != null)
+                          _TorrentInfoTile('Uploaded ever', stringBytesWithUnits(data.uploadedEverBytes!)),
+                        // _TorrentInfoTile('Origin', data.origin ?? 'N/A'),
+                        // _TorrentInfoTile('Comment', ''),
+                        // _TorrentInfoTile('Limit', ''),
+                        if (data.location != null) _TorrentInfoTile('location', data.location!),
                       ],
                     ),
                   );
@@ -145,10 +147,9 @@ class _TorrentGraph extends HookConsumerWidget {
                   final bytesPerSecond = ref.watch(
                     torrentsProvider.select(
                       (v) {
-                        final speeds = isDownload
-                          ? v.downloadSpeeds[id]!
-                          : v.uploadSpeeds[id]!;
-                          return speeds[speeds.length - 3];
+                        final speeds = isDownload ? v.downloadSpeeds[id] : v.uploadSpeeds[id];
+                        if (speeds == null) return 0;
+                        return speeds[speeds.length - 3];
                       },
                     ),
                   );
@@ -174,9 +175,7 @@ class _TorrentGraph extends HookConsumerWidget {
                         ),
                         WidgetSpan(
                           child: Icon(
-                            isDownload
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
+                            isDownload ? Icons.arrow_downward : Icons.arrow_upward,
                             size: 16,
                           ),
                         ),

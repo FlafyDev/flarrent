@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:torrent_frontend/models/torrent.dart';
 import 'package:transmission_rpc/transmission_rpc.dart';
 
 final transmissionProvider = Provider(
@@ -15,10 +16,33 @@ final transmissionTorrentsProvider = StreamProvider(
     final transmission = ref.watch(transmissionProvider);
 
     await for (final _ in counterStream()) {
-      yield await transmission.getTorrents();
+      yield (await transmission.getTorrents(), await transmission.getSession());
     }
   },
 );
+
+// extension TransmissionConverters on TransmissionTorrent {
+//   TorrentState getTorrentStatus() {
+//     if (error != 0) return TorrentState.error;
+//     return switch (status!) {
+//       TransmissionTorrentStatus.downloading => TorrentState.downloading,
+//       TransmissionTorrentStatus.stopped => percentDone == 1 ? TorrentState.completed : TorrentState.paused,
+//       TransmissionTorrentStatus.seeding => TorrentState.seeding,
+//       TransmissionTorrentStatus.verifying => TorrentState.downloading,
+//       TransmissionTorrentStatus.queuedToSeed => TorrentState.queued,
+//       TransmissionTorrentStatus.queuedToVerify => TorrentState.queued,
+//       TransmissionTorrentStatus.queuedToDownload => TorrentState.queued,
+//     };
+//   }
+//
+//   TorrentPriority getTorrentPriority() {
+//     return switch (bandwidthPriority!) {
+//       TransmissionPriority.low => TorrentPriority.low,
+//       TransmissionPriority.normal => TorrentPriority.normal,
+//       TransmissionPriority.high => TorrentPriority.high,
+//     };
+//   }
+// }
 
 // final torrentsProvider = Provider((ref) {
 //   final transmissionTorrents = ref.watch(transmissionTorrentsProvider);

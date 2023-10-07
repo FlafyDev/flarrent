@@ -8,10 +8,6 @@ final torrentsProvider = StateNotifierProvider<Torrents, TorrentsState>((ref) {
 });
 
 class Torrents extends StateNotifier<TorrentsState> {
-  final StateNotifierProviderRef<Torrents, TorrentsState> ref;
-  final Transmission transmission;
-  ProviderSubscription<AsyncValue<List<TransmissionTorrent>>>? _subscription;
-
   Torrents(this.ref)
       : transmission = ref.watch(transmissionProvider),
         super(
@@ -20,12 +16,21 @@ class Torrents extends StateNotifier<TorrentsState> {
             uploadSpeeds: {},
             downloadSpeeds: {},
             quickTorrents: [],
+            downloadSpeedBytesPerSecond: 0,
+            uploadSpeedBytesPerSecond: 0,
+            downloadLimitBytesPerSecond: null,
+            uploadLimitBytesPerSecond: null,
+            alternativeSpeedLimitsEnabled: false,
           ),
         ) {
     _subscription = ref.listen(transmissionTorrentsProvider, (previous, next) {
-      _onTransmissionTorrents(next.valueOrNull ?? []);
+      _onTransmissionTorrents(next.valueOrNull?.$1 ?? [], next.valueOrNull?.$2);
     });
   }
+
+  final StateNotifierProviderRef<Torrents, TorrentsState> ref;
+  final Transmission transmission;
+  ProviderSubscription<AsyncValue<(List<TransmissionTorrent>, TransmissionSession)>>? _subscription;
 
   Future<void> pause(List<int> ids) async {
     if (ids.isEmpty) return;
@@ -37,12 +42,42 @@ class Torrents extends StateNotifier<TorrentsState> {
     await transmission.startTorrent(ids: ids);
   }
 
-  TorrentState _statusToState(TransmissionTorrent torrent) {
+  Future<void> deleteTorrent(List<int> ids, {required bool deleteData}) async {
+    if (ids.isEmpty) return;
+    await transmission.removeTorrent(ids: ids, deleteLocalData: deleteData);
+  }
+
+  Future<void> changePriority(List<int> ids, TorrentPriority newPriority) async {
+    if (ids.isEmpty) return;
+    await transmission.setTorrents(ids: ids, bandwidthPriority: _priorityToTransPriority(newPriority));
+  }
+
+  Future<void> setTorrentsLimit(List<int> ids, int? downloadBytesLimit, int? uploadBytesLimit) async {
+    if (ids.isEmpty) return;
+    await transmission.setTorrents(
+      ids: ids,
+      downloadLimit: downloadBytesLimit != null ? downloadBytesLimit ~/ 1024 : null,
+      uploadLimit: uploadBytesLimit != null ? uploadBytesLimit ~/ 1024 : null,
+      downloadLimited: downloadBytesLimit != null,
+      uploadLimited: uploadBytesLimit != null,
+    );
+  }
+
+  Future<void> pauseFiles(int torrentId, List<int> files) async {
+    if (files.isEmpty) return;
+    await transmission.setTorrents(ids: [torrentId], filesUnwanted: files);
+  }
+
+  Future<void> resumeFiles(int torrentId, List<int> files) async {
+    if (files.isEmpty) return;
+    await transmission.setTorrents(ids: [torrentId], filesWanted: files);
+  }
+
+  TorrentState _transStatusToState(TransmissionTorrent torrent) {
     if (torrent.error != 0) return TorrentState.error;
     return switch (torrent.status!) {
       TransmissionTorrentStatus.downloading => TorrentState.downloading,
-      TransmissionTorrentStatus.stopped =>
-        torrent.percentDone == 1 ? TorrentState.completed : TorrentState.paused,
+      TransmissionTorrentStatus.stopped => torrent.percentDone == 1 ? TorrentState.completed : TorrentState.paused,
       TransmissionTorrentStatus.seeding => TorrentState.seeding,
       TransmissionTorrentStatus.verifying => TorrentState.downloading,
       TransmissionTorrentStatus.queuedToSeed => TorrentState.queued,
@@ -51,36 +86,30 @@ class Torrents extends StateNotifier<TorrentsState> {
     };
   }
 
-  TorrentPriority _priorityToPriority(TransmissionPriority priority) {
+  TorrentPriority _transPriorityToPriority(TransmissionPriority priority) {
     return switch (priority) {
       TransmissionPriority.low => TorrentPriority.low,
-      TransmissionPriority.normal => TorrentPriority.medium,
+      TransmissionPriority.normal => TorrentPriority.normal,
       TransmissionPriority.high => TorrentPriority.high,
     };
   }
 
-  void _onTransmissionTorrents(List<TransmissionTorrent> torrents) {
-    for (final torrent in torrents) {
-      state = state.copyWith(
-        downloadSpeeds: {
-          ...state.downloadSpeeds,
-          torrent.id!: (state.downloadSpeeds[torrent.id] ??
-                  List.generate(39, (index) => 0))
-              .sublist(1)
-            ..add(torrent.rateDownload!),
-        },
-      );
-    }
+  TransmissionPriority _priorityToTransPriority(TorrentPriority priority) {
+    return switch (priority) {
+      TorrentPriority.low => TransmissionPriority.low,
+      TorrentPriority.normal => TransmissionPriority.normal,
+      TorrentPriority.high => TransmissionPriority.high,
+    };
+  }
 
+  void _onTransmissionTorrents(List<TransmissionTorrent> torrents, TransmissionSession? session) {
     state = state.copyWith(
       downloadSpeeds: torrents.fold(
         {},
         (map, torrent) {
           return {
             ...map,
-            torrent.id!: (state.downloadSpeeds[torrent.id] ??
-                    List.generate(39, (index) => 0))
-                .sublist(1)
+            torrent.id!: (state.downloadSpeeds[torrent.id] ?? List.generate(39, (index) => 0)).sublist(1)
               ..add(torrent.rateDownload!),
           };
         },
@@ -90,9 +119,7 @@ class Torrents extends StateNotifier<TorrentsState> {
         (map, torrent) {
           return {
             ...map,
-            torrent.id!: (state.uploadSpeeds[torrent.id] ??
-                    List.generate(39, (index) => 0))
-                .sublist(1)
+            torrent.id!: (state.uploadSpeeds[torrent.id] ?? List.generate(39, (index) => 0)).sublist(1)
               ..add(torrent.rateUpload!),
           };
         },
@@ -102,14 +129,16 @@ class Torrents extends StateNotifier<TorrentsState> {
           return TorrentQuickData(
             id: torrent.id!,
             name: torrent.name!,
-            downloadedBytes: torrent.downloadedEver!,
+            downloadedBytes: (torrent.sizeWhenDone! * (torrent.percentDone!)).floor(),
             sizeToDownloadBytes: torrent.sizeWhenDone!,
             sizeBytes: torrent.totalSize!,
             estimatedTimeLeft: torrent.eta!,
             downloadBytesPerSecond: torrent.rateDownload!,
-            state: _statusToState(torrent),
-            limited: torrent.downloadLimited!,
-            priority: _priorityToPriority(torrent.bandwidthPriority!),
+            downloadLimited: torrent.downloadLimited!,
+            uploadBytesPerSecond: torrent.rateUpload!,
+            uploadLimited: torrent.uploadLimited!,
+            state: _transStatusToState(torrent),
+            priority: _transPriorityToPriority(torrent.bandwidthPriority!),
           );
         },
       ).toList(),
@@ -118,15 +147,21 @@ class Torrents extends StateNotifier<TorrentsState> {
           return TorrentData(
             id: torrent.id!,
             name: torrent.name!,
-            downloadedBytes: torrent.downloadedEver!,
+            downloadedBytes: (torrent.sizeWhenDone! * (torrent.percentDone!)).floor(),
             sizeToDownloadBytes: torrent.sizeWhenDone!,
             sizeBytes: torrent.totalSize!,
             estimatedTimeLeft: torrent.eta!,
             downloadBytesPerSecond: torrent.rateDownload!,
-            state: _statusToState(torrent),
-            limited: torrent.downloadLimited!,
-            priority: _priorityToPriority(torrent.bandwidthPriority!),
-            uploadedBytes: torrent.uploadedEver!,
+            state: _transStatusToState(torrent),
+            downloadLimited: torrent.downloadLimited!,
+            uploadLimited: torrent.uploadLimited!,
+            magnet: torrent.magnetLink,
+            torrentFileLocation: torrent.torrentFile,
+            downloadLimitBytesPerSecond: torrent.downloadLimit! * 1024,
+            uploadLimitBytesPerSecond: torrent.uploadLimit! * 1024,
+            priority: _transPriorityToPriority(torrent.bandwidthPriority!),
+            uploadedEverBytes: torrent.uploadedEver,
+            downloadedEverBytes: torrent.downloadedEver,
             uploadBytesPerSecond: torrent.rateUpload!,
             ratio: torrent.uploadRatio!,
             files: torrent.files!.asMap().entries.map(
@@ -136,19 +171,25 @@ class Torrents extends StateNotifier<TorrentsState> {
                 final stats = torrent.fileStats![i];
                 return TorrentFileData(
                   name: file.name,
-                  wanted: stats.wanted,
                   downloadedBytes: file.bytesCompleted,
                   sizeBytes: file.length,
-                  priority: _priorityToPriority(torrent.priorities![i]),
+                  priority: _transPriorityToPriority(torrent.priorities![i]),
+                  state: stats.wanted
+                      ? file.bytesCompleted == file.length
+                          ? TorrentState.completed
+                          : TorrentState.downloading
+                      : TorrentState.paused,
                 );
               },
             ).toList(),
             completedOn: torrent.doneDate,
-            addedOn: torrent.addedDate!,
+            addedOn: torrent.addedDate,
             peers: [''],
-            origin: '',
             trackers: [''],
-            location: torrent.downloadDir!,
+            location: torrent.downloadDir,
+            lastActivity: torrent.activityDate,
+            timeDownloading: (torrent.secondsSeeding ?? 0) > 0 ? Duration(seconds: torrent.secondsDownloading!) : null,
+            timeSeeding: (torrent.secondsSeeding ?? 0) > 0 ? Duration(seconds: torrent.secondsSeeding!) : null,
           );
         },
       ).toList(),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/models/torrent.dart';
+import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
+import 'package:torrent_frontend/utils/safe_divide.dart';
 import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/button.dart';
 
@@ -60,8 +62,7 @@ class _Shell extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(
-                    color: color.withOpacity(color.alpha / 255 * 0.2)),
+                border: Border.all(color: color.withOpacity(color.alpha / 255 * 0.3)),
               ),
             ),
           ),
@@ -119,7 +120,9 @@ class TorrentTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 10.0;
     final theme = Theme.of(context);
-    final progress = quickData.downloadedBytes / quickData.sizeToDownloadBytes;
+    final progress = safeDivide(
+      quickData.downloadedBytes / quickData.sizeToDownloadBytes,
+    );
     final color = _stateToColor(quickData.state);
 
     return DecoratedBox(
@@ -134,143 +137,121 @@ class TorrentTile extends HookConsumerWidget {
         ],
       ),
       child: _Shell(
-        child: 
-        children: [
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(
-                  color: theme.colorScheme.onSecondary.withOpacity(0.2),
-                ),
-                color: selected ? Colors.blue.withOpacity(0.2) : null,
-              ),
-            ),
-          ),
-
-          Positioned.fill(
-            child: ClipRect(
-              clipper: RectCustomClipper(
-                (size) => Rect.fromLTWH(
-                  0,
-                  size.height - 5,
-                  size.width,
-                  size.height - 5,
-                ),
-              ),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  border: Border.all(
-                      color: color.withOpacity(color.alpha / 255 * 0.2)),
-                ),
-              ),
-            ),
-          ),
-
-          // Progress
-          Positioned.fill(
-            child: ClipRect(
-              clipper: RectCustomClipper(
-                (size) => Rect.fromLTWH(
-                  0,
-                  size.height - 5,
-                  size.width * progress,
-                  size.height - 5,
-                ),
-              ),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  border: Border.all(color: color),
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(borderRadius),
-              child: CustomPaint(
-                painter: _GlowPainter(
-                  color: color.withOpacity(0.7),
-                  progress: progress,
-                ),
-              ),
-            ),
-          ),
-          InkButton(
-            borderRadius: BorderRadius.circular(borderRadius),
-            onPressed: onPressed ?? () {},
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: quickData.name,
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            color: theme.colorScheme.onSecondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 4,
-                  ),
-                  Row(
+        borderRadius: borderRadius,
+        progress: progress,
+        color: color,
+        selected: selected,
+        child: InkButton(
+          borderRadius: BorderRadius.circular(borderRadius),
+          onPressed: onPressed ?? () {},
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
                     children: [
-                      Text(
-                        '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeBytes)}    ${(progress * 100).floor()}%''',
-                        style: const TextStyle(
+                      TextSpan(
+                        text: quickData.name,
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          color: theme.colorScheme.onSecondary,
                           fontSize: 14,
-                          color: Color.fromARGB(255, 62, 107, 159),
-                        ),
-                      ),
-                      const Spacer(),
-                      _PriorityIcon(
-                        quickData.priority,
-                        size: 20,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 62, 107, 159),
-                          ),
-                          children: [
-                            TextSpan(
-                              text: formatDuration(quickData.estimatedTimeLeft),
-                            ),
-                            const WidgetSpan(child: SizedBox(width: 10)),
-                            TextSpan(
-                              text:
-                                  '${stringBytesWithUnits(quickData.downloadBytesPerSecond)}/s',
-                              style: quickData.limited
-                                  ? const TextStyle(
-                                      color: Color.fromARGB(255, 150, 107, 159),
-                                    )
-                                  : null,
-                            ),
-                          ],
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeBytes)}    ${(progress * 100).floor()}%''',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 62, 107, 159),
+                      ),
+                    ),
+                    const Spacer(),
+                    _PriorityIcon(
+                      quickData.priority,
+                      size: 20,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Builder(
+                      builder: (context) {
+                        return RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color.fromARGB(255, 62, 107, 159),
+                            ),
+                            children: [
+                              if (quickData.state == TorrentState.downloading &&
+                                  quickData.estimatedTimeLeft.inSeconds > 0)
+                                TextSpan(
+                                  text: formatDuration(
+                                    quickData.estimatedTimeLeft,
+                                  ),
+                                ),
+                              if (quickData.state == TorrentState.downloading ||
+                                  quickData.state == TorrentState.seeding)
+                                const WidgetSpan(child: SizedBox(width: 10)),
+                              if (quickData.state == TorrentState.seeding)
+                                TextSpan(
+                                  text: '${stringBytesWithUnits(quickData.uploadBytesPerSecond)}/s',
+                                  style: quickData.uploadLimited
+                                      ? const TextStyle(
+                                          color: Color.fromARGB(255, 150, 107, 159),
+                                        )
+                                      : null,
+                                ),
+                              if (quickData.state == TorrentState.seeding)
+                                WidgetSpan(
+                                  child: Icon(
+                                    Icons.arrow_upward,
+                                    size: 15,
+                                    color: quickData.uploadLimited
+                                        ? const Color.fromARGB(255, 150, 107, 159)
+                                        : const Color.fromARGB(255, 62, 107, 159),
+                                  ),
+                                ),
+                              if (quickData.state == TorrentState.downloading)
+                                TextSpan(
+                                  text: '${stringBytesWithUnits(quickData.downloadBytesPerSecond)}/s',
+                                  style: quickData.downloadLimited
+                                      ? const TextStyle(
+                                          color: Color.fromARGB(255, 150, 107, 159),
+                                        )
+                                      : null,
+                                ),
+                              if (quickData.state == TorrentState.downloading)
+                                WidgetSpan(
+                                  child: Icon(
+                                    Icons.arrow_downward,
+                                    size: 15,
+                                    color: quickData.downloadLimited
+                                        ? const Color.fromARGB(255, 150, 107, 159)
+                                        : const Color.fromARGB(255, 62, 107, 159),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -279,61 +260,36 @@ class TorrentTile extends HookConsumerWidget {
 class TorrentFileTile extends HookConsumerWidget {
   const TorrentFileTile({
     super.key,
+    required this.torrentState,
     required this.fileData,
+    required this.selected,
     this.onPressed,
   });
 
+  final TorrentState torrentState;
   final TorrentFileData fileData;
+  final bool selected;
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 5.0;
     final theme = Theme.of(context);
-    final progress = fileData.downloadedBytes / fileData.sizeBytes;
+    final progress = safeDivide(fileData.downloadedBytes / fileData.sizeBytes);
+    final color = _stateToColor(
+      fileData.state == TorrentState.downloading && torrentState != TorrentState.downloading
+          ? TorrentState.paused
+          : fileData.state,
+    );
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: theme.colorScheme.onSecondary.withOpacity(0.2),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: ClipRect(
-            clipper: RectCustomClipper(
-              (size) => Rect.fromLTWH(
-                0,
-                size.height - 5,
-                size.width * progress,
-                size.height - 5,
-              ),
-            ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(color: Colors.lightBlue),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: CustomPaint(
-              painter: _GlowPainter(
-                color: Colors.lightBlue.withOpacity(0.7),
-                progress: progress,
-              ),
-            ),
-          ),
-        ),
-        InkButton(
+    return _Shell(
+      borderRadius: borderRadius,
+      progress: progress < 0.02 ? 0 : progress,
+      color: color,
+      selected: selected,
+      child: Opacity(
+        opacity: fileData.state == TorrentState.paused ? 0.5 : 1,
+        child: InkButton(
           borderRadius: BorderRadius.circular(borderRadius),
           onPressed: onPressed ?? () {},
           child: Container(
@@ -383,7 +339,7 @@ class TorrentFileTile extends HookConsumerWidget {
             ),
           ),
         ),
-      ],
+      ),
     );
     // return Container(
     //   child: ColoredBox(color: Colors.amber),
@@ -430,43 +386,13 @@ class _PriorityIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (priority == TorrentPriority.medium) return const SizedBox();
+    if (priority == TorrentPriority.normal) return const SizedBox();
     return Icon(
-      priority == TorrentPriority.high
-          ? Icons.arrow_drop_up
-          : Icons.arrow_drop_down,
+      priority == TorrentPriority.high ? Icons.arrow_drop_up : Icons.arrow_drop_down,
       color: priority == TorrentPriority.high
           ? Theme.of(context).colorScheme.onSecondary
           : const Color.fromARGB(255, 150, 107, 159),
       size: size,
     );
   }
-}
-
-class RRectCustomClipper extends CustomClipper<RRect> {
-  const RRectCustomClipper(RRect Function(Size size) getClip)
-      : _getClip = getClip;
-
-  final RRect Function(Size size) _getClip;
-
-  @override
-  RRect getClip(Size size) => _getClip(size);
-
-  @override
-  bool shouldReclip(covariant CustomClipper<RRect> oldClipper) =>
-      oldClipper != this;
-}
-
-class RectCustomClipper extends CustomClipper<Rect> {
-  const RectCustomClipper(Rect Function(Size size) getClip)
-      : _getClip = getClip;
-
-  final Rect Function(Size size) _getClip;
-
-  @override
-  Rect getClip(Size size) => _getClip(size);
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) =>
-      oldClipper != this;
 }

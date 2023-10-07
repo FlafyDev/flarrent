@@ -1,12 +1,19 @@
 import 'dart:math';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/state/torrents.dart';
+import 'package:torrent_frontend/utils/equal.dart';
 import 'package:torrent_frontend/utils/multiselect_algo.dart';
+import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
+import 'package:torrent_frontend/widgets/common/side_popup.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent_overview/torrent_overview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MainView extends HookConsumerWidget {
   const MainView({
@@ -22,9 +29,8 @@ class MainView extends HookConsumerWidget {
       duration: const Duration(milliseconds: 300),
       initialValue: 1,
     );
-    final rulerHideAC = useAnimationController(
+    final rulerShowAC = useAnimationController(
       duration: const Duration(milliseconds: 500),
-      initialValue: 1,
     );
     final easeOutAnimation = useRef(
       CurvedAnimation(
@@ -33,35 +39,32 @@ class MainView extends HookConsumerWidget {
         reverseCurve: Curves.easeOutExpo.flipped,
       ),
     ).value;
-    final hideAnimation = useRef(
-      CurvedAnimation(
-        parent: bottomHideAC,
-        curve: Curves.easeOutExpo,
-        reverseCurve: Curves.easeOutExpo.flipped,
-      ),
-    ).value;
-    final rulerAnimation = useRef(
-      CurvedAnimation(
-        parent: rulerHideAC,
-        curve: Curves.easeOutExpo,
-        reverseCurve: Curves.easeOutExpo.flipped,
-      ),
-    ).value;
     final selectedTorrentIds = useValueNotifier<List<int>>([]);
+
+    ref.listen(
+        torrentsProvider.select(
+          (e) => Equal(
+            e.quickTorrents,
+            const DeepCollectionEquality().equals,
+          ),
+        ), (prev, next) {
+      final ids = next.value.map((e) => e.id);
+      selectedTorrentIds.value = selectedTorrentIds.value.where(ids.contains).toList();
+    });
 
     useEffect(
       () {
         void callback() {
           if (selectedTorrentIds.value.length == 1) {
-            bottomHideAC.reverse();
+            bottomHideAC.animateTo(0, curve: Curves.easeOutExpo);
           } else {
-            bottomHideAC.forward();
+            bottomHideAC.animateTo(1, curve: Curves.easeOutExpo);
           }
 
           if (selectedTorrentIds.value.isEmpty) {
-            rulerHideAC.forward();
+            rulerShowAC.animateTo(0, curve: Curves.easeOutExpo);
           } else {
-            rulerHideAC.reverse();
+            rulerShowAC.animateTo(1, curve: Curves.easeOutExpo);
           }
         }
 
@@ -80,127 +83,50 @@ class MainView extends HookConsumerWidget {
             children: [
               Material(
                 color: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.all(10).copyWith(bottom: 0),
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      final torrentsQuickData = ref.watch(
-                        torrentsProvider.select((v) => v.quickTorrents),
-                      );
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final torrentsQuickData = ref.watch(
+                      torrentsProvider.select((v) => v.quickTorrents),
+                    );
 
-                      final orderedTorrents = torrentsQuickData;
+                    final orderedTorrents = torrentsQuickData;
 
-                      return ValueListenableBuilder(
-                        valueListenable: selectedTorrentIds,
-                        builder: (context, ids, child) {
-                          return ListView.separated(
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(
-                              height: 10,
-                            ),
-                            itemCount: orderedTorrents.length,
-                            itemBuilder: (context, index) {
-                              return TorrentTile(
-                                selected:
-                                    ids.contains(orderedTorrents[index].id),
-                                quickData: orderedTorrents[index],
-                                onPressed: () {
-                                  selectedTorrentIds.value = multiselectAlgo(
-                                    selectedIndexes: selectedTorrentIds.value
-                                        .map(
-                                          (id) => orderedTorrents
-                                              .indexWhere((e) => e.id == id),
-                                        )
-                                        .toList(),
-                                    index: index,
-                                  ).map((i) => orderedTorrents[i].id).toList();
-                                },
-                                // onPressed: () {
-                                //   final shiftKeys = [
-                                //     LogicalKeyboardKey.shiftLeft,
-                                //     LogicalKeyboardKey.shiftRight
-                                //   ];
-                                //
-                                //   final ctrlKeys = [
-                                //     LogicalKeyboardKey.control,
-                                //     LogicalKeyboardKey.controlLeft,
-                                //     LogicalKeyboardKey.controlRight,
-                                //   ];
-                                //
-                                //   final isShiftPressed = RawKeyboard
-                                //       .instance.keysPressed
-                                //       .where(shiftKeys.contains)
-                                //       .isNotEmpty;
-                                //
-                                //   final isCtrlPressed = RawKeyboard
-                                //       .instance.keysPressed
-                                //       .where(ctrlKeys.contains)
-                                //       .isNotEmpty;
-                                //
-                                //   if (isShiftPressed &&
-                                //       selectedTorrentIds.value.isNotEmpty) {
-                                //     var firstIndex = orderedTorrents.length;
-                                //     var lastIndex = 0;
-                                //
-                                //     for (final id in selectedTorrentIds.value) {
-                                //       firstIndex = min(
-                                //         firstIndex,
-                                //         orderedTorrents
-                                //             .indexWhere((e) => e.id == id),
-                                //       );
-                                //       lastIndex = max(
-                                //         lastIndex,
-                                //         orderedTorrents
-                                //             .indexWhere((e) => e.id == id),
-                                //       );
-                                //     }
-                                //
-                                //     if (firstIndex < index) {
-                                //       selectedTorrentIds.value = {
-                                //         for (var i = firstIndex;
-                                //             i <= index;
-                                //             i++)
-                                //           orderedTorrents[i].id,
-                                //       }.toList();
-                                //     } else {
-                                //       selectedTorrentIds.value = {
-                                //         for (var i = index;
-                                //             i <= lastIndex;
-                                //             i++)
-                                //           orderedTorrents[i].id,
-                                //       }.toList();
-                                //
-                                //     }
-                                //   } else if (isCtrlPressed) {
-                                //     selectedTorrentIds.value = {
-                                //       ...selectedTorrentIds.value,
-                                //       orderedTorrents[index].id,
-                                //     }.toList();
-                                //   } else {
-                                //     final id = orderedTorrents[index].id;
-                                //
-                                //     if (selectedTorrentIds.value.length == 1 &&
-                                //         selectedTorrentIds.value.first == id) {
-                                //       selectedTorrentIds.value = [];
-                                //     } else {
-                                //       selectedTorrentIds.value = [id];
-                                //     }
-                                //   }
-                                // },
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
+                    return ValueListenableBuilder(
+                      valueListenable: selectedTorrentIds,
+                      builder: (context, ids, child) {
+                        return ListView.separated(
+                          padding: const EdgeInsets.all(10).copyWith(bottom: 0),
+                          separatorBuilder: (context, index) => const SizedBox(
+                            height: 10,
+                          ),
+                          itemCount: orderedTorrents.length,
+                          itemBuilder: (context, index) {
+                            return TorrentTile(
+                              selected: ids.contains(orderedTorrents[index].id),
+                              quickData: orderedTorrents[index],
+                              onPressed: () {
+                                selectedTorrentIds.value = multiselectAlgo(
+                                  selectedIndexes: selectedTorrentIds.value
+                                      .map(
+                                        (id) => orderedTorrents.indexWhere((e) => e.id == id),
+                                      )
+                                      .toList(),
+                                  index: index,
+                                ).map((i) => orderedTorrents[i].id).toList();
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
               AnimatedBuilder(
-                animation: hideAnimation,
+                animation: bottomHideAC,
                 builder: (context, child) {
                   return Opacity(
-                    opacity: (1 - hideAnimation.value),
+                    opacity: 1 - bottomHideAC.value,
                     child: child,
                   );
                 },
@@ -226,25 +152,31 @@ class MainView extends HookConsumerWidget {
                 ),
               ),
               AnimatedBuilder(
-                animation: rulerAnimation,
+                animation: rulerShowAC,
                 builder: (context, child) {
                   return Align(
                     alignment: Alignment.bottomRight,
                     child: Opacity(
-                      opacity: min(1, (1 - rulerAnimation.value) * 10),
-                      child: SizedBox(
-                        height: 50,
-                        width: 340,
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              height: 50,
-                              width: 340,
-                              top: (50 * rulerAnimation.value).roundToDouble(),
-                              child: child!,
+                      opacity: min(1, (rulerShowAC.value) * 10),
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          ClipRect(
+                            clipper: RectCustomClipper(
+                              (size) => Rect.fromLTRB(
+                                -1,
+                                -1,
+                                size.width + 1,
+                                size.height + 1,
+                              ),
                             ),
-                          ],
-                        ),
+                            child: Align(
+                              alignment: AlignmentDirectional.topStart,
+                              heightFactor: rulerShowAC.value,
+                              child: child,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -252,78 +184,19 @@ class MainView extends HookConsumerWidget {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: ClipRect(
-                        clipper: RectCustomClipper(
-                          (size) => Rect.fromLTRB(
-                            -100,
-                            -100,
-                            size.width + 100,
-                            size.height,
-                          ),
-                        ),
-                        child: CustomPaint(
-                          painter: _PathPainter(
-                            color: theme.colorScheme.onSecondary,
-                          ),
-                        ),
-                      ),
+                      child: SidePopup(color: theme.colorScheme.onSecondary),
                     ),
-                    Positioned.fill(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                    ValueListenableBuilder(
+                      valueListenable: selectedTorrentIds,
+                      builder: (context, value, child) {
+                        return Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.low_priority),
-                              splashRadius: 20,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              splashRadius: 20,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.folder_outlined),
-                              splashRadius: 20,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.speed),
-                              splashRadius: 20,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.link),
-                              splashRadius: 20,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.pause),
-                              splashRadius: 20,
-                              onPressed: () {
-                                ref.read(torrentsProvider.notifier).pause(
-                                      selectedTorrentIds.value,
-                                    );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.play_arrow_outlined),
-                              splashRadius: 20,
-                              onPressed: () {
-                                ref.read(torrentsProvider.notifier).resume(
-                                      selectedTorrentIds.value,
-                                    );
-                              },
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
+                            const SizedBox(width: 40),
+                            _Tools(torrentIds: value),
                           ],
-                        ),
-                      ),
-                    )
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -331,10 +204,10 @@ class MainView extends HookConsumerWidget {
           ),
         ),
         AnimatedBuilder(
-          animation: Listenable.merge([easeOutAnimation, hideAnimation]),
+          animation: Listenable.merge([easeOutAnimation, bottomHideAC]),
           builder: (context, child) {
             const hidePoint = 0.90;
-            final value = easeOutAnimation.value + hideAnimation.value;
+            final value = easeOutAnimation.value + bottomHideAC.value;
             return value < hidePoint
                 ? Opacity(
                     opacity: 1 - value / hidePoint,
@@ -347,23 +220,24 @@ class MainView extends HookConsumerWidget {
           },
         ),
         AnimatedBuilder(
-          animation: Listenable.merge([easeOutAnimation, hideAnimation]),
+          animation: Listenable.merge([easeOutAnimation, bottomHideAC]),
           builder: (context, child) {
-            final height =
-                max(MediaQuery.of(context).size.height * 0.3, 200).toDouble();
-            final expandedHeight = height +
-                (MediaQuery.of(context).size.height - height) *
-                    easeOutAnimation.value;
+            final height = max(MediaQuery.of(context).size.height * 0.3, 200).toDouble();
+            final expandedHeight = height + (MediaQuery.of(context).size.height - height - 30) * easeOutAnimation.value;
             return SizedBox(
-              height: (1 - hideAnimation.value) * expandedHeight,
-              child: Stack(
-                children: [
-                  Positioned(
-                    width: MediaQuery.of(context).size.width,
-                    height: expandedHeight,
-                    child: child!,
-                  ),
-                ],
+              height: (1 - bottomHideAC.value) * expandedHeight,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Stack(
+                    children: [
+                      Positioned(
+                        width: constraints.maxWidth,
+                        height: expandedHeight,
+                        child: child!,
+                      ),
+                    ],
+                  );
+                },
               ),
             );
           },
@@ -393,70 +267,329 @@ class MainView extends HookConsumerWidget {
             ],
           ),
         ),
+        Container(
+          height: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              const Text('Free space: 100 GiB', style: TextStyle(fontSize: 13)),
+              const SizedBox(width: 20),
+              const Text('Down: 100 KiB (Limit 100 KiB)', style: TextStyle(fontSize: 13)),
+              const SizedBox(width: 20),
+              const Text('Up: 100 KiB (Limit 100 KiB)', style: TextStyle(fontSize: 13)),
+              const Spacer(),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {},
+                  child: const Icon(Icons.speed, size: 20),
+                ),
+              ),
+            ],
+          ),
+        )
       ],
     );
   }
 }
 
-class _PathPainter extends CustomPainter {
-  _PathPainter({
-    required this.color,
+class _Tools extends HookConsumerWidget {
+  const _Tools({
+    required this.torrentIds,
   });
 
-  final Paint _paint = Paint();
-  final Paint _paint2 = Paint();
-  final Paint _paint3 = Paint();
-  final Color color;
+  final List<int> torrentIds;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    const stroke = 1.0;
-    const smoothLength = 50.0;
-    _paint
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..isAntiAlias = true
-      ..color = color;
-    _paint2
-      ..style = PaintingStyle.fill
-      ..color = Colors.black;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final quickTorrents = ref.watch(
+      torrentsProvider.select((v) => v.quickTorrents),
+    );
+    final torrent = torrentIds.length == 1
+        ? ref.read(torrentsProvider).torrents.firstWhereOrNull((t) => t.id == torrentIds.first)
+        : null;
+    final showSingleTorrentToolsAC = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+      initialValue: 1,
+    );
 
-    _paint3
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 6
-      ..color = color.withOpacity(0.5)
-      ..maskFilter = const MaskFilter.blur(
-        BlurStyle.normal,
-        10,
-      );
+    useValueChanged<dynamic, Object>(Equal(torrentIds, const DeepCollectionEquality().equals), (_, __) {
+      if (torrentIds.length < 2) {
+        showSingleTorrentToolsAC.animateTo(1, curve: Curves.easeOutExpo);
+      } else {
+        showSingleTorrentToolsAC.animateTo(0, curve: Curves.easeOutExpo);
+      }
+      return null;
+    });
 
-    final path = Path()
-      ..moveTo(0, size.height + 1)
-      ..cubicTo(
-        smoothLength / 2,
-        size.height + 1,
-        smoothLength / 2,
-        0,
-        smoothLength,
-        0,
-      )
-      ..lineTo(size.width, stroke);
-    // canvas.drawPath(, _paint);
-    canvas
-      // ..drawPath(
-      //   path,
-      //   _paint3,
-      // )
-      ..drawPath(
-        Path.from(path)..lineTo(size.width, size.height + 1),
-        _paint2,
-      )
-      ..drawPath(
-        path,
-        _paint,
+    onSetLimits() {
+      showDialog<void>(
+        context: context,
+        builder: (context) {
+          return HookBuilder(
+            builder: (context) {
+              final downloadSpeed = useTextEditingController();
+              final uploadSpeed = useTextEditingController();
+
+              useEffect(
+                () {
+                  if (torrent != null) {
+                    downloadSpeed.text = torrent.downloadLimited
+                        ? (torrent.downloadLimitBytesPerSecond / pow(1024, 2)).toStringAsFixed(4)
+                        : '';
+                    uploadSpeed.text = torrent.uploadLimited
+                        ? (torrent.uploadLimitBytesPerSecond / pow(1024, 2)).toStringAsFixed(4)
+                        : '';
+                  }
+                  return;
+                },
+                [],
+              );
+
+              return AlertDialog(
+                backgroundColor: Colors.black,
+                title: const Text('Set speed limits'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      controller: downloadSpeed,
+                      decoration: const InputDecoration(labelText: 'Download speed limit (MiB/s)'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      controller: uploadSpeed,
+                      decoration: const InputDecoration(labelText: 'Upload speed limit (MiB/s)'),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      var downloadLimit =
+                          downloadSpeed.text.trim().isNotEmpty ? double.tryParse(downloadSpeed.text) : null;
+                      var uploadLimit = uploadSpeed.text.trim().isNotEmpty ? double.tryParse(uploadSpeed.text) : null;
+                      if (downloadLimit != null) downloadLimit *= pow(1024, 2);
+                      if (uploadLimit != null) uploadLimit *= pow(1024, 2);
+                      ref.read(torrentsProvider.notifier).setTorrentsLimit(
+                            torrentIds,
+                            downloadLimit?.toInt(),
+                            uploadLimit?.toInt(),
+                          );
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Apply'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: SizedBox(
+        height: 45,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.flip(
+              flipY: true,
+              child: IconButton(
+                icon: const Icon(Icons.low_priority),
+                splashRadius: 20,
+                onPressed: () {},
+              ),
+            ),
+            _ToolsBin(
+              color: Colors.redAccent,
+              onPressed: () {
+                ref.read(torrentsProvider.notifier).deleteTorrent(torrentIds, deleteData: true);
+              },
+            ),
+            _ToolsBin(
+              color: Colors.white,
+              onPressed: () {
+                ref.read(torrentsProvider.notifier).deleteTorrent(torrentIds, deleteData: false);
+              },
+            ),
+            AnimatedBuilder(
+              animation: showSingleTorrentToolsAC,
+              builder: (context, child) {
+                return Container(
+                  width: 40 * showSingleTorrentToolsAC.value,
+                  decoration: const BoxDecoration(),
+                  clipBehavior: Clip.hardEdge,
+                  child: child,
+                );
+              },
+              child: IconButton(
+                icon: const Icon(Icons.folder_outlined),
+                splashRadius: 20,
+                onPressed: () async {
+                  await launchUrl(Uri.parse('file:${torrent?.location}'));
+                },
+              ),
+            ),
+            AnimatedBuilder(
+              animation: showSingleTorrentToolsAC,
+              builder: (context, child) {
+                return Container(
+                  width: 40 * showSingleTorrentToolsAC.value,
+                  decoration: const BoxDecoration(),
+                  clipBehavior: Clip.hardEdge,
+                  child: child,
+                );
+              },
+              child: IconButton(
+                icon: const Icon(Icons.speed),
+                splashRadius: 20,
+                onPressed: onSetLimits,
+              ),
+            ),
+            // AnimatedBuilder(
+            //   animation: showSingleTorrentToolsAC,
+            //   builder: (context, child) {
+            //     return Container(
+            //       width: 40 * showSingleTorrentToolsAC.value,
+            //       decoration: const BoxDecoration(),
+            //       clipBehavior: Clip.hardEdge,
+            //       child: child,
+            //     );
+            //   },
+            //   child: IconButton(
+            //     icon: const Icon(Icons.download_outlined),
+            //     splashRadius: 20,
+            //     onPressed: () { }
+            //   ),
+            // ),
+            AnimatedBuilder(
+              animation: showSingleTorrentToolsAC,
+              builder: (context, child) {
+                return Container(
+                  width: 40 * showSingleTorrentToolsAC.value,
+                  decoration: const BoxDecoration(),
+                  clipBehavior: Clip.hardEdge,
+                  child: child,
+                );
+              },
+              child: IconButton(
+                icon: const Icon(Icons.link),
+                splashRadius: 20,
+                onPressed: () async {
+                  if (torrent?.magnet != null) {
+                    await Clipboard.setData(ClipboardData(text: torrent!.magnet!));
+                  }
+                },
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.pause),
+              splashRadius: 20,
+              onPressed: () {
+                ref.read(torrentsProvider.notifier).pause(torrentIds);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.play_arrow_outlined),
+              splashRadius: 20,
+              onPressed: () {
+                ref.read(torrentsProvider.notifier).resume(torrentIds);
+              },
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+        ),
+      ),
+    );
   }
+}
+
+class _ToolsBin extends HookConsumerWidget {
+  const _ToolsBin({
+    required this.color,
+    required this.onPressed,
+    super.key,
+  });
+
+  final Color color;
+  final VoidCallback onPressed;
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => oldDelegate != this;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final holdAC = useAnimationController(
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    useEffect(
+      () {
+        void callback(AnimationStatus status) {
+          if (status == AnimationStatus.completed) {
+            holdAC.reset();
+            onPressed();
+          }
+        }
+
+        holdAC.addStatusListener(callback);
+
+        return () => holdAC.removeStatusListener(callback);
+      },
+      [holdAC, onPressed],
+    );
+
+    return Center(
+      child: Stack(
+        children: [
+          SizedBox(
+            width: 40,
+            child: InkWell(
+              radius: 20,
+              customBorder: const CircleBorder(),
+              onTapUp: (e) {
+                holdAC.reset();
+              },
+              onTapDown: (e) {
+                holdAC.forward(from: 0);
+              },
+              child: Ink(
+                decoration: const BoxDecoration(shape: BoxShape.circle),
+                height: double.infinity,
+                width: double.infinity,
+                child: Icon(
+                  Icons.delete_outline,
+                  color: color,
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: SizedBox(
+                  width: 35,
+                  height: 35,
+                  child: AnimatedBuilder(
+                    animation: holdAC,
+                    builder: (context, child) {
+                      return CircularProgressIndicator(
+                        value: holdAC.value,
+                        color: ColorTween(begin: Colors.white, end: Colors.redAccent).transform(holdAC.value),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

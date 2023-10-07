@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/state/torrents.dart';
+import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/get_y_from_x.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 

@@ -27,8 +27,10 @@ mixin _$TorrentQuickData {
   int get sizeBytes => throw _privateConstructorUsedError;
   Duration get estimatedTimeLeft => throw _privateConstructorUsedError;
   int get downloadBytesPerSecond => throw _privateConstructorUsedError;
+  bool get downloadLimited => throw _privateConstructorUsedError;
+  int get uploadBytesPerSecond => throw _privateConstructorUsedError;
+  bool get uploadLimited => throw _privateConstructorUsedError;
   TorrentState get state => throw _privateConstructorUsedError;
-  bool get limited => throw _privateConstructorUsedError;
   TorrentPriority get priority => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -51,8 +53,10 @@ abstract class $TorrentQuickDataCopyWith<$Res> {
       int sizeBytes,
       Duration estimatedTimeLeft,
       int downloadBytesPerSecond,
+      bool downloadLimited,
+      int uploadBytesPerSecond,
+      bool uploadLimited,
       TorrentState state,
-      bool limited,
       TorrentPriority priority});
 }
 
@@ -76,8 +80,10 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
     Object? sizeBytes = null,
     Object? estimatedTimeLeft = null,
     Object? downloadBytesPerSecond = null,
+    Object? downloadLimited = null,
+    Object? uploadBytesPerSecond = null,
+    Object? uploadLimited = null,
     Object? state = null,
-    Object? limited = null,
     Object? priority = null,
   }) {
     return _then(_value.copyWith(
@@ -109,14 +115,22 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
           ? _value.downloadBytesPerSecond
           : downloadBytesPerSecond // ignore: cast_nullable_to_non_nullable
               as int,
+      downloadLimited: null == downloadLimited
+          ? _value.downloadLimited
+          : downloadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
+      uploadBytesPerSecond: null == uploadBytesPerSecond
+          ? _value.uploadBytesPerSecond
+          : uploadBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadLimited: null == uploadLimited
+          ? _value.uploadLimited
+          : uploadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
       state: null == state
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
               as TorrentState,
-      limited: null == limited
-          ? _value.limited
-          : limited // ignore: cast_nullable_to_non_nullable
-              as bool,
       priority: null == priority
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
@@ -141,8 +155,10 @@ abstract class _$$_TorrentQuickDataCopyWith<$Res>
       int sizeBytes,
       Duration estimatedTimeLeft,
       int downloadBytesPerSecond,
+      bool downloadLimited,
+      int uploadBytesPerSecond,
+      bool uploadLimited,
       TorrentState state,
-      bool limited,
       TorrentPriority priority});
 }
 
@@ -164,8 +180,10 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
     Object? sizeBytes = null,
     Object? estimatedTimeLeft = null,
     Object? downloadBytesPerSecond = null,
+    Object? downloadLimited = null,
+    Object? uploadBytesPerSecond = null,
+    Object? uploadLimited = null,
     Object? state = null,
-    Object? limited = null,
     Object? priority = null,
   }) {
     return _then(_$_TorrentQuickData(
@@ -197,14 +215,22 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
           ? _value.downloadBytesPerSecond
           : downloadBytesPerSecond // ignore: cast_nullable_to_non_nullable
               as int,
+      downloadLimited: null == downloadLimited
+          ? _value.downloadLimited
+          : downloadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
+      uploadBytesPerSecond: null == uploadBytesPerSecond
+          ? _value.uploadBytesPerSecond
+          : uploadBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadLimited: null == uploadLimited
+          ? _value.uploadLimited
+          : uploadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
       state: null == state
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
               as TorrentState,
-      limited: null == limited
-          ? _value.limited
-          : limited // ignore: cast_nullable_to_non_nullable
-              as bool,
       priority: null == priority
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
@@ -226,8 +252,10 @@ class _$_TorrentQuickData
       required this.sizeBytes,
       required this.estimatedTimeLeft,
       required this.downloadBytesPerSecond,
+      required this.downloadLimited,
+      required this.uploadBytesPerSecond,
+      required this.uploadLimited,
       required this.state,
-      required this.limited,
       required this.priority});
 
   factory _$_TorrentQuickData.fromJson(Map<String, dynamic> json) =>
@@ -248,15 +276,19 @@ class _$_TorrentQuickData
   @override
   final int downloadBytesPerSecond;
   @override
-  final TorrentState state;
+  final bool downloadLimited;
   @override
-  final bool limited;
+  final int uploadBytesPerSecond;
+  @override
+  final bool uploadLimited;
+  @override
+  final TorrentState state;
   @override
   final TorrentPriority priority;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, state: $state, limited: $limited, priority: $priority)';
+    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, downloadLimited: $downloadLimited, uploadBytesPerSecond: $uploadBytesPerSecond, uploadLimited: $uploadLimited, state: $state, priority: $priority)';
   }
 
   @override
@@ -272,8 +304,10 @@ class _$_TorrentQuickData
       ..add(DiagnosticsProperty('estimatedTimeLeft', estimatedTimeLeft))
       ..add(
           DiagnosticsProperty('downloadBytesPerSecond', downloadBytesPerSecond))
+      ..add(DiagnosticsProperty('downloadLimited', downloadLimited))
+      ..add(DiagnosticsProperty('uploadBytesPerSecond', uploadBytesPerSecond))
+      ..add(DiagnosticsProperty('uploadLimited', uploadLimited))
       ..add(DiagnosticsProperty('state', state))
-      ..add(DiagnosticsProperty('limited', limited))
       ..add(DiagnosticsProperty('priority', priority));
   }
 
@@ -294,8 +328,13 @@ class _$_TorrentQuickData
                 other.estimatedTimeLeft == estimatedTimeLeft) &&
             (identical(other.downloadBytesPerSecond, downloadBytesPerSecond) ||
                 other.downloadBytesPerSecond == downloadBytesPerSecond) &&
+            (identical(other.downloadLimited, downloadLimited) ||
+                other.downloadLimited == downloadLimited) &&
+            (identical(other.uploadBytesPerSecond, uploadBytesPerSecond) ||
+                other.uploadBytesPerSecond == uploadBytesPerSecond) &&
+            (identical(other.uploadLimited, uploadLimited) ||
+                other.uploadLimited == uploadLimited) &&
             (identical(other.state, state) || other.state == state) &&
-            (identical(other.limited, limited) || other.limited == limited) &&
             (identical(other.priority, priority) ||
                 other.priority == priority));
   }
@@ -311,8 +350,10 @@ class _$_TorrentQuickData
       sizeBytes,
       estimatedTimeLeft,
       downloadBytesPerSecond,
+      downloadLimited,
+      uploadBytesPerSecond,
+      uploadLimited,
       state,
-      limited,
       priority);
 
   @JsonKey(ignore: true)
@@ -338,8 +379,10 @@ abstract class _TorrentQuickData implements TorrentQuickData {
       required final int sizeBytes,
       required final Duration estimatedTimeLeft,
       required final int downloadBytesPerSecond,
+      required final bool downloadLimited,
+      required final int uploadBytesPerSecond,
+      required final bool uploadLimited,
       required final TorrentState state,
-      required final bool limited,
       required final TorrentPriority priority}) = _$_TorrentQuickData;
 
   factory _TorrentQuickData.fromJson(Map<String, dynamic> json) =
@@ -360,9 +403,13 @@ abstract class _TorrentQuickData implements TorrentQuickData {
   @override
   int get downloadBytesPerSecond;
   @override
-  TorrentState get state;
+  bool get downloadLimited;
   @override
-  bool get limited;
+  int get uploadBytesPerSecond;
+  @override
+  bool get uploadLimited;
+  @override
+  TorrentState get state;
   @override
   TorrentPriority get priority;
   @override
@@ -386,14 +433,22 @@ mixin _$TorrentData {
   int get downloadBytesPerSecond => throw _privateConstructorUsedError;
   int get uploadBytesPerSecond => throw _privateConstructorUsedError;
   TorrentState get state => throw _privateConstructorUsedError;
-  bool get limited => throw _privateConstructorUsedError;
+  bool get downloadLimited => throw _privateConstructorUsedError;
+  bool get uploadLimited => throw _privateConstructorUsedError;
+  int get downloadLimitBytesPerSecond => throw _privateConstructorUsedError;
+  int get uploadLimitBytesPerSecond => throw _privateConstructorUsedError;
   TorrentPriority get priority => throw _privateConstructorUsedError;
-  DateTime get addedOn => throw _privateConstructorUsedError;
+  DateTime? get addedOn => throw _privateConstructorUsedError;
   DateTime? get completedOn => throw _privateConstructorUsedError;
-  String get location => throw _privateConstructorUsedError;
+  DateTime? get lastActivity => throw _privateConstructorUsedError;
+  String? get location => throw _privateConstructorUsedError;
+  String? get magnet => throw _privateConstructorUsedError;
+  String? get torrentFileLocation => throw _privateConstructorUsedError;
   double get ratio => throw _privateConstructorUsedError;
-  int get uploadedBytes => throw _privateConstructorUsedError;
-  String get origin => throw _privateConstructorUsedError;
+  int? get uploadedEverBytes => throw _privateConstructorUsedError;
+  int? get downloadedEverBytes => throw _privateConstructorUsedError;
+  Duration? get timeDownloading => throw _privateConstructorUsedError;
+  Duration? get timeSeeding => throw _privateConstructorUsedError;
   List<TorrentFileData> get files => throw _privateConstructorUsedError;
   List<String> get peers => throw _privateConstructorUsedError;
   List<String> get trackers => throw _privateConstructorUsedError;
@@ -420,14 +475,22 @@ abstract class $TorrentDataCopyWith<$Res> {
       int downloadBytesPerSecond,
       int uploadBytesPerSecond,
       TorrentState state,
-      bool limited,
+      bool downloadLimited,
+      bool uploadLimited,
+      int downloadLimitBytesPerSecond,
+      int uploadLimitBytesPerSecond,
       TorrentPriority priority,
-      DateTime addedOn,
+      DateTime? addedOn,
       DateTime? completedOn,
-      String location,
+      DateTime? lastActivity,
+      String? location,
+      String? magnet,
+      String? torrentFileLocation,
       double ratio,
-      int uploadedBytes,
-      String origin,
+      int? uploadedEverBytes,
+      int? downloadedEverBytes,
+      Duration? timeDownloading,
+      Duration? timeSeeding,
       List<TorrentFileData> files,
       List<String> peers,
       List<String> trackers});
@@ -455,14 +518,22 @@ class _$TorrentDataCopyWithImpl<$Res, $Val extends TorrentData>
     Object? downloadBytesPerSecond = null,
     Object? uploadBytesPerSecond = null,
     Object? state = null,
-    Object? limited = null,
+    Object? downloadLimited = null,
+    Object? uploadLimited = null,
+    Object? downloadLimitBytesPerSecond = null,
+    Object? uploadLimitBytesPerSecond = null,
     Object? priority = null,
-    Object? addedOn = null,
+    Object? addedOn = freezed,
     Object? completedOn = freezed,
-    Object? location = null,
+    Object? lastActivity = freezed,
+    Object? location = freezed,
+    Object? magnet = freezed,
+    Object? torrentFileLocation = freezed,
     Object? ratio = null,
-    Object? uploadedBytes = null,
-    Object? origin = null,
+    Object? uploadedEverBytes = freezed,
+    Object? downloadedEverBytes = freezed,
+    Object? timeDownloading = freezed,
+    Object? timeSeeding = freezed,
     Object? files = null,
     Object? peers = null,
     Object? trackers = null,
@@ -504,38 +575,70 @@ class _$TorrentDataCopyWithImpl<$Res, $Val extends TorrentData>
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
               as TorrentState,
-      limited: null == limited
-          ? _value.limited
-          : limited // ignore: cast_nullable_to_non_nullable
+      downloadLimited: null == downloadLimited
+          ? _value.downloadLimited
+          : downloadLimited // ignore: cast_nullable_to_non_nullable
               as bool,
+      uploadLimited: null == uploadLimited
+          ? _value.uploadLimited
+          : uploadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
+      downloadLimitBytesPerSecond: null == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadLimitBytesPerSecond: null == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
       priority: null == priority
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
-      addedOn: null == addedOn
+      addedOn: freezed == addedOn
           ? _value.addedOn
           : addedOn // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       completedOn: freezed == completedOn
           ? _value.completedOn
           : completedOn // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      location: null == location
+      lastActivity: freezed == lastActivity
+          ? _value.lastActivity
+          : lastActivity // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      location: freezed == location
           ? _value.location
           : location // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      magnet: freezed == magnet
+          ? _value.magnet
+          : magnet // ignore: cast_nullable_to_non_nullable
+              as String?,
+      torrentFileLocation: freezed == torrentFileLocation
+          ? _value.torrentFileLocation
+          : torrentFileLocation // ignore: cast_nullable_to_non_nullable
+              as String?,
       ratio: null == ratio
           ? _value.ratio
           : ratio // ignore: cast_nullable_to_non_nullable
               as double,
-      uploadedBytes: null == uploadedBytes
-          ? _value.uploadedBytes
-          : uploadedBytes // ignore: cast_nullable_to_non_nullable
-              as int,
-      origin: null == origin
-          ? _value.origin
-          : origin // ignore: cast_nullable_to_non_nullable
-              as String,
+      uploadedEverBytes: freezed == uploadedEverBytes
+          ? _value.uploadedEverBytes
+          : uploadedEverBytes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      downloadedEverBytes: freezed == downloadedEverBytes
+          ? _value.downloadedEverBytes
+          : downloadedEverBytes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeDownloading: freezed == timeDownloading
+          ? _value.timeDownloading
+          : timeDownloading // ignore: cast_nullable_to_non_nullable
+              as Duration?,
+      timeSeeding: freezed == timeSeeding
+          ? _value.timeSeeding
+          : timeSeeding // ignore: cast_nullable_to_non_nullable
+              as Duration?,
       files: null == files
           ? _value.files
           : files // ignore: cast_nullable_to_non_nullable
@@ -570,14 +673,22 @@ abstract class _$$_TorrentDataCopyWith<$Res>
       int downloadBytesPerSecond,
       int uploadBytesPerSecond,
       TorrentState state,
-      bool limited,
+      bool downloadLimited,
+      bool uploadLimited,
+      int downloadLimitBytesPerSecond,
+      int uploadLimitBytesPerSecond,
       TorrentPriority priority,
-      DateTime addedOn,
+      DateTime? addedOn,
       DateTime? completedOn,
-      String location,
+      DateTime? lastActivity,
+      String? location,
+      String? magnet,
+      String? torrentFileLocation,
       double ratio,
-      int uploadedBytes,
-      String origin,
+      int? uploadedEverBytes,
+      int? downloadedEverBytes,
+      Duration? timeDownloading,
+      Duration? timeSeeding,
       List<TorrentFileData> files,
       List<String> peers,
       List<String> trackers});
@@ -603,14 +714,22 @@ class __$$_TorrentDataCopyWithImpl<$Res>
     Object? downloadBytesPerSecond = null,
     Object? uploadBytesPerSecond = null,
     Object? state = null,
-    Object? limited = null,
+    Object? downloadLimited = null,
+    Object? uploadLimited = null,
+    Object? downloadLimitBytesPerSecond = null,
+    Object? uploadLimitBytesPerSecond = null,
     Object? priority = null,
-    Object? addedOn = null,
+    Object? addedOn = freezed,
     Object? completedOn = freezed,
-    Object? location = null,
+    Object? lastActivity = freezed,
+    Object? location = freezed,
+    Object? magnet = freezed,
+    Object? torrentFileLocation = freezed,
     Object? ratio = null,
-    Object? uploadedBytes = null,
-    Object? origin = null,
+    Object? uploadedEverBytes = freezed,
+    Object? downloadedEverBytes = freezed,
+    Object? timeDownloading = freezed,
+    Object? timeSeeding = freezed,
     Object? files = null,
     Object? peers = null,
     Object? trackers = null,
@@ -652,38 +771,70 @@ class __$$_TorrentDataCopyWithImpl<$Res>
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
               as TorrentState,
-      limited: null == limited
-          ? _value.limited
-          : limited // ignore: cast_nullable_to_non_nullable
+      downloadLimited: null == downloadLimited
+          ? _value.downloadLimited
+          : downloadLimited // ignore: cast_nullable_to_non_nullable
               as bool,
+      uploadLimited: null == uploadLimited
+          ? _value.uploadLimited
+          : uploadLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
+      downloadLimitBytesPerSecond: null == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadLimitBytesPerSecond: null == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
       priority: null == priority
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
-      addedOn: null == addedOn
+      addedOn: freezed == addedOn
           ? _value.addedOn
           : addedOn // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       completedOn: freezed == completedOn
           ? _value.completedOn
           : completedOn // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      location: null == location
+      lastActivity: freezed == lastActivity
+          ? _value.lastActivity
+          : lastActivity // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      location: freezed == location
           ? _value.location
           : location // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      magnet: freezed == magnet
+          ? _value.magnet
+          : magnet // ignore: cast_nullable_to_non_nullable
+              as String?,
+      torrentFileLocation: freezed == torrentFileLocation
+          ? _value.torrentFileLocation
+          : torrentFileLocation // ignore: cast_nullable_to_non_nullable
+              as String?,
       ratio: null == ratio
           ? _value.ratio
           : ratio // ignore: cast_nullable_to_non_nullable
               as double,
-      uploadedBytes: null == uploadedBytes
-          ? _value.uploadedBytes
-          : uploadedBytes // ignore: cast_nullable_to_non_nullable
-              as int,
-      origin: null == origin
-          ? _value.origin
-          : origin // ignore: cast_nullable_to_non_nullable
-              as String,
+      uploadedEverBytes: freezed == uploadedEverBytes
+          ? _value.uploadedEverBytes
+          : uploadedEverBytes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      downloadedEverBytes: freezed == downloadedEverBytes
+          ? _value.downloadedEverBytes
+          : downloadedEverBytes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeDownloading: freezed == timeDownloading
+          ? _value.timeDownloading
+          : timeDownloading // ignore: cast_nullable_to_non_nullable
+              as Duration?,
+      timeSeeding: freezed == timeSeeding
+          ? _value.timeSeeding
+          : timeSeeding // ignore: cast_nullable_to_non_nullable
+              as Duration?,
       files: null == files
           ? _value._files
           : files // ignore: cast_nullable_to_non_nullable
@@ -713,14 +864,22 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
       required this.downloadBytesPerSecond,
       required this.uploadBytesPerSecond,
       required this.state,
-      required this.limited,
+      required this.downloadLimited,
+      required this.uploadLimited,
+      required this.downloadLimitBytesPerSecond,
+      required this.uploadLimitBytesPerSecond,
       required this.priority,
-      required this.addedOn,
-      required this.completedOn,
-      required this.location,
+      this.addedOn,
+      this.completedOn,
+      this.lastActivity,
+      this.location,
+      this.magnet,
+      this.torrentFileLocation,
       required this.ratio,
-      required this.uploadedBytes,
-      required this.origin,
+      this.uploadedEverBytes,
+      this.downloadedEverBytes,
+      this.timeDownloading,
+      this.timeSeeding,
       required final List<TorrentFileData> files,
       required final List<String> peers,
       required final List<String> trackers})
@@ -750,21 +909,37 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
   @override
   final TorrentState state;
   @override
-  final bool limited;
+  final bool downloadLimited;
+  @override
+  final bool uploadLimited;
+  @override
+  final int downloadLimitBytesPerSecond;
+  @override
+  final int uploadLimitBytesPerSecond;
   @override
   final TorrentPriority priority;
   @override
-  final DateTime addedOn;
+  final DateTime? addedOn;
   @override
   final DateTime? completedOn;
   @override
-  final String location;
+  final DateTime? lastActivity;
+  @override
+  final String? location;
+  @override
+  final String? magnet;
+  @override
+  final String? torrentFileLocation;
   @override
   final double ratio;
   @override
-  final int uploadedBytes;
+  final int? uploadedEverBytes;
   @override
-  final String origin;
+  final int? downloadedEverBytes;
+  @override
+  final Duration? timeDownloading;
+  @override
+  final Duration? timeSeeding;
   final List<TorrentFileData> _files;
   @override
   List<TorrentFileData> get files {
@@ -791,7 +966,7 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, uploadBytesPerSecond: $uploadBytesPerSecond, state: $state, limited: $limited, priority: $priority, addedOn: $addedOn, completedOn: $completedOn, location: $location, ratio: $ratio, uploadedBytes: $uploadedBytes, origin: $origin, files: $files, peers: $peers, trackers: $trackers)';
+    return 'TorrentData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, uploadBytesPerSecond: $uploadBytesPerSecond, state: $state, downloadLimited: $downloadLimited, uploadLimited: $uploadLimited, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, priority: $priority, addedOn: $addedOn, completedOn: $completedOn, lastActivity: $lastActivity, location: $location, magnet: $magnet, torrentFileLocation: $torrentFileLocation, ratio: $ratio, uploadedEverBytes: $uploadedEverBytes, downloadedEverBytes: $downloadedEverBytes, timeDownloading: $timeDownloading, timeSeeding: $timeSeeding, files: $files, peers: $peers, trackers: $trackers)';
   }
 
   @override
@@ -809,14 +984,24 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
           DiagnosticsProperty('downloadBytesPerSecond', downloadBytesPerSecond))
       ..add(DiagnosticsProperty('uploadBytesPerSecond', uploadBytesPerSecond))
       ..add(DiagnosticsProperty('state', state))
-      ..add(DiagnosticsProperty('limited', limited))
+      ..add(DiagnosticsProperty('downloadLimited', downloadLimited))
+      ..add(DiagnosticsProperty('uploadLimited', uploadLimited))
+      ..add(DiagnosticsProperty(
+          'downloadLimitBytesPerSecond', downloadLimitBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'uploadLimitBytesPerSecond', uploadLimitBytesPerSecond))
       ..add(DiagnosticsProperty('priority', priority))
       ..add(DiagnosticsProperty('addedOn', addedOn))
       ..add(DiagnosticsProperty('completedOn', completedOn))
+      ..add(DiagnosticsProperty('lastActivity', lastActivity))
       ..add(DiagnosticsProperty('location', location))
+      ..add(DiagnosticsProperty('magnet', magnet))
+      ..add(DiagnosticsProperty('torrentFileLocation', torrentFileLocation))
       ..add(DiagnosticsProperty('ratio', ratio))
-      ..add(DiagnosticsProperty('uploadedBytes', uploadedBytes))
-      ..add(DiagnosticsProperty('origin', origin))
+      ..add(DiagnosticsProperty('uploadedEverBytes', uploadedEverBytes))
+      ..add(DiagnosticsProperty('downloadedEverBytes', downloadedEverBytes))
+      ..add(DiagnosticsProperty('timeDownloading', timeDownloading))
+      ..add(DiagnosticsProperty('timeSeeding', timeSeeding))
       ..add(DiagnosticsProperty('files', files))
       ..add(DiagnosticsProperty('peers', peers))
       ..add(DiagnosticsProperty('trackers', trackers));
@@ -842,18 +1027,38 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
             (identical(other.uploadBytesPerSecond, uploadBytesPerSecond) ||
                 other.uploadBytesPerSecond == uploadBytesPerSecond) &&
             (identical(other.state, state) || other.state == state) &&
-            (identical(other.limited, limited) || other.limited == limited) &&
+            (identical(other.downloadLimited, downloadLimited) ||
+                other.downloadLimited == downloadLimited) &&
+            (identical(other.uploadLimited, uploadLimited) ||
+                other.uploadLimited == uploadLimited) &&
+            (identical(other.downloadLimitBytesPerSecond,
+                    downloadLimitBytesPerSecond) ||
+                other.downloadLimitBytesPerSecond ==
+                    downloadLimitBytesPerSecond) &&
+            (identical(other.uploadLimitBytesPerSecond,
+                    uploadLimitBytesPerSecond) ||
+                other.uploadLimitBytesPerSecond == uploadLimitBytesPerSecond) &&
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.addedOn, addedOn) || other.addedOn == addedOn) &&
             (identical(other.completedOn, completedOn) ||
                 other.completedOn == completedOn) &&
+            (identical(other.lastActivity, lastActivity) ||
+                other.lastActivity == lastActivity) &&
             (identical(other.location, location) ||
                 other.location == location) &&
+            (identical(other.magnet, magnet) || other.magnet == magnet) &&
+            (identical(other.torrentFileLocation, torrentFileLocation) ||
+                other.torrentFileLocation == torrentFileLocation) &&
             (identical(other.ratio, ratio) || other.ratio == ratio) &&
-            (identical(other.uploadedBytes, uploadedBytes) ||
-                other.uploadedBytes == uploadedBytes) &&
-            (identical(other.origin, origin) || other.origin == origin) &&
+            (identical(other.uploadedEverBytes, uploadedEverBytes) ||
+                other.uploadedEverBytes == uploadedEverBytes) &&
+            (identical(other.downloadedEverBytes, downloadedEverBytes) ||
+                other.downloadedEverBytes == downloadedEverBytes) &&
+            (identical(other.timeDownloading, timeDownloading) ||
+                other.timeDownloading == timeDownloading) &&
+            (identical(other.timeSeeding, timeSeeding) ||
+                other.timeSeeding == timeSeeding) &&
             const DeepCollectionEquality().equals(other._files, _files) &&
             const DeepCollectionEquality().equals(other._peers, _peers) &&
             const DeepCollectionEquality().equals(other._trackers, _trackers));
@@ -872,14 +1077,22 @@ class _$_TorrentData with DiagnosticableTreeMixin implements _TorrentData {
         downloadBytesPerSecond,
         uploadBytesPerSecond,
         state,
-        limited,
+        downloadLimited,
+        uploadLimited,
+        downloadLimitBytesPerSecond,
+        uploadLimitBytesPerSecond,
         priority,
         addedOn,
         completedOn,
+        lastActivity,
         location,
+        magnet,
+        torrentFileLocation,
         ratio,
-        uploadedBytes,
-        origin,
+        uploadedEverBytes,
+        downloadedEverBytes,
+        timeDownloading,
+        timeSeeding,
         const DeepCollectionEquality().hash(_files),
         const DeepCollectionEquality().hash(_peers),
         const DeepCollectionEquality().hash(_trackers)
@@ -910,14 +1123,22 @@ abstract class _TorrentData implements TorrentData {
       required final int downloadBytesPerSecond,
       required final int uploadBytesPerSecond,
       required final TorrentState state,
-      required final bool limited,
+      required final bool downloadLimited,
+      required final bool uploadLimited,
+      required final int downloadLimitBytesPerSecond,
+      required final int uploadLimitBytesPerSecond,
       required final TorrentPriority priority,
-      required final DateTime addedOn,
-      required final DateTime? completedOn,
-      required final String location,
+      final DateTime? addedOn,
+      final DateTime? completedOn,
+      final DateTime? lastActivity,
+      final String? location,
+      final String? magnet,
+      final String? torrentFileLocation,
       required final double ratio,
-      required final int uploadedBytes,
-      required final String origin,
+      final int? uploadedEverBytes,
+      final int? downloadedEverBytes,
+      final Duration? timeDownloading,
+      final Duration? timeSeeding,
       required final List<TorrentFileData> files,
       required final List<String> peers,
       required final List<String> trackers}) = _$_TorrentData;
@@ -944,21 +1165,37 @@ abstract class _TorrentData implements TorrentData {
   @override
   TorrentState get state;
   @override
-  bool get limited;
+  bool get downloadLimited;
+  @override
+  bool get uploadLimited;
+  @override
+  int get downloadLimitBytesPerSecond;
+  @override
+  int get uploadLimitBytesPerSecond;
   @override
   TorrentPriority get priority;
   @override
-  DateTime get addedOn;
+  DateTime? get addedOn;
   @override
   DateTime? get completedOn;
   @override
-  String get location;
+  DateTime? get lastActivity;
+  @override
+  String? get location;
+  @override
+  String? get magnet;
+  @override
+  String? get torrentFileLocation;
   @override
   double get ratio;
   @override
-  int get uploadedBytes;
+  int? get uploadedEverBytes;
   @override
-  String get origin;
+  int? get downloadedEverBytes;
+  @override
+  Duration? get timeDownloading;
+  @override
+  Duration? get timeSeeding;
   @override
   List<TorrentFileData> get files;
   @override
@@ -978,10 +1215,10 @@ TorrentFileData _$TorrentFileDataFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TorrentFileData {
   String get name => throw _privateConstructorUsedError;
-  bool get wanted => throw _privateConstructorUsedError;
   int get downloadedBytes => throw _privateConstructorUsedError;
   int get sizeBytes => throw _privateConstructorUsedError;
   TorrentPriority get priority => throw _privateConstructorUsedError;
+  TorrentState get state => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -997,10 +1234,10 @@ abstract class $TorrentFileDataCopyWith<$Res> {
   @useResult
   $Res call(
       {String name,
-      bool wanted,
       int downloadedBytes,
       int sizeBytes,
-      TorrentPriority priority});
+      TorrentPriority priority,
+      TorrentState state});
 }
 
 /// @nodoc
@@ -1017,20 +1254,16 @@ class _$TorrentFileDataCopyWithImpl<$Res, $Val extends TorrentFileData>
   @override
   $Res call({
     Object? name = null,
-    Object? wanted = null,
     Object? downloadedBytes = null,
     Object? sizeBytes = null,
     Object? priority = null,
+    Object? state = null,
   }) {
     return _then(_value.copyWith(
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      wanted: null == wanted
-          ? _value.wanted
-          : wanted // ignore: cast_nullable_to_non_nullable
-              as bool,
       downloadedBytes: null == downloadedBytes
           ? _value.downloadedBytes
           : downloadedBytes // ignore: cast_nullable_to_non_nullable
@@ -1043,6 +1276,10 @@ class _$TorrentFileDataCopyWithImpl<$Res, $Val extends TorrentFileData>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as TorrentState,
     ) as $Val);
   }
 }
@@ -1057,10 +1294,10 @@ abstract class _$$_TorrentFileDataCopyWith<$Res>
   @useResult
   $Res call(
       {String name,
-      bool wanted,
       int downloadedBytes,
       int sizeBytes,
-      TorrentPriority priority});
+      TorrentPriority priority,
+      TorrentState state});
 }
 
 /// @nodoc
@@ -1075,20 +1312,16 @@ class __$$_TorrentFileDataCopyWithImpl<$Res>
   @override
   $Res call({
     Object? name = null,
-    Object? wanted = null,
     Object? downloadedBytes = null,
     Object? sizeBytes = null,
     Object? priority = null,
+    Object? state = null,
   }) {
     return _then(_$_TorrentFileData(
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      wanted: null == wanted
-          ? _value.wanted
-          : wanted // ignore: cast_nullable_to_non_nullable
-              as bool,
       downloadedBytes: null == downloadedBytes
           ? _value.downloadedBytes
           : downloadedBytes // ignore: cast_nullable_to_non_nullable
@@ -1101,6 +1334,10 @@ class __$$_TorrentFileDataCopyWithImpl<$Res>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as TorrentState,
     ));
   }
 }
@@ -1112,10 +1349,10 @@ class _$_TorrentFileData
     implements _TorrentFileData {
   const _$_TorrentFileData(
       {required this.name,
-      required this.wanted,
       required this.downloadedBytes,
       required this.sizeBytes,
-      required this.priority});
+      required this.priority,
+      required this.state});
 
   factory _$_TorrentFileData.fromJson(Map<String, dynamic> json) =>
       _$$_TorrentFileDataFromJson(json);
@@ -1123,17 +1360,17 @@ class _$_TorrentFileData
   @override
   final String name;
   @override
-  final bool wanted;
-  @override
   final int downloadedBytes;
   @override
   final int sizeBytes;
   @override
   final TorrentPriority priority;
+  @override
+  final TorrentState state;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentFileData(name: $name, wanted: $wanted, downloadedBytes: $downloadedBytes, sizeBytes: $sizeBytes, priority: $priority)';
+    return 'TorrentFileData(name: $name, downloadedBytes: $downloadedBytes, sizeBytes: $sizeBytes, priority: $priority, state: $state)';
   }
 
   @override
@@ -1142,10 +1379,10 @@ class _$_TorrentFileData
     properties
       ..add(DiagnosticsProperty('type', 'TorrentFileData'))
       ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('wanted', wanted))
       ..add(DiagnosticsProperty('downloadedBytes', downloadedBytes))
       ..add(DiagnosticsProperty('sizeBytes', sizeBytes))
-      ..add(DiagnosticsProperty('priority', priority));
+      ..add(DiagnosticsProperty('priority', priority))
+      ..add(DiagnosticsProperty('state', state));
   }
 
   @override
@@ -1154,19 +1391,19 @@ class _$_TorrentFileData
         (other.runtimeType == runtimeType &&
             other is _$_TorrentFileData &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.wanted, wanted) || other.wanted == wanted) &&
             (identical(other.downloadedBytes, downloadedBytes) ||
                 other.downloadedBytes == downloadedBytes) &&
             (identical(other.sizeBytes, sizeBytes) ||
                 other.sizeBytes == sizeBytes) &&
             (identical(other.priority, priority) ||
-                other.priority == priority));
+                other.priority == priority) &&
+            (identical(other.state, state) || other.state == state));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType, name, wanted, downloadedBytes, sizeBytes, priority);
+      runtimeType, name, downloadedBytes, sizeBytes, priority, state);
 
   @JsonKey(ignore: true)
   @override
@@ -1185,10 +1422,10 @@ class _$_TorrentFileData
 abstract class _TorrentFileData implements TorrentFileData {
   const factory _TorrentFileData(
       {required final String name,
-      required final bool wanted,
       required final int downloadedBytes,
       required final int sizeBytes,
-      required final TorrentPriority priority}) = _$_TorrentFileData;
+      required final TorrentPriority priority,
+      required final TorrentState state}) = _$_TorrentFileData;
 
   factory _TorrentFileData.fromJson(Map<String, dynamic> json) =
       _$_TorrentFileData.fromJson;
@@ -1196,13 +1433,13 @@ abstract class _TorrentFileData implements TorrentFileData {
   @override
   String get name;
   @override
-  bool get wanted;
-  @override
   int get downloadedBytes;
   @override
   int get sizeBytes;
   @override
   TorrentPriority get priority;
+  @override
+  TorrentState get state;
   @override
   @JsonKey(ignore: true)
   _$$_TorrentFileDataCopyWith<_$_TorrentFileData> get copyWith =>
@@ -1215,6 +1452,11 @@ TorrentsState _$TorrentsStateFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TorrentsState {
+  int get downloadSpeedBytesPerSecond => throw _privateConstructorUsedError;
+  int get uploadSpeedBytesPerSecond => throw _privateConstructorUsedError;
+  int? get downloadLimitBytesPerSecond => throw _privateConstructorUsedError;
+  int? get uploadLimitBytesPerSecond => throw _privateConstructorUsedError;
+  bool get alternativeSpeedLimitsEnabled => throw _privateConstructorUsedError;
   Map<int, List<int>> get downloadSpeeds => throw _privateConstructorUsedError;
   Map<int, List<int>> get uploadSpeeds => throw _privateConstructorUsedError;
   List<TorrentQuickData> get quickTorrents =>
@@ -1234,7 +1476,12 @@ abstract class $TorrentsStateCopyWith<$Res> {
       _$TorrentsStateCopyWithImpl<$Res, TorrentsState>;
   @useResult
   $Res call(
-      {Map<int, List<int>> downloadSpeeds,
+      {int downloadSpeedBytesPerSecond,
+      int uploadSpeedBytesPerSecond,
+      int? downloadLimitBytesPerSecond,
+      int? uploadLimitBytesPerSecond,
+      bool alternativeSpeedLimitsEnabled,
+      Map<int, List<int>> downloadSpeeds,
       Map<int, List<int>> uploadSpeeds,
       List<TorrentQuickData> quickTorrents,
       List<TorrentData> torrents});
@@ -1253,12 +1500,37 @@ class _$TorrentsStateCopyWithImpl<$Res, $Val extends TorrentsState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? downloadSpeedBytesPerSecond = null,
+    Object? uploadSpeedBytesPerSecond = null,
+    Object? downloadLimitBytesPerSecond = freezed,
+    Object? uploadLimitBytesPerSecond = freezed,
+    Object? alternativeSpeedLimitsEnabled = null,
     Object? downloadSpeeds = null,
     Object? uploadSpeeds = null,
     Object? quickTorrents = null,
     Object? torrents = null,
   }) {
     return _then(_value.copyWith(
+      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
+          ? _value.downloadSpeedBytesPerSecond
+          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
+          ? _value.uploadSpeedBytesPerSecond
+          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
+          ? _value.alternativeSpeedLimitsEnabled
+          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
       downloadSpeeds: null == downloadSpeeds
           ? _value.downloadSpeeds
           : downloadSpeeds // ignore: cast_nullable_to_non_nullable
@@ -1288,7 +1560,12 @@ abstract class _$$_TorrentsStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {Map<int, List<int>> downloadSpeeds,
+      {int downloadSpeedBytesPerSecond,
+      int uploadSpeedBytesPerSecond,
+      int? downloadLimitBytesPerSecond,
+      int? uploadLimitBytesPerSecond,
+      bool alternativeSpeedLimitsEnabled,
+      Map<int, List<int>> downloadSpeeds,
       Map<int, List<int>> uploadSpeeds,
       List<TorrentQuickData> quickTorrents,
       List<TorrentData> torrents});
@@ -1305,12 +1582,37 @@ class __$$_TorrentsStateCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? downloadSpeedBytesPerSecond = null,
+    Object? uploadSpeedBytesPerSecond = null,
+    Object? downloadLimitBytesPerSecond = freezed,
+    Object? uploadLimitBytesPerSecond = freezed,
+    Object? alternativeSpeedLimitsEnabled = null,
     Object? downloadSpeeds = null,
     Object? uploadSpeeds = null,
     Object? quickTorrents = null,
     Object? torrents = null,
   }) {
     return _then(_$_TorrentsState(
+      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
+          ? _value.downloadSpeedBytesPerSecond
+          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
+          ? _value.uploadSpeedBytesPerSecond
+          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
+          ? _value.alternativeSpeedLimitsEnabled
+          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
       downloadSpeeds: null == downloadSpeeds
           ? _value._downloadSpeeds
           : downloadSpeeds // ignore: cast_nullable_to_non_nullable
@@ -1335,7 +1637,12 @@ class __$$_TorrentsStateCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
   const _$_TorrentsState(
-      {required final Map<int, List<int>> downloadSpeeds,
+      {required this.downloadSpeedBytesPerSecond,
+      required this.uploadSpeedBytesPerSecond,
+      required this.downloadLimitBytesPerSecond,
+      required this.uploadLimitBytesPerSecond,
+      required this.alternativeSpeedLimitsEnabled,
+      required final Map<int, List<int>> downloadSpeeds,
       required final Map<int, List<int>> uploadSpeeds,
       required final List<TorrentQuickData> quickTorrents,
       required final List<TorrentData> torrents})
@@ -1347,6 +1654,16 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
   factory _$_TorrentsState.fromJson(Map<String, dynamic> json) =>
       _$$_TorrentsStateFromJson(json);
 
+  @override
+  final int downloadSpeedBytesPerSecond;
+  @override
+  final int uploadSpeedBytesPerSecond;
+  @override
+  final int? downloadLimitBytesPerSecond;
+  @override
+  final int? uploadLimitBytesPerSecond;
+  @override
+  final bool alternativeSpeedLimitsEnabled;
   final Map<int, List<int>> _downloadSpeeds;
   @override
   Map<int, List<int>> get downloadSpeeds {
@@ -1381,7 +1698,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentsState(downloadSpeeds: $downloadSpeeds, uploadSpeeds: $uploadSpeeds, quickTorrents: $quickTorrents, torrents: $torrents)';
+    return 'TorrentsState(downloadSpeedBytesPerSecond: $downloadSpeedBytesPerSecond, uploadSpeedBytesPerSecond: $uploadSpeedBytesPerSecond, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, alternativeSpeedLimitsEnabled: $alternativeSpeedLimitsEnabled, downloadSpeeds: $downloadSpeeds, uploadSpeeds: $uploadSpeeds, quickTorrents: $quickTorrents, torrents: $torrents)';
   }
 
   @override
@@ -1389,6 +1706,16 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'TorrentsState'))
+      ..add(DiagnosticsProperty(
+          'downloadSpeedBytesPerSecond', downloadSpeedBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'uploadSpeedBytesPerSecond', uploadSpeedBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'downloadLimitBytesPerSecond', downloadLimitBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'uploadLimitBytesPerSecond', uploadLimitBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'alternativeSpeedLimitsEnabled', alternativeSpeedLimitsEnabled))
       ..add(DiagnosticsProperty('downloadSpeeds', downloadSpeeds))
       ..add(DiagnosticsProperty('uploadSpeeds', uploadSpeeds))
       ..add(DiagnosticsProperty('quickTorrents', quickTorrents))
@@ -1400,6 +1727,24 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_TorrentsState &&
+            (identical(other.downloadSpeedBytesPerSecond,
+                    downloadSpeedBytesPerSecond) ||
+                other.downloadSpeedBytesPerSecond ==
+                    downloadSpeedBytesPerSecond) &&
+            (identical(other.uploadSpeedBytesPerSecond,
+                    uploadSpeedBytesPerSecond) ||
+                other.uploadSpeedBytesPerSecond == uploadSpeedBytesPerSecond) &&
+            (identical(other.downloadLimitBytesPerSecond,
+                    downloadLimitBytesPerSecond) ||
+                other.downloadLimitBytesPerSecond ==
+                    downloadLimitBytesPerSecond) &&
+            (identical(other.uploadLimitBytesPerSecond,
+                    uploadLimitBytesPerSecond) ||
+                other.uploadLimitBytesPerSecond == uploadLimitBytesPerSecond) &&
+            (identical(other.alternativeSpeedLimitsEnabled,
+                    alternativeSpeedLimitsEnabled) ||
+                other.alternativeSpeedLimitsEnabled ==
+                    alternativeSpeedLimitsEnabled) &&
             const DeepCollectionEquality()
                 .equals(other._downloadSpeeds, _downloadSpeeds) &&
             const DeepCollectionEquality()
@@ -1413,6 +1758,11 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      downloadSpeedBytesPerSecond,
+      uploadSpeedBytesPerSecond,
+      downloadLimitBytesPerSecond,
+      uploadLimitBytesPerSecond,
+      alternativeSpeedLimitsEnabled,
       const DeepCollectionEquality().hash(_downloadSpeeds),
       const DeepCollectionEquality().hash(_uploadSpeeds),
       const DeepCollectionEquality().hash(_quickTorrents),
@@ -1434,7 +1784,12 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
 
 abstract class _TorrentsState implements TorrentsState {
   const factory _TorrentsState(
-      {required final Map<int, List<int>> downloadSpeeds,
+      {required final int downloadSpeedBytesPerSecond,
+      required final int uploadSpeedBytesPerSecond,
+      required final int? downloadLimitBytesPerSecond,
+      required final int? uploadLimitBytesPerSecond,
+      required final bool alternativeSpeedLimitsEnabled,
+      required final Map<int, List<int>> downloadSpeeds,
       required final Map<int, List<int>> uploadSpeeds,
       required final List<TorrentQuickData> quickTorrents,
       required final List<TorrentData> torrents}) = _$_TorrentsState;
@@ -1442,6 +1797,16 @@ abstract class _TorrentsState implements TorrentsState {
   factory _TorrentsState.fromJson(Map<String, dynamic> json) =
       _$_TorrentsState.fromJson;
 
+  @override
+  int get downloadSpeedBytesPerSecond;
+  @override
+  int get uploadSpeedBytesPerSecond;
+  @override
+  int? get downloadLimitBytesPerSecond;
+  @override
+  int? get uploadLimitBytesPerSecond;
+  @override
+  bool get alternativeSpeedLimitsEnabled;
   @override
   Map<int, List<int>> get downloadSpeeds;
   @override

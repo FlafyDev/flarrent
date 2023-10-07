@@ -15,7 +15,7 @@ enum TorrentState {
 
 enum TorrentPriority {
   low,
-  medium,
+  normal,
   high,
 }
 
@@ -29,8 +29,10 @@ class TorrentQuickData with _$TorrentQuickData {
     required int sizeBytes,
     required Duration estimatedTimeLeft,
     required int downloadBytesPerSecond,
+    required bool downloadLimited,
+    required int uploadBytesPerSecond,
+    required bool uploadLimited,
     required TorrentState state,
-    required bool limited,
     required TorrentPriority priority,
   }) = _TorrentQuickData;
 
@@ -50,14 +52,22 @@ class TorrentData with _$TorrentData {
     required int downloadBytesPerSecond,
     required int uploadBytesPerSecond,
     required TorrentState state,
-    required bool limited,
+    required bool downloadLimited,
+    required bool uploadLimited,
+    required int downloadLimitBytesPerSecond,
+    required int uploadLimitBytesPerSecond,
     required TorrentPriority priority,
-    required DateTime addedOn,
-    required DateTime? completedOn,
-    required String location,
+    DateTime? addedOn,
+    DateTime? completedOn,
+    DateTime? lastActivity,
+    String? location,
+    String? magnet,
+    String? torrentFileLocation,
     required double ratio,
-    required int uploadedBytes,
-    required String origin,
+    int? uploadedEverBytes,
+    int? downloadedEverBytes,
+    Duration? timeDownloading,
+    Duration? timeSeeding,
     required List<TorrentFileData> files,
     required List<String> peers,
     required List<String> trackers,
@@ -71,10 +81,10 @@ class TorrentData with _$TorrentData {
 class TorrentFileData with _$TorrentFileData {
   const factory TorrentFileData({
     required String name,
-    required bool wanted,
     required int downloadedBytes,
     required int sizeBytes,
     required TorrentPriority priority,
+    required TorrentState state,
   }) = _TorrentFileData;
 
   factory TorrentFileData.fromJson(Map<String, Object?> json)
@@ -85,6 +95,12 @@ class TorrentFileData with _$TorrentFileData {
 @freezed
 class TorrentsState with _$TorrentsState {
   const factory TorrentsState({
+    required int downloadSpeedBytesPerSecond,
+    required int uploadSpeedBytesPerSecond,
+    required int? downloadLimitBytesPerSecond,
+    required int? uploadLimitBytesPerSecond,
+    required bool alternativeSpeedLimitsEnabled,
+    required int freeSpaceBytes,
     required Map<int, List<int>> downloadSpeeds,
     required Map<int, List<int>> uploadSpeeds,
     required List<TorrentQuickData> quickTorrents,
