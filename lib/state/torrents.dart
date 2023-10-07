@@ -16,21 +16,30 @@ class Torrents extends StateNotifier<TorrentsState> {
             uploadSpeeds: {},
             downloadSpeeds: {},
             quickTorrents: [],
-            downloadSpeedBytesPerSecond: 0,
-            uploadSpeedBytesPerSecond: 0,
-            downloadLimitBytesPerSecond: null,
-            uploadLimitBytesPerSecond: null,
-            alternativeSpeedLimitsEnabled: false,
+            client: ClientState(
+              downloadSpeedBytesPerSecond: 0,
+              uploadSpeedBytesPerSecond: 0,
+              downloadLimitBytesPerSecond: null,
+              uploadLimitBytesPerSecond: null,
+              alternativeSpeedLimitsEnabled: false,
+              freeSpaceBytes: 0,
+            ),
           ),
         ) {
     _subscription = ref.listen(transmissionTorrentsProvider, (previous, next) {
-      _onTransmissionTorrents(next.valueOrNull?.$1 ?? [], next.valueOrNull?.$2);
+      if (next.valueOrNull == null) return;
+      _onTransmissionTorrents(next.valueOrNull!);
+    });
+    _subscription2 = ref.listen(transmissionSessionProvider, (previous, next) {
+      if (next.valueOrNull == null) return;
+      _onTransmissionSession(next.valueOrNull!);
     });
   }
 
   final StateNotifierProviderRef<Torrents, TorrentsState> ref;
   final Transmission transmission;
-  ProviderSubscription<AsyncValue<(List<TransmissionTorrent>, TransmissionSession)>>? _subscription;
+  ProviderSubscription<AsyncValue<List<TransmissionTorrent>>>? _subscription;
+  ProviderSubscription<AsyncValue<TransmissionSession>>? _subscription2;
 
   Future<void> pause(List<int> ids) async {
     if (ids.isEmpty) return;
@@ -40,16 +49,24 @@ class Torrents extends StateNotifier<TorrentsState> {
   Future<void> resume(List<int> ids) async {
     if (ids.isEmpty) return;
     await transmission.startTorrent(ids: ids);
+    ref.invalidate(transmissionTorrentsProvider);
   }
 
   Future<void> deleteTorrent(List<int> ids, {required bool deleteData}) async {
     if (ids.isEmpty) return;
     await transmission.removeTorrent(ids: ids, deleteLocalData: deleteData);
+    ref.invalidate(transmissionTorrentsProvider);
   }
 
   Future<void> changePriority(List<int> ids, TorrentPriority newPriority) async {
     if (ids.isEmpty) return;
     await transmission.setTorrents(ids: ids, bandwidthPriority: _priorityToTransPriority(newPriority));
+    ref.invalidate(transmissionTorrentsProvider);
+  }
+
+  Future<void> setAlternativeLimits({required bool enabled}) async {
+    await transmission.setSession(altSpeedEnabled: enabled);
+    ref.invalidate(transmissionSessionProvider);
   }
 
   Future<void> setTorrentsLimit(List<int> ids, int? downloadBytesLimit, int? uploadBytesLimit) async {
@@ -61,16 +78,19 @@ class Torrents extends StateNotifier<TorrentsState> {
       downloadLimited: downloadBytesLimit != null,
       uploadLimited: uploadBytesLimit != null,
     );
+    ref.invalidate(transmissionTorrentsProvider);
   }
 
   Future<void> pauseFiles(int torrentId, List<int> files) async {
     if (files.isEmpty) return;
     await transmission.setTorrents(ids: [torrentId], filesUnwanted: files);
+    ref.invalidate(transmissionTorrentsProvider);
   }
 
   Future<void> resumeFiles(int torrentId, List<int> files) async {
     if (files.isEmpty) return;
     await transmission.setTorrents(ids: [torrentId], filesWanted: files);
+    ref.invalidate(transmissionTorrentsProvider);
   }
 
   TorrentState _transStatusToState(TransmissionTorrent torrent) {
@@ -102,7 +122,30 @@ class Torrents extends StateNotifier<TorrentsState> {
     };
   }
 
-  void _onTransmissionTorrents(List<TransmissionTorrent> torrents, TransmissionSession? session) {
+  void _onTransmissionSession(TransmissionSession session) {
+    int? downLimit;
+    int? upLimit;
+
+    if (session.altSpeedEnabled!) {
+      downLimit = session.altSpeedDown! * 1024;
+      upLimit = session.altSpeedUp! * 1024;
+    } else {
+      downLimit = session.speedLimitDownEnabled! ? session.speedLimitDown! * 1024 : null;
+      upLimit = session.speedLimitUpEnabled! ? session.speedLimitUp! * 1024 : null;
+    }
+    state = state.copyWith(
+      client: ClientState(
+        downloadSpeedBytesPerSecond: 0, // TODO
+        uploadSpeedBytesPerSecond: 0, // TODO
+        downloadLimitBytesPerSecond: downLimit,
+        uploadLimitBytesPerSecond: upLimit,
+        alternativeSpeedLimitsEnabled: session.altSpeedEnabled!,
+        freeSpaceBytes: 0, // TODO
+      ),
+    );
+  }
+
+  void _onTransmissionTorrents(List<TransmissionTorrent> torrents) {
     state = state.copyWith(
       downloadSpeeds: torrents.fold(
         {},
@@ -139,6 +182,8 @@ class Torrents extends StateNotifier<TorrentsState> {
             uploadLimited: torrent.uploadLimited!,
             state: _transStatusToState(torrent),
             priority: _transPriorityToPriority(torrent.bandwidthPriority!),
+            addedOn: torrent.addedDate,
+            completedOn: torrent.doneDate,
           );
         },
       ).toList(),
@@ -199,6 +244,7 @@ class Torrents extends StateNotifier<TorrentsState> {
   @override
   void dispose() {
     _subscription?.close();
+    _subscription2?.close();
     super.dispose();
   }
 }

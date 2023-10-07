@@ -34,10 +34,11 @@ class TorrentQuickData with _$TorrentQuickData {
     required bool uploadLimited,
     required TorrentState state,
     required TorrentPriority priority,
+    DateTime? addedOn,
+    DateTime? completedOn,
   }) = _TorrentQuickData;
 
-  factory TorrentQuickData.fromJson(Map<String, Object?> json)
-      => _$TorrentQuickDataFromJson(json);
+  factory TorrentQuickData.fromJson(Map<String, Object?> json) => _$TorrentQuickDataFromJson(json);
 }
 
 @freezed
@@ -73,8 +74,7 @@ class TorrentData with _$TorrentData {
     required List<String> trackers,
   }) = _TorrentData;
 
-  factory TorrentData.fromJson(Map<String, Object?> json)
-      => _$TorrentDataFromJson(json);
+  factory TorrentData.fromJson(Map<String, Object?> json) => _$TorrentDataFromJson(json);
 }
 
 @freezed
@@ -87,26 +87,32 @@ class TorrentFileData with _$TorrentFileData {
     required TorrentState state,
   }) = _TorrentFileData;
 
-  factory TorrentFileData.fromJson(Map<String, Object?> json)
-      => _$TorrentFileDataFromJson(json);
+  factory TorrentFileData.fromJson(Map<String, Object?> json) => _$TorrentFileDataFromJson(json);
 }
-
 
 @freezed
 class TorrentsState with _$TorrentsState {
   const factory TorrentsState({
-    required int downloadSpeedBytesPerSecond,
-    required int uploadSpeedBytesPerSecond,
-    required int? downloadLimitBytesPerSecond,
-    required int? uploadLimitBytesPerSecond,
-    required bool alternativeSpeedLimitsEnabled,
-    required int freeSpaceBytes,
+    required ClientState client,
     required Map<int, List<int>> downloadSpeeds,
     required Map<int, List<int>> uploadSpeeds,
     required List<TorrentQuickData> quickTorrents,
     required List<TorrentData> torrents,
   }) = _TorrentsState;
 
-  factory TorrentsState.fromJson(Map<String, Object?> json)
-      => _$TorrentsStateFromJson(json);
+  factory TorrentsState.fromJson(Map<String, Object?> json) => _$TorrentsStateFromJson(json);
+}
+
+@freezed
+class ClientState with _$ClientState {
+  const factory ClientState({
+    required int downloadSpeedBytesPerSecond,
+    required int uploadSpeedBytesPerSecond,
+    required int? downloadLimitBytesPerSecond,
+    required int? uploadLimitBytesPerSecond,
+    required bool alternativeSpeedLimitsEnabled,
+    required int freeSpaceBytes,
+  }) = _ClientState;
+
+  factory ClientState.fromJson(Map<String, Object?> json) => _$ClientStateFromJson(json);
 }

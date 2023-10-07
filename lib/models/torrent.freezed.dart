@@ -32,6 +32,8 @@ mixin _$TorrentQuickData {
   bool get uploadLimited => throw _privateConstructorUsedError;
   TorrentState get state => throw _privateConstructorUsedError;
   TorrentPriority get priority => throw _privateConstructorUsedError;
+  DateTime? get addedOn => throw _privateConstructorUsedError;
+  DateTime? get completedOn => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -57,7 +59,9 @@ abstract class $TorrentQuickDataCopyWith<$Res> {
       int uploadBytesPerSecond,
       bool uploadLimited,
       TorrentState state,
-      TorrentPriority priority});
+      TorrentPriority priority,
+      DateTime? addedOn,
+      DateTime? completedOn});
 }
 
 /// @nodoc
@@ -85,6 +89,8 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
     Object? uploadLimited = null,
     Object? state = null,
     Object? priority = null,
+    Object? addedOn = freezed,
+    Object? completedOn = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -135,6 +141,14 @@ class _$TorrentQuickDataCopyWithImpl<$Res, $Val extends TorrentQuickData>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
+      addedOn: freezed == addedOn
+          ? _value.addedOn
+          : addedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedOn: freezed == completedOn
+          ? _value.completedOn
+          : completedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -159,7 +173,9 @@ abstract class _$$_TorrentQuickDataCopyWith<$Res>
       int uploadBytesPerSecond,
       bool uploadLimited,
       TorrentState state,
-      TorrentPriority priority});
+      TorrentPriority priority,
+      DateTime? addedOn,
+      DateTime? completedOn});
 }
 
 /// @nodoc
@@ -185,6 +201,8 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
     Object? uploadLimited = null,
     Object? state = null,
     Object? priority = null,
+    Object? addedOn = freezed,
+    Object? completedOn = freezed,
   }) {
     return _then(_$_TorrentQuickData(
       id: null == id
@@ -235,6 +253,14 @@ class __$$_TorrentQuickDataCopyWithImpl<$Res>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as TorrentPriority,
+      addedOn: freezed == addedOn
+          ? _value.addedOn
+          : addedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedOn: freezed == completedOn
+          ? _value.completedOn
+          : completedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -256,7 +282,9 @@ class _$_TorrentQuickData
       required this.uploadBytesPerSecond,
       required this.uploadLimited,
       required this.state,
-      required this.priority});
+      required this.priority,
+      this.addedOn,
+      this.completedOn});
 
   factory _$_TorrentQuickData.fromJson(Map<String, dynamic> json) =>
       _$$_TorrentQuickDataFromJson(json);
@@ -285,10 +313,14 @@ class _$_TorrentQuickData
   final TorrentState state;
   @override
   final TorrentPriority priority;
+  @override
+  final DateTime? addedOn;
+  @override
+  final DateTime? completedOn;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, downloadLimited: $downloadLimited, uploadBytesPerSecond: $uploadBytesPerSecond, uploadLimited: $uploadLimited, state: $state, priority: $priority)';
+    return 'TorrentQuickData(id: $id, name: $name, downloadedBytes: $downloadedBytes, sizeToDownloadBytes: $sizeToDownloadBytes, sizeBytes: $sizeBytes, estimatedTimeLeft: $estimatedTimeLeft, downloadBytesPerSecond: $downloadBytesPerSecond, downloadLimited: $downloadLimited, uploadBytesPerSecond: $uploadBytesPerSecond, uploadLimited: $uploadLimited, state: $state, priority: $priority, addedOn: $addedOn, completedOn: $completedOn)';
   }
 
   @override
@@ -308,7 +340,9 @@ class _$_TorrentQuickData
       ..add(DiagnosticsProperty('uploadBytesPerSecond', uploadBytesPerSecond))
       ..add(DiagnosticsProperty('uploadLimited', uploadLimited))
       ..add(DiagnosticsProperty('state', state))
-      ..add(DiagnosticsProperty('priority', priority));
+      ..add(DiagnosticsProperty('priority', priority))
+      ..add(DiagnosticsProperty('addedOn', addedOn))
+      ..add(DiagnosticsProperty('completedOn', completedOn));
   }
 
   @override
@@ -336,7 +370,10 @@ class _$_TorrentQuickData
                 other.uploadLimited == uploadLimited) &&
             (identical(other.state, state) || other.state == state) &&
             (identical(other.priority, priority) ||
-                other.priority == priority));
+                other.priority == priority) &&
+            (identical(other.addedOn, addedOn) || other.addedOn == addedOn) &&
+            (identical(other.completedOn, completedOn) ||
+                other.completedOn == completedOn));
   }
 
   @JsonKey(ignore: true)
@@ -354,7 +391,9 @@ class _$_TorrentQuickData
       uploadBytesPerSecond,
       uploadLimited,
       state,
-      priority);
+      priority,
+      addedOn,
+      completedOn);
 
   @JsonKey(ignore: true)
   @override
@@ -383,7 +422,9 @@ abstract class _TorrentQuickData implements TorrentQuickData {
       required final int uploadBytesPerSecond,
       required final bool uploadLimited,
       required final TorrentState state,
-      required final TorrentPriority priority}) = _$_TorrentQuickData;
+      required final TorrentPriority priority,
+      final DateTime? addedOn,
+      final DateTime? completedOn}) = _$_TorrentQuickData;
 
   factory _TorrentQuickData.fromJson(Map<String, dynamic> json) =
       _$_TorrentQuickData.fromJson;
@@ -412,6 +453,10 @@ abstract class _TorrentQuickData implements TorrentQuickData {
   TorrentState get state;
   @override
   TorrentPriority get priority;
+  @override
+  DateTime? get addedOn;
+  @override
+  DateTime? get completedOn;
   @override
   @JsonKey(ignore: true)
   _$$_TorrentQuickDataCopyWith<_$_TorrentQuickData> get copyWith =>
@@ -1452,11 +1497,7 @@ TorrentsState _$TorrentsStateFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TorrentsState {
-  int get downloadSpeedBytesPerSecond => throw _privateConstructorUsedError;
-  int get uploadSpeedBytesPerSecond => throw _privateConstructorUsedError;
-  int? get downloadLimitBytesPerSecond => throw _privateConstructorUsedError;
-  int? get uploadLimitBytesPerSecond => throw _privateConstructorUsedError;
-  bool get alternativeSpeedLimitsEnabled => throw _privateConstructorUsedError;
+  ClientState get client => throw _privateConstructorUsedError;
   Map<int, List<int>> get downloadSpeeds => throw _privateConstructorUsedError;
   Map<int, List<int>> get uploadSpeeds => throw _privateConstructorUsedError;
   List<TorrentQuickData> get quickTorrents =>
@@ -1476,15 +1517,13 @@ abstract class $TorrentsStateCopyWith<$Res> {
       _$TorrentsStateCopyWithImpl<$Res, TorrentsState>;
   @useResult
   $Res call(
-      {int downloadSpeedBytesPerSecond,
-      int uploadSpeedBytesPerSecond,
-      int? downloadLimitBytesPerSecond,
-      int? uploadLimitBytesPerSecond,
-      bool alternativeSpeedLimitsEnabled,
+      {ClientState client,
       Map<int, List<int>> downloadSpeeds,
       Map<int, List<int>> uploadSpeeds,
       List<TorrentQuickData> quickTorrents,
       List<TorrentData> torrents});
+
+  $ClientStateCopyWith<$Res> get client;
 }
 
 /// @nodoc
@@ -1500,37 +1539,17 @@ class _$TorrentsStateCopyWithImpl<$Res, $Val extends TorrentsState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? downloadSpeedBytesPerSecond = null,
-    Object? uploadSpeedBytesPerSecond = null,
-    Object? downloadLimitBytesPerSecond = freezed,
-    Object? uploadLimitBytesPerSecond = freezed,
-    Object? alternativeSpeedLimitsEnabled = null,
+    Object? client = null,
     Object? downloadSpeeds = null,
     Object? uploadSpeeds = null,
     Object? quickTorrents = null,
     Object? torrents = null,
   }) {
     return _then(_value.copyWith(
-      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
-          ? _value.downloadSpeedBytesPerSecond
-          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int,
-      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
-          ? _value.uploadSpeedBytesPerSecond
-          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int,
-      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
-          ? _value.downloadLimitBytesPerSecond
-          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int?,
-      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
-          ? _value.uploadLimitBytesPerSecond
-          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int?,
-      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
-          ? _value.alternativeSpeedLimitsEnabled
-          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
+      client: null == client
+          ? _value.client
+          : client // ignore: cast_nullable_to_non_nullable
+              as ClientState,
       downloadSpeeds: null == downloadSpeeds
           ? _value.downloadSpeeds
           : downloadSpeeds // ignore: cast_nullable_to_non_nullable
@@ -1549,6 +1568,14 @@ class _$TorrentsStateCopyWithImpl<$Res, $Val extends TorrentsState>
               as List<TorrentData>,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $ClientStateCopyWith<$Res> get client {
+    return $ClientStateCopyWith<$Res>(_value.client, (value) {
+      return _then(_value.copyWith(client: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -1560,15 +1587,14 @@ abstract class _$$_TorrentsStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int downloadSpeedBytesPerSecond,
-      int uploadSpeedBytesPerSecond,
-      int? downloadLimitBytesPerSecond,
-      int? uploadLimitBytesPerSecond,
-      bool alternativeSpeedLimitsEnabled,
+      {ClientState client,
       Map<int, List<int>> downloadSpeeds,
       Map<int, List<int>> uploadSpeeds,
       List<TorrentQuickData> quickTorrents,
       List<TorrentData> torrents});
+
+  @override
+  $ClientStateCopyWith<$Res> get client;
 }
 
 /// @nodoc
@@ -1582,37 +1608,17 @@ class __$$_TorrentsStateCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? downloadSpeedBytesPerSecond = null,
-    Object? uploadSpeedBytesPerSecond = null,
-    Object? downloadLimitBytesPerSecond = freezed,
-    Object? uploadLimitBytesPerSecond = freezed,
-    Object? alternativeSpeedLimitsEnabled = null,
+    Object? client = null,
     Object? downloadSpeeds = null,
     Object? uploadSpeeds = null,
     Object? quickTorrents = null,
     Object? torrents = null,
   }) {
     return _then(_$_TorrentsState(
-      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
-          ? _value.downloadSpeedBytesPerSecond
-          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int,
-      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
-          ? _value.uploadSpeedBytesPerSecond
-          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int,
-      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
-          ? _value.downloadLimitBytesPerSecond
-          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int?,
-      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
-          ? _value.uploadLimitBytesPerSecond
-          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
-              as int?,
-      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
-          ? _value.alternativeSpeedLimitsEnabled
-          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
+      client: null == client
+          ? _value.client
+          : client // ignore: cast_nullable_to_non_nullable
+              as ClientState,
       downloadSpeeds: null == downloadSpeeds
           ? _value._downloadSpeeds
           : downloadSpeeds // ignore: cast_nullable_to_non_nullable
@@ -1637,11 +1643,7 @@ class __$$_TorrentsStateCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
   const _$_TorrentsState(
-      {required this.downloadSpeedBytesPerSecond,
-      required this.uploadSpeedBytesPerSecond,
-      required this.downloadLimitBytesPerSecond,
-      required this.uploadLimitBytesPerSecond,
-      required this.alternativeSpeedLimitsEnabled,
+      {required this.client,
       required final Map<int, List<int>> downloadSpeeds,
       required final Map<int, List<int>> uploadSpeeds,
       required final List<TorrentQuickData> quickTorrents,
@@ -1655,15 +1657,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
       _$$_TorrentsStateFromJson(json);
 
   @override
-  final int downloadSpeedBytesPerSecond;
-  @override
-  final int uploadSpeedBytesPerSecond;
-  @override
-  final int? downloadLimitBytesPerSecond;
-  @override
-  final int? uploadLimitBytesPerSecond;
-  @override
-  final bool alternativeSpeedLimitsEnabled;
+  final ClientState client;
   final Map<int, List<int>> _downloadSpeeds;
   @override
   Map<int, List<int>> get downloadSpeeds {
@@ -1698,7 +1692,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TorrentsState(downloadSpeedBytesPerSecond: $downloadSpeedBytesPerSecond, uploadSpeedBytesPerSecond: $uploadSpeedBytesPerSecond, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, alternativeSpeedLimitsEnabled: $alternativeSpeedLimitsEnabled, downloadSpeeds: $downloadSpeeds, uploadSpeeds: $uploadSpeeds, quickTorrents: $quickTorrents, torrents: $torrents)';
+    return 'TorrentsState(client: $client, downloadSpeeds: $downloadSpeeds, uploadSpeeds: $uploadSpeeds, quickTorrents: $quickTorrents, torrents: $torrents)';
   }
 
   @override
@@ -1706,16 +1700,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'TorrentsState'))
-      ..add(DiagnosticsProperty(
-          'downloadSpeedBytesPerSecond', downloadSpeedBytesPerSecond))
-      ..add(DiagnosticsProperty(
-          'uploadSpeedBytesPerSecond', uploadSpeedBytesPerSecond))
-      ..add(DiagnosticsProperty(
-          'downloadLimitBytesPerSecond', downloadLimitBytesPerSecond))
-      ..add(DiagnosticsProperty(
-          'uploadLimitBytesPerSecond', uploadLimitBytesPerSecond))
-      ..add(DiagnosticsProperty(
-          'alternativeSpeedLimitsEnabled', alternativeSpeedLimitsEnabled))
+      ..add(DiagnosticsProperty('client', client))
       ..add(DiagnosticsProperty('downloadSpeeds', downloadSpeeds))
       ..add(DiagnosticsProperty('uploadSpeeds', uploadSpeeds))
       ..add(DiagnosticsProperty('quickTorrents', quickTorrents))
@@ -1727,24 +1712,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_TorrentsState &&
-            (identical(other.downloadSpeedBytesPerSecond,
-                    downloadSpeedBytesPerSecond) ||
-                other.downloadSpeedBytesPerSecond ==
-                    downloadSpeedBytesPerSecond) &&
-            (identical(other.uploadSpeedBytesPerSecond,
-                    uploadSpeedBytesPerSecond) ||
-                other.uploadSpeedBytesPerSecond == uploadSpeedBytesPerSecond) &&
-            (identical(other.downloadLimitBytesPerSecond,
-                    downloadLimitBytesPerSecond) ||
-                other.downloadLimitBytesPerSecond ==
-                    downloadLimitBytesPerSecond) &&
-            (identical(other.uploadLimitBytesPerSecond,
-                    uploadLimitBytesPerSecond) ||
-                other.uploadLimitBytesPerSecond == uploadLimitBytesPerSecond) &&
-            (identical(other.alternativeSpeedLimitsEnabled,
-                    alternativeSpeedLimitsEnabled) ||
-                other.alternativeSpeedLimitsEnabled ==
-                    alternativeSpeedLimitsEnabled) &&
+            (identical(other.client, client) || other.client == client) &&
             const DeepCollectionEquality()
                 .equals(other._downloadSpeeds, _downloadSpeeds) &&
             const DeepCollectionEquality()
@@ -1758,11 +1726,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      downloadSpeedBytesPerSecond,
-      uploadSpeedBytesPerSecond,
-      downloadLimitBytesPerSecond,
-      uploadLimitBytesPerSecond,
-      alternativeSpeedLimitsEnabled,
+      client,
       const DeepCollectionEquality().hash(_downloadSpeeds),
       const DeepCollectionEquality().hash(_uploadSpeeds),
       const DeepCollectionEquality().hash(_quickTorrents),
@@ -1784,11 +1748,7 @@ class _$_TorrentsState with DiagnosticableTreeMixin implements _TorrentsState {
 
 abstract class _TorrentsState implements TorrentsState {
   const factory _TorrentsState(
-      {required final int downloadSpeedBytesPerSecond,
-      required final int uploadSpeedBytesPerSecond,
-      required final int? downloadLimitBytesPerSecond,
-      required final int? uploadLimitBytesPerSecond,
-      required final bool alternativeSpeedLimitsEnabled,
+      {required final ClientState client,
       required final Map<int, List<int>> downloadSpeeds,
       required final Map<int, List<int>> uploadSpeeds,
       required final List<TorrentQuickData> quickTorrents,
@@ -1796,6 +1756,283 @@ abstract class _TorrentsState implements TorrentsState {
 
   factory _TorrentsState.fromJson(Map<String, dynamic> json) =
       _$_TorrentsState.fromJson;
+
+  @override
+  ClientState get client;
+  @override
+  Map<int, List<int>> get downloadSpeeds;
+  @override
+  Map<int, List<int>> get uploadSpeeds;
+  @override
+  List<TorrentQuickData> get quickTorrents;
+  @override
+  List<TorrentData> get torrents;
+  @override
+  @JsonKey(ignore: true)
+  _$$_TorrentsStateCopyWith<_$_TorrentsState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ClientState _$ClientStateFromJson(Map<String, dynamic> json) {
+  return _ClientState.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ClientState {
+  int get downloadSpeedBytesPerSecond => throw _privateConstructorUsedError;
+  int get uploadSpeedBytesPerSecond => throw _privateConstructorUsedError;
+  int? get downloadLimitBytesPerSecond => throw _privateConstructorUsedError;
+  int? get uploadLimitBytesPerSecond => throw _privateConstructorUsedError;
+  bool get alternativeSpeedLimitsEnabled => throw _privateConstructorUsedError;
+  int get freeSpaceBytes => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ClientStateCopyWith<ClientState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ClientStateCopyWith<$Res> {
+  factory $ClientStateCopyWith(
+          ClientState value, $Res Function(ClientState) then) =
+      _$ClientStateCopyWithImpl<$Res, ClientState>;
+  @useResult
+  $Res call(
+      {int downloadSpeedBytesPerSecond,
+      int uploadSpeedBytesPerSecond,
+      int? downloadLimitBytesPerSecond,
+      int? uploadLimitBytesPerSecond,
+      bool alternativeSpeedLimitsEnabled,
+      int freeSpaceBytes});
+}
+
+/// @nodoc
+class _$ClientStateCopyWithImpl<$Res, $Val extends ClientState>
+    implements $ClientStateCopyWith<$Res> {
+  _$ClientStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? downloadSpeedBytesPerSecond = null,
+    Object? uploadSpeedBytesPerSecond = null,
+    Object? downloadLimitBytesPerSecond = freezed,
+    Object? uploadLimitBytesPerSecond = freezed,
+    Object? alternativeSpeedLimitsEnabled = null,
+    Object? freeSpaceBytes = null,
+  }) {
+    return _then(_value.copyWith(
+      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
+          ? _value.downloadSpeedBytesPerSecond
+          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
+          ? _value.uploadSpeedBytesPerSecond
+          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
+          ? _value.alternativeSpeedLimitsEnabled
+          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      freeSpaceBytes: null == freeSpaceBytes
+          ? _value.freeSpaceBytes
+          : freeSpaceBytes // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$_ClientStateCopyWith<$Res>
+    implements $ClientStateCopyWith<$Res> {
+  factory _$$_ClientStateCopyWith(
+          _$_ClientState value, $Res Function(_$_ClientState) then) =
+      __$$_ClientStateCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int downloadSpeedBytesPerSecond,
+      int uploadSpeedBytesPerSecond,
+      int? downloadLimitBytesPerSecond,
+      int? uploadLimitBytesPerSecond,
+      bool alternativeSpeedLimitsEnabled,
+      int freeSpaceBytes});
+}
+
+/// @nodoc
+class __$$_ClientStateCopyWithImpl<$Res>
+    extends _$ClientStateCopyWithImpl<$Res, _$_ClientState>
+    implements _$$_ClientStateCopyWith<$Res> {
+  __$$_ClientStateCopyWithImpl(
+      _$_ClientState _value, $Res Function(_$_ClientState) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? downloadSpeedBytesPerSecond = null,
+    Object? uploadSpeedBytesPerSecond = null,
+    Object? downloadLimitBytesPerSecond = freezed,
+    Object? uploadLimitBytesPerSecond = freezed,
+    Object? alternativeSpeedLimitsEnabled = null,
+    Object? freeSpaceBytes = null,
+  }) {
+    return _then(_$_ClientState(
+      downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
+          ? _value.downloadSpeedBytesPerSecond
+          : downloadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      uploadSpeedBytesPerSecond: null == uploadSpeedBytesPerSecond
+          ? _value.uploadSpeedBytesPerSecond
+          : uploadSpeedBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int,
+      downloadLimitBytesPerSecond: freezed == downloadLimitBytesPerSecond
+          ? _value.downloadLimitBytesPerSecond
+          : downloadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      uploadLimitBytesPerSecond: freezed == uploadLimitBytesPerSecond
+          ? _value.uploadLimitBytesPerSecond
+          : uploadLimitBytesPerSecond // ignore: cast_nullable_to_non_nullable
+              as int?,
+      alternativeSpeedLimitsEnabled: null == alternativeSpeedLimitsEnabled
+          ? _value.alternativeSpeedLimitsEnabled
+          : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      freeSpaceBytes: null == freeSpaceBytes
+          ? _value.freeSpaceBytes
+          : freeSpaceBytes // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
+  const _$_ClientState(
+      {required this.downloadSpeedBytesPerSecond,
+      required this.uploadSpeedBytesPerSecond,
+      required this.downloadLimitBytesPerSecond,
+      required this.uploadLimitBytesPerSecond,
+      required this.alternativeSpeedLimitsEnabled,
+      required this.freeSpaceBytes});
+
+  factory _$_ClientState.fromJson(Map<String, dynamic> json) =>
+      _$$_ClientStateFromJson(json);
+
+  @override
+  final int downloadSpeedBytesPerSecond;
+  @override
+  final int uploadSpeedBytesPerSecond;
+  @override
+  final int? downloadLimitBytesPerSecond;
+  @override
+  final int? uploadLimitBytesPerSecond;
+  @override
+  final bool alternativeSpeedLimitsEnabled;
+  @override
+  final int freeSpaceBytes;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'ClientState(downloadSpeedBytesPerSecond: $downloadSpeedBytesPerSecond, uploadSpeedBytesPerSecond: $uploadSpeedBytesPerSecond, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, alternativeSpeedLimitsEnabled: $alternativeSpeedLimitsEnabled, freeSpaceBytes: $freeSpaceBytes)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'ClientState'))
+      ..add(DiagnosticsProperty(
+          'downloadSpeedBytesPerSecond', downloadSpeedBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'uploadSpeedBytesPerSecond', uploadSpeedBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'downloadLimitBytesPerSecond', downloadLimitBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'uploadLimitBytesPerSecond', uploadLimitBytesPerSecond))
+      ..add(DiagnosticsProperty(
+          'alternativeSpeedLimitsEnabled', alternativeSpeedLimitsEnabled))
+      ..add(DiagnosticsProperty('freeSpaceBytes', freeSpaceBytes));
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_ClientState &&
+            (identical(other.downloadSpeedBytesPerSecond,
+                    downloadSpeedBytesPerSecond) ||
+                other.downloadSpeedBytesPerSecond ==
+                    downloadSpeedBytesPerSecond) &&
+            (identical(other.uploadSpeedBytesPerSecond,
+                    uploadSpeedBytesPerSecond) ||
+                other.uploadSpeedBytesPerSecond == uploadSpeedBytesPerSecond) &&
+            (identical(other.downloadLimitBytesPerSecond,
+                    downloadLimitBytesPerSecond) ||
+                other.downloadLimitBytesPerSecond ==
+                    downloadLimitBytesPerSecond) &&
+            (identical(other.uploadLimitBytesPerSecond,
+                    uploadLimitBytesPerSecond) ||
+                other.uploadLimitBytesPerSecond == uploadLimitBytesPerSecond) &&
+            (identical(other.alternativeSpeedLimitsEnabled,
+                    alternativeSpeedLimitsEnabled) ||
+                other.alternativeSpeedLimitsEnabled ==
+                    alternativeSpeedLimitsEnabled) &&
+            (identical(other.freeSpaceBytes, freeSpaceBytes) ||
+                other.freeSpaceBytes == freeSpaceBytes));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      downloadSpeedBytesPerSecond,
+      uploadSpeedBytesPerSecond,
+      downloadLimitBytesPerSecond,
+      uploadLimitBytesPerSecond,
+      alternativeSpeedLimitsEnabled,
+      freeSpaceBytes);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_ClientStateCopyWith<_$_ClientState> get copyWith =>
+      __$$_ClientStateCopyWithImpl<_$_ClientState>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_ClientStateToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ClientState implements ClientState {
+  const factory _ClientState(
+      {required final int downloadSpeedBytesPerSecond,
+      required final int uploadSpeedBytesPerSecond,
+      required final int? downloadLimitBytesPerSecond,
+      required final int? uploadLimitBytesPerSecond,
+      required final bool alternativeSpeedLimitsEnabled,
+      required final int freeSpaceBytes}) = _$_ClientState;
+
+  factory _ClientState.fromJson(Map<String, dynamic> json) =
+      _$_ClientState.fromJson;
 
   @override
   int get downloadSpeedBytesPerSecond;
@@ -1808,15 +2045,9 @@ abstract class _TorrentsState implements TorrentsState {
   @override
   bool get alternativeSpeedLimitsEnabled;
   @override
-  Map<int, List<int>> get downloadSpeeds;
-  @override
-  Map<int, List<int>> get uploadSpeeds;
-  @override
-  List<TorrentQuickData> get quickTorrents;
-  @override
-  List<TorrentData> get torrents;
+  int get freeSpaceBytes;
   @override
   @JsonKey(ignore: true)
-  _$$_TorrentsStateCopyWith<_$_TorrentsState> get copyWith =>
+  _$$_ClientStateCopyWith<_$_ClientState> get copyWith =>
       throw _privateConstructorUsedError;
 }

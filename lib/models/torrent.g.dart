@@ -21,6 +21,12 @@ _$_TorrentQuickData _$$_TorrentQuickDataFromJson(Map<String, dynamic> json) =>
       uploadLimited: json['uploadLimited'] as bool,
       state: $enumDecode(_$TorrentStateEnumMap, json['state']),
       priority: $enumDecode(_$TorrentPriorityEnumMap, json['priority']),
+      addedOn: json['addedOn'] == null
+          ? null
+          : DateTime.parse(json['addedOn'] as String),
+      completedOn: json['completedOn'] == null
+          ? null
+          : DateTime.parse(json['completedOn'] as String),
     );
 
 Map<String, dynamic> _$$_TorrentQuickDataToJson(_$_TorrentQuickData instance) =>
@@ -37,6 +43,8 @@ Map<String, dynamic> _$$_TorrentQuickDataToJson(_$_TorrentQuickData instance) =>
       'uploadLimited': instance.uploadLimited,
       'state': _$TorrentStateEnumMap[instance.state]!,
       'priority': _$TorrentPriorityEnumMap[instance.priority]!,
+      'addedOn': instance.addedOn?.toIso8601String(),
+      'completedOn': instance.completedOn?.toIso8601String(),
     };
 
 const _$TorrentStateEnumMap = {
@@ -152,12 +160,7 @@ Map<String, dynamic> _$$_TorrentFileDataToJson(_$_TorrentFileData instance) =>
 
 _$_TorrentsState _$$_TorrentsStateFromJson(Map<String, dynamic> json) =>
     _$_TorrentsState(
-      downloadSpeedBytesPerSecond: json['downloadSpeedBytesPerSecond'] as int,
-      uploadSpeedBytesPerSecond: json['uploadSpeedBytesPerSecond'] as int,
-      downloadLimitBytesPerSecond: json['downloadLimitBytesPerSecond'] as int?,
-      uploadLimitBytesPerSecond: json['uploadLimitBytesPerSecond'] as int?,
-      alternativeSpeedLimitsEnabled:
-          json['alternativeSpeedLimitsEnabled'] as bool,
+      client: ClientState.fromJson(json['client'] as Map<String, dynamic>),
       downloadSpeeds: (json['downloadSpeeds'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(
             int.parse(k), (e as List<dynamic>).map((e) => e as int).toList()),
@@ -176,15 +179,32 @@ _$_TorrentsState _$$_TorrentsStateFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$_TorrentsStateToJson(_$_TorrentsState instance) =>
     <String, dynamic>{
-      'downloadSpeedBytesPerSecond': instance.downloadSpeedBytesPerSecond,
-      'uploadSpeedBytesPerSecond': instance.uploadSpeedBytesPerSecond,
-      'downloadLimitBytesPerSecond': instance.downloadLimitBytesPerSecond,
-      'uploadLimitBytesPerSecond': instance.uploadLimitBytesPerSecond,
-      'alternativeSpeedLimitsEnabled': instance.alternativeSpeedLimitsEnabled,
+      'client': instance.client,
       'downloadSpeeds':
           instance.downloadSpeeds.map((k, e) => MapEntry(k.toString(), e)),
       'uploadSpeeds':
           instance.uploadSpeeds.map((k, e) => MapEntry(k.toString(), e)),
       'quickTorrents': instance.quickTorrents,
       'torrents': instance.torrents,
+    };
+
+_$_ClientState _$$_ClientStateFromJson(Map<String, dynamic> json) =>
+    _$_ClientState(
+      downloadSpeedBytesPerSecond: json['downloadSpeedBytesPerSecond'] as int,
+      uploadSpeedBytesPerSecond: json['uploadSpeedBytesPerSecond'] as int,
+      downloadLimitBytesPerSecond: json['downloadLimitBytesPerSecond'] as int?,
+      uploadLimitBytesPerSecond: json['uploadLimitBytesPerSecond'] as int?,
+      alternativeSpeedLimitsEnabled:
+          json['alternativeSpeedLimitsEnabled'] as bool,
+      freeSpaceBytes: json['freeSpaceBytes'] as int,
+    );
+
+Map<String, dynamic> _$$_ClientStateToJson(_$_ClientState instance) =>
+    <String, dynamic>{
+      'downloadSpeedBytesPerSecond': instance.downloadSpeedBytesPerSecond,
+      'uploadSpeedBytesPerSecond': instance.uploadSpeedBytesPerSecond,
+      'downloadLimitBytesPerSecond': instance.downloadLimitBytesPerSecond,
+      'uploadLimitBytesPerSecond': instance.uploadLimitBytesPerSecond,
+      'alternativeSpeedLimitsEnabled': instance.alternativeSpeedLimitsEnabled,
+      'freeSpaceBytes': instance.freeSpaceBytes,
     };

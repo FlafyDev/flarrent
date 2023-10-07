@@ -16,7 +16,17 @@ final transmissionTorrentsProvider = StreamProvider(
     final transmission = ref.watch(transmissionProvider);
 
     await for (final _ in counterStream()) {
-      yield (await transmission.getTorrents(), await transmission.getSession());
+      yield await transmission.getTorrents();
+    }
+  },
+);
+
+final transmissionSessionProvider = StreamProvider(
+  (ref) async* {
+    final transmission = ref.watch(transmissionProvider);
+
+    await for (final _ in counterStream()) {
+      yield await transmission.getSession();
     }
   },
 );

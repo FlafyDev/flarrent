@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:torrent_frontend/models/filters.dart';
 import 'package:torrent_frontend/models/torrent.dart';
+import 'package:torrent_frontend/state/filters.dart';
 import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/equal.dart';
 import 'package:torrent_frontend/utils/multiselect_algo.dart';
 import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
+import 'package:torrent_frontend/utils/units.dart';
 import 'package:torrent_frontend/widgets/common/side_popup.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent_overview/torrent_overview.dart';
@@ -88,8 +91,23 @@ class MainView extends HookConsumerWidget {
                     final torrentsQuickData = ref.watch(
                       torrentsProvider.select((v) => v.quickTorrents),
                     );
+                    final filters = ref.watch(filtersProvider.select((v) => v));
 
-                    final orderedTorrents = torrentsQuickData;
+                    final orderedTorrents = torrentsQuickData.where((t) {
+                      return t.name.toLowerCase().contains(filters.query.toLowerCase()) &&
+                          (filters.states.isEmpty || filters.states.contains(t.state));
+                    }).sorted((before, after) {
+                      final a = filters.ascending ? before : after;
+                      final b = filters.ascending ? after : before;
+                      return switch (filters.sortBy) {
+                        SortBy.name => a.name.compareTo(b.name),
+                        SortBy.size => a.sizeBytes.compareTo(b.sizeBytes),
+                        SortBy.downloadSpeed => a.downloadBytesPerSecond.compareTo(b.downloadBytesPerSecond),
+                        SortBy.uploadSpeed => a.uploadBytesPerSecond.compareTo(b.uploadBytesPerSecond),
+                        SortBy.addedOn => (a.addedOn ?? DateTime.now()).compareTo(b.addedOn ?? DateTime.now()),
+                        SortBy.completedOn => (a.completedOn ?? DateTime.now()).compareTo(b.completedOn ?? DateTime.now()),
+                      };
+                    });
 
                     return ValueListenableBuilder(
                       valueListenable: selectedTorrentIds,
@@ -270,22 +288,51 @@ class MainView extends HookConsumerWidget {
         Container(
           height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              const Text('Free space: 100 GiB', style: TextStyle(fontSize: 13)),
-              const SizedBox(width: 20),
-              const Text('Down: 100 KiB (Limit 100 KiB)', style: TextStyle(fontSize: 13)),
-              const SizedBox(width: 20),
-              const Text('Up: 100 KiB (Limit 100 KiB)', style: TextStyle(fontSize: 13)),
-              const Spacer(),
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(Icons.speed, size: 20),
-                ),
-              ),
-            ],
+          child: Consumer(
+            builder: (context, ref, child) {
+              final client = ref.watch(torrentsProvider.select((v) => v.client));
+              final downLimitString = client.downloadLimitBytesPerSecond != null
+                  ? ' (Limit ${stringBytesWithUnits(client.downloadLimitBytesPerSecond!)})'
+                  : '';
+              final upLimitString = client.uploadLimitBytesPerSecond != null
+                  ? ' (Limit ${stringBytesWithUnits(client.uploadLimitBytesPerSecond!)})'
+                  : '';
+
+              return Row(
+                children: [
+                  Text(
+                    'Free space: ${stringBytesWithUnits(client.freeSpaceBytes)}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    'Down: ${stringBytesWithUnits(client.downloadSpeedBytesPerSecond)}$downLimitString',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    'Up: ${stringBytesWithUnits(client.uploadSpeedBytesPerSecond)}$upLimitString',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const Spacer(),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await ref.read(torrentsProvider.notifier).setAlternativeLimits(
+                              enabled: !ref.read(torrentsProvider).client.alternativeSpeedLimitsEnabled,
+                            );
+                      },
+                      child: Icon(
+                        Icons.speed,
+                        size: 20,
+                        color: client.alternativeSpeedLimitsEnabled ? Colors.redAccent : Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         )
       ],
@@ -314,9 +361,9 @@ class _Tools extends HookConsumerWidget {
     );
 
     useValueChanged<dynamic, Object>(Equal(torrentIds, const DeepCollectionEquality().equals), (_, __) {
-      if (torrentIds.length < 2) {
+      if (torrentIds.length == 1) {
         showSingleTorrentToolsAC.animateTo(1, curve: Curves.easeOutExpo);
-      } else {
+      } else if (torrentIds.length >= 2) {
         showSingleTorrentToolsAC.animateTo(0, curve: Curves.easeOutExpo);
       }
       return null;
