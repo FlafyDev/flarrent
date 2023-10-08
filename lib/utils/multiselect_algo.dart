@@ -5,11 +5,9 @@ import 'package:flutter/services.dart';
 List<int> multiselectAlgo({
   required List<int> selectedIndexes,
   required int index,
+  VoidCallback? selectionDefault,
 }) {
-  final shiftKeys = [
-    LogicalKeyboardKey.shiftLeft,
-    LogicalKeyboardKey.shiftRight
-  ];
+  final shiftKeys = [LogicalKeyboardKey.shiftLeft, LogicalKeyboardKey.shiftRight];
 
   final ctrlKeys = [
     LogicalKeyboardKey.control,
@@ -17,11 +15,9 @@ List<int> multiselectAlgo({
     LogicalKeyboardKey.controlRight,
   ];
 
-  final isShiftPressed =
-      RawKeyboard.instance.keysPressed.where(shiftKeys.contains).isNotEmpty;
+  final isShiftPressed = RawKeyboard.instance.keysPressed.where(shiftKeys.contains).isNotEmpty;
 
-  final isCtrlPressed =
-      RawKeyboard.instance.keysPressed.where(ctrlKeys.contains).isNotEmpty;
+  final isCtrlPressed = RawKeyboard.instance.keysPressed.where(ctrlKeys.contains).isNotEmpty;
 
   if (isShiftPressed && selectedIndexes.isNotEmpty) {
     var firstIndex = selectedIndexes.first;
@@ -45,6 +41,9 @@ List<int> multiselectAlgo({
       ...selectedIndexes,
       index,
     ];
+  } else if (selectionDefault != null) {
+    selectionDefault();
+    return selectedIndexes;
   } else {
     if (selectedIndexes.length == 1 && selectedIndexes.first == index) {
       return [];

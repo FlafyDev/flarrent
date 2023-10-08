@@ -15,6 +15,12 @@ Color _stateToColor(TorrentState state) => switch (state) {
       TorrentState.completed => Colors.lightBlue,
     };
 
+Color torrentPriorityToColor(TorrentPriority priority) => switch (priority) {
+      TorrentPriority.low => const Color.fromARGB(255, 150, 107, 159),
+      TorrentPriority.normal => Colors.white,
+      TorrentPriority.high => Colors.lightBlue,
+    };
+
 class _Shell extends StatelessWidget {
   const _Shell({
     required this.borderRadius,
@@ -179,7 +185,7 @@ class TorrentTile extends HookConsumerWidget {
                     const Spacer(),
                     _PriorityIcon(
                       quickData.priority,
-                      size: 20,
+                      size: 16,
                     ),
                     const SizedBox(
                       width: 5,
@@ -326,7 +332,7 @@ class TorrentFileTile extends HookConsumerWidget {
                       WidgetSpan(
                         child: _PriorityIcon(
                           fileData.priority,
-                          size: 15,
+                          size: 13,
                         ),
                       )
                     ],
@@ -389,9 +395,7 @@ class _PriorityIcon extends StatelessWidget {
     if (priority == TorrentPriority.normal) return const SizedBox();
     return Icon(
       priority == TorrentPriority.high ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-      color: priority == TorrentPriority.high
-          ? Theme.of(context).colorScheme.onSecondary
-          : const Color.fromARGB(255, 150, 107, 159),
+      color: torrentPriorityToColor(priority),
       size: size,
     );
   }

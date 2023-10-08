@@ -196,7 +196,8 @@ _$_ClientState _$$_ClientStateFromJson(Map<String, dynamic> json) =>
       uploadLimitBytesPerSecond: json['uploadLimitBytesPerSecond'] as int?,
       alternativeSpeedLimitsEnabled:
           json['alternativeSpeedLimitsEnabled'] as bool,
-      freeSpaceBytes: json['freeSpaceBytes'] as int,
+      connectionString: json['connectionString'] as String,
+      freeSpaceBytes: json['freeSpaceBytes'] as int?,
     );
 
 Map<String, dynamic> _$$_ClientStateToJson(_$_ClientState instance) =>
@@ -206,5 +207,6 @@ Map<String, dynamic> _$$_ClientStateToJson(_$_ClientState instance) =>
       'downloadLimitBytesPerSecond': instance.downloadLimitBytesPerSecond,
       'uploadLimitBytesPerSecond': instance.uploadLimitBytesPerSecond,
       'alternativeSpeedLimitsEnabled': instance.alternativeSpeedLimitsEnabled,
+      'connectionString': instance.connectionString,
       'freeSpaceBytes': instance.freeSpaceBytes,
     };

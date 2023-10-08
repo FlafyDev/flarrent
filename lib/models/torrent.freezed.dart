@@ -1784,7 +1784,8 @@ mixin _$ClientState {
   int? get downloadLimitBytesPerSecond => throw _privateConstructorUsedError;
   int? get uploadLimitBytesPerSecond => throw _privateConstructorUsedError;
   bool get alternativeSpeedLimitsEnabled => throw _privateConstructorUsedError;
-  int get freeSpaceBytes => throw _privateConstructorUsedError;
+  String get connectionString => throw _privateConstructorUsedError;
+  int? get freeSpaceBytes => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -1804,7 +1805,8 @@ abstract class $ClientStateCopyWith<$Res> {
       int? downloadLimitBytesPerSecond,
       int? uploadLimitBytesPerSecond,
       bool alternativeSpeedLimitsEnabled,
-      int freeSpaceBytes});
+      String connectionString,
+      int? freeSpaceBytes});
 }
 
 /// @nodoc
@@ -1825,7 +1827,8 @@ class _$ClientStateCopyWithImpl<$Res, $Val extends ClientState>
     Object? downloadLimitBytesPerSecond = freezed,
     Object? uploadLimitBytesPerSecond = freezed,
     Object? alternativeSpeedLimitsEnabled = null,
-    Object? freeSpaceBytes = null,
+    Object? connectionString = null,
+    Object? freeSpaceBytes = freezed,
   }) {
     return _then(_value.copyWith(
       downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
@@ -1848,10 +1851,14 @@ class _$ClientStateCopyWithImpl<$Res, $Val extends ClientState>
           ? _value.alternativeSpeedLimitsEnabled
           : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
               as bool,
-      freeSpaceBytes: null == freeSpaceBytes
+      connectionString: null == connectionString
+          ? _value.connectionString
+          : connectionString // ignore: cast_nullable_to_non_nullable
+              as String,
+      freeSpaceBytes: freezed == freeSpaceBytes
           ? _value.freeSpaceBytes
           : freeSpaceBytes // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ) as $Val);
   }
 }
@@ -1870,7 +1877,8 @@ abstract class _$$_ClientStateCopyWith<$Res>
       int? downloadLimitBytesPerSecond,
       int? uploadLimitBytesPerSecond,
       bool alternativeSpeedLimitsEnabled,
-      int freeSpaceBytes});
+      String connectionString,
+      int? freeSpaceBytes});
 }
 
 /// @nodoc
@@ -1889,7 +1897,8 @@ class __$$_ClientStateCopyWithImpl<$Res>
     Object? downloadLimitBytesPerSecond = freezed,
     Object? uploadLimitBytesPerSecond = freezed,
     Object? alternativeSpeedLimitsEnabled = null,
-    Object? freeSpaceBytes = null,
+    Object? connectionString = null,
+    Object? freeSpaceBytes = freezed,
   }) {
     return _then(_$_ClientState(
       downloadSpeedBytesPerSecond: null == downloadSpeedBytesPerSecond
@@ -1912,10 +1921,14 @@ class __$$_ClientStateCopyWithImpl<$Res>
           ? _value.alternativeSpeedLimitsEnabled
           : alternativeSpeedLimitsEnabled // ignore: cast_nullable_to_non_nullable
               as bool,
-      freeSpaceBytes: null == freeSpaceBytes
+      connectionString: null == connectionString
+          ? _value.connectionString
+          : connectionString // ignore: cast_nullable_to_non_nullable
+              as String,
+      freeSpaceBytes: freezed == freeSpaceBytes
           ? _value.freeSpaceBytes
           : freeSpaceBytes // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }
@@ -1929,7 +1942,8 @@ class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
       required this.downloadLimitBytesPerSecond,
       required this.uploadLimitBytesPerSecond,
       required this.alternativeSpeedLimitsEnabled,
-      required this.freeSpaceBytes});
+      required this.connectionString,
+      this.freeSpaceBytes});
 
   factory _$_ClientState.fromJson(Map<String, dynamic> json) =>
       _$$_ClientStateFromJson(json);
@@ -1945,11 +1959,13 @@ class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
   @override
   final bool alternativeSpeedLimitsEnabled;
   @override
-  final int freeSpaceBytes;
+  final String connectionString;
+  @override
+  final int? freeSpaceBytes;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'ClientState(downloadSpeedBytesPerSecond: $downloadSpeedBytesPerSecond, uploadSpeedBytesPerSecond: $uploadSpeedBytesPerSecond, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, alternativeSpeedLimitsEnabled: $alternativeSpeedLimitsEnabled, freeSpaceBytes: $freeSpaceBytes)';
+    return 'ClientState(downloadSpeedBytesPerSecond: $downloadSpeedBytesPerSecond, uploadSpeedBytesPerSecond: $uploadSpeedBytesPerSecond, downloadLimitBytesPerSecond: $downloadLimitBytesPerSecond, uploadLimitBytesPerSecond: $uploadLimitBytesPerSecond, alternativeSpeedLimitsEnabled: $alternativeSpeedLimitsEnabled, connectionString: $connectionString, freeSpaceBytes: $freeSpaceBytes)';
   }
 
   @override
@@ -1967,6 +1983,7 @@ class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
           'uploadLimitBytesPerSecond', uploadLimitBytesPerSecond))
       ..add(DiagnosticsProperty(
           'alternativeSpeedLimitsEnabled', alternativeSpeedLimitsEnabled))
+      ..add(DiagnosticsProperty('connectionString', connectionString))
       ..add(DiagnosticsProperty('freeSpaceBytes', freeSpaceBytes));
   }
 
@@ -1993,6 +2010,8 @@ class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
                     alternativeSpeedLimitsEnabled) ||
                 other.alternativeSpeedLimitsEnabled ==
                     alternativeSpeedLimitsEnabled) &&
+            (identical(other.connectionString, connectionString) ||
+                other.connectionString == connectionString) &&
             (identical(other.freeSpaceBytes, freeSpaceBytes) ||
                 other.freeSpaceBytes == freeSpaceBytes));
   }
@@ -2006,6 +2025,7 @@ class _$_ClientState with DiagnosticableTreeMixin implements _ClientState {
       downloadLimitBytesPerSecond,
       uploadLimitBytesPerSecond,
       alternativeSpeedLimitsEnabled,
+      connectionString,
       freeSpaceBytes);
 
   @JsonKey(ignore: true)
@@ -2029,7 +2049,8 @@ abstract class _ClientState implements ClientState {
       required final int? downloadLimitBytesPerSecond,
       required final int? uploadLimitBytesPerSecond,
       required final bool alternativeSpeedLimitsEnabled,
-      required final int freeSpaceBytes}) = _$_ClientState;
+      required final String connectionString,
+      final int? freeSpaceBytes}) = _$_ClientState;
 
   factory _ClientState.fromJson(Map<String, dynamic> json) =
       _$_ClientState.fromJson;
@@ -2045,7 +2066,9 @@ abstract class _ClientState implements ClientState {
   @override
   bool get alternativeSpeedLimitsEnabled;
   @override
-  int get freeSpaceBytes;
+  String get connectionString;
+  @override
+  int? get freeSpaceBytes;
   @override
   @JsonKey(ignore: true)
   _$$_ClientStateCopyWith<_$_ClientState> get copyWith =>

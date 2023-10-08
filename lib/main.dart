@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:args/args.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
 import 'package:torrent_frontend/widgets/common/side_popup.dart';
@@ -7,8 +11,13 @@ import 'package:torrent_frontend/widgets/main_view.dart';
 import 'package:torrent_frontend/widgets/side_view.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 
-void main() {
-  // timeDilation = 1.0;
+void main(List<String> args) {
+  final parser = ArgParser()
+    ..addOption('config')
+    ..addMultiOption('torrent')
+    ..addFlag('verbose', defaultsTo: true);
+  final results = parser.parse(args);
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -49,7 +58,9 @@ class MyApp extends HookConsumerWidget {
         shadowColor: Colors.black.withOpacity(0.2),
       ),
       home: const Scaffold(
-        body: AppEntry(),
+        body: SizedBox.expand(
+          child: AppEntry(),
+        ),
       ),
     );
   }
@@ -62,126 +73,163 @@ class AppEntry extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final sideOpen = true;
-    final sideOnTop = 0.0;
+    final prevOnTop = useRef(true);
+    final sideOpenAC = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+      initialValue: 0,
+    );
+    final openSideTimer = useRef<Timer?>(null);
 
-    return Stack(
-      children: [
-        Row(
-          children: [
-            if (sideOpen) Container(width: 300, child: SideView()),
-            if (sideOpen)
-              VerticalDivider(
-                width: 1,
-                color: Colors.lightBlue,
-              ),
-            Expanded(
-              child: Stack(
-                children: [
-                  ClipRect(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final sideOnTop = constraints.maxWidth < 1000;
+        if (prevOnTop.value != sideOnTop) {
+          sideOpenAC.animateTo(
+            sideOnTop ? 0 : 1,
+            curve: Curves.easeOutExpo,
+          );
+          prevOnTop.value = sideOnTop;
+        }
+
+        return AnimatedBuilder(
+          animation: sideOpenAC,
+          builder: (context, child) {
+            final sideOpen = sideOpenAC.value;
+            final sideWidth = 300 * sideOpenAC.value;
+            return Stack(
+              children: [
+                MouseRegion(
+                  onExit: (e) {
+                    if (sideOnTop && sideOpenAC.value != 0) {
+                      sideOpenAC.animateTo(
+                        0,
+                        curve: Curves.easeOutExpo,
+                      );
+                    }
+                  },
+                  child: ClipRect(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      widthFactor: sideOpen,
+                      child: SizedBox(
+                        width: 300,
+                        child: const Stack(
+                          children: [
+                            SideView(),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: VerticalDivider(
+                                width: 1,
+                                color: Colors.lightBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Container(
+                //   width: 300,
+                //   child: Stack(
+                //     children: [
+                //       Positioned(
+                //         child: SizedBox(
+                //           width: 300,
+                //           child: SideView(),
+                //         ),
+                //       ),
+                //       const Align(
+                //         alignment: Alignment.centerRight,
+                //         child: VerticalDivider(
+                //           width: 1,
+                //           color: Colors.lightBlue,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                Positioned(
+                  left: sideOnTop ? 0 : sideWidth,
+                  top: 0,
+                  width: sideOnTop ? constraints.maxWidth : constraints.maxWidth - sideWidth,
+                  height: constraints.maxHeight,
+                  child: ClipRect(
                     clipper: RectCustomClipper(
                       (size) => Rect.fromLTRB(
-                        sideOnTop * 300,
+                        sideOnTop ? sideWidth : 0,
                         0,
                         size.width,
                         size.height,
                       ),
                     ),
-                    child: const MainView(),
+                    child: MainView(
+                      menuPlace: sideOnTop,
+                      onMenuPlaceExit: () {
+                        openSideTimer.value?.cancel();
+                        openSideTimer.value = null;
+                      },
+                      onMenuPlaceEnter: () {
+                        openSideTimer.value?.cancel();
+                        openSideTimer.value = Timer(const Duration(milliseconds: 100), () {
+                          sideOpenAC.animateTo(
+                            1,
+                            curve: Curves.easeOutExpo,
+                          );
+                          openSideTimer.value?.cancel();
+                          openSideTimer.value = null;
+                        });
+                      },
+                    ),
                   ),
-                  // if (sideOpen)
-                  //   IgnorePointer(
-                  //     child: Align(
-                  //       alignment: Alignment.centerLeft,
-                  //       child: Container(
-                  //         width: 60,
-                  //         decoration: BoxDecoration(
-                  //           gradient: LinearGradient(
-                  //             begin: Alignment.centerRight,
-                  //             end: Alignment.centerLeft,
-                  //             colors: [
-                  //               Colors.black.withOpacity(0),
-                  //               Colors.black.withOpacity(0.1),
-                  //               Colors.black.withOpacity(0.2),
-                  //               Colors.black.withOpacity(0.3),
-                  //             ],
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  if (sideOnTop > 0.0)
-                    Positioned.fill(
-                      right: MediaQuery.of(context).size.width - 300 * sideOnTop,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Container(
-                              child: const Text('mid'),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: VerticalDivider(
-                              width: 1,
-                              color: Colors.lightBlue,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (sideOnTop > 0.0)
-                    Positioned.fill(
-                      left: 300 * sideOnTop,
-                      child: IgnorePointer(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: 60,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.centerRight,
-                                end: Alignment.centerLeft,
-                                colors: [
-                                  Colors.black.withOpacity(0),
-                                  Colors.black.withOpacity(0.1),
-                                  Colors.black.withOpacity(0.2),
-                                  Colors.black.withOpacity(0.3),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        // Positioned.fill(
-        //   child: ColoredBox(
-        //     color: Colors.black.withOpacity(0.5),
-        //     child: Center(
-        //       child: Container(
-        //         width: 300,
-        //         height: 300,
-        //         decoration: BoxDecoration(
-        //           borderRadius: BorderRadius.circular(10),
-        //           border: Border.all(
-        //             color: Colors.white,
-        //             width: 2,
-        //           ),
-        //           color: Colors.black,
-        //         ),
-        //         padding: const EdgeInsets.all(10),
-        //         child: Text('test'),
-        //       ),
-        //     ),
-        //   ),
-        // )
-      ],
+                ),
+                // Positioned.fill(
+                //   child: ColoredBox(
+                //     color: Colors.black.withOpacity(0.5),
+                //     child: Center(
+                //       child: Container(
+                //         width: 300,
+                //         height: 300,
+                //         decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(10),
+                //           border: Border.all(
+                //             color: Colors.white,
+                //             width: 2,
+                //           ),
+                //           color: Colors.black,
+                //         ),
+                //         padding: const EdgeInsets.all(10),
+                //         child: Text('test'),
+                //       ),
+                //     ),
+                //   ),
+                // )
+                // if (sideOpenAC.value == 0)
+                //   Positioned(
+                //     width: 120,
+                //     height: MediaQuery.of(context).size.height,
+                //     child: MouseRegion(
+                //       onExit: (e) {
+                //         openSideTimer.value?.cancel();
+                //         openSideTimer.value = null;
+                //       },
+                //       onEnter: (e) {
+                //         openSideTimer.value ??= Timer(const Duration(milliseconds: 100), () {
+                //           sideOpenAC.animateTo(
+                //             1,
+                //             curve: Curves.easeOutExpo,
+                //           );
+                //           openSideTimer.value?.cancel();
+                //           openSideTimer.value = null;
+                //         });
+                //       },
+                //     ),
+                //   ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

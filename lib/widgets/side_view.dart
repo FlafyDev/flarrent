@@ -2,12 +2,15 @@
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/models/filters.dart';
 import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/state/filters.dart';
+import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/capitalize_string.dart';
+import 'package:torrent_frontend/utils/use_values_changed.dart';
 
 class SideView extends HookConsumerWidget {
   const SideView({super.key});
@@ -20,8 +23,50 @@ class SideView extends HookConsumerWidget {
           title: 'Connection',
           child: SizedBox(
             width: double.infinity,
-            child: Text(
-              'Connection: Transmission 4.0.4',
+            child: Column(
+              children: [
+                SizedBox(height: 6),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final connectionString = ref.watch(torrentsProvider.select((s) => s.client.connectionString));
+
+                    return Text(connectionString);
+                  },
+                ),
+                SizedBox(height: 6),
+                TextButton(
+                  onPressed: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Row(
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(width: 10),
+                        Text('Add torrent file'),
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Clipboard.getData('text/plain').then((value) {
+                      final text = value?.text;
+                      if (text == null || !text.startsWith('magnet:')) return;
+                      ref.read(torrentsProvider.notifier).addTorrentMagnet(text);
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Row(
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(width: 10),
+                        Text('Add torrent magnet'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -85,7 +130,8 @@ class SideView extends HookConsumerWidget {
                   Consumer(
                     builder: (context, ref, child) {
                       return DropdownMenu(
-                        initialSelection: ref.read(filtersProvider.select((s) => s.sortBy)), // Not sure how correct it is to do this.
+                        initialSelection:
+                            ref.read(filtersProvider.select((s) => s.sortBy)), // Not sure how correct it is to do this.
                         onSelected: (value) {
                           if (value == null) return;
                           ref.read(filtersProvider.notifier).update((s) => s.copyWith(sortBy: value));
@@ -123,33 +169,6 @@ class SideView extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 20),
-        TextButton(
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Row(
-              children: [
-                Icon(Icons.add),
-                SizedBox(width: 10),
-                Text('Add torrent file'),
-              ],
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Row(
-              children: [
-                Icon(Icons.add),
-                SizedBox(width: 10),
-                Text('Add torrent magnet'),
-              ],
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -183,12 +202,16 @@ class _Border extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final removedRect = useRef(Rect.fromLTWH(5, 0, _textSize(title).width, 12));
+    final removedRect = useRef(Rect.zero);
 
-    useValueChanged<String, Object>(title, (_, __) {
-      removedRect.value = Rect.fromLTWH(5, 0, _textSize(title).width, 12);
-      return;
-    });
+    useValuesChanged(
+      [title],
+      firstTime: true,
+      callback: () {
+        removedRect.value = Rect.fromLTWH(5, 0, _textSize(title).width, 12);
+        return;
+      },
+    );
 
     return Stack(
       children: [

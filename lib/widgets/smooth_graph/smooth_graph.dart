@@ -11,6 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
+import 'package:torrent_frontend/utils/use_values_changed.dart';
 import 'package:torrent_frontend/widgets/smooth_graph/get_y_from_x.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 
@@ -20,18 +21,19 @@ class SmoothChart extends HookConsumerWidget {
     required this.getInitialPointsY,
     required this.getNextPointY,
     required this.tint,
+    required this.id,
   });
 
   final double Function(int index) getInitialPointsY;
   final double Function() getNextPointY;
+  final int id;
   final Color tint;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const pointsNum = 35;
     const pointSpace = 1 / pointsNum;
-    final moveAC =
-        useAnimationController(duration: const Duration(milliseconds: 500));
+    final moveAC = useAnimationController(duration: const Duration(milliseconds: 500));
     final maxYAC = useAnimationController(
       initialValue: 1,
       upperBound: double.infinity,
@@ -62,24 +64,13 @@ class SmoothChart extends HookConsumerWidget {
 
     useEffect(
       () {
-        points.value = List.generate(
-          pointsNum + 4,
-          (i) => FlSpot(
-            i * pointSpace - pointSpace,
-            getInitialPointsY(i),
-          ),
-        );
-
         void moveACListener() {
           if (moveAC.status == AnimationStatus.completed) {
             lastT.value = 0;
             moveAC
               ..reset()
               ..forward();
-            points.value = points.value
-                    .skip(1)
-                    .map((p) => p.copyWith(x: p.x - pointSpace))
-                    .toList() +
+            points.value = points.value.skip(1).map((p) => p.copyWith(x: p.x - pointSpace)).toList() +
                 [
                   FlSpot(
                     1 + pointSpace * 2,
@@ -90,8 +81,7 @@ class SmoothChart extends HookConsumerWidget {
             maxYAC.animateTo(
               max(
                 1,
-                ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y *
-                    1.2,
+                ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y * 1.2,
               ),
               duration: const Duration(milliseconds: 700),
               curve: Curves.easeOut,
@@ -99,18 +89,33 @@ class SmoothChart extends HookConsumerWidget {
           }
         }
 
-        maxYAC.value = max(
-          1,
-          ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y * 1.2,
-        );
-
         moveAC.addListener(moveACListener);
-
-        moveAC.forward(from: 0);
 
         return () => moveAC.removeListener(moveACListener);
       },
       [getInitialPointsY, getNextPointY],
+    );
+
+    useValuesChanged(
+      [id],
+      firstTime: true,
+      callback: () {
+        moveAC.forward(from: 0);
+
+        points.value = List.generate(
+          pointsNum + 4,
+          (i) => FlSpot(
+            i * pointSpace - pointSpace,
+            getInitialPointsY(i),
+          ),
+        );
+
+        maxYAC.value = max(
+          1,
+          ([...points.value]..sort((a, b) => a.y.compareTo(b.y))).last.y * 1.2,
+        );
+        return;
+      },
     );
 
     // useEffect(
@@ -195,9 +200,7 @@ class SmoothChart extends HookConsumerWidget {
                   const ballSize = 12.0;
                   const ballOffset = 0;
                   final (y, t) = getYFromX(
-                    constraints.maxWidth -
-                        ballOffset +
-                        moveAC.value * constraints.maxWidth / pointsNum,
+                    constraints.maxWidth - ballOffset + moveAC.value * constraints.maxWidth / pointsNum,
                     lastT.value,
                     Size(constraints.maxWidth, constraints.maxHeight),
                     barData,
@@ -243,9 +246,7 @@ class SmoothChart extends HookConsumerWidget {
                                 child: Stack(
                                   children: [
                                     Positioned(
-                                      left: constraints.maxWidth -
-                                          ballOffset -
-                                          ballSize / 2,
+                                      left: constraints.maxWidth - ballOffset - ballSize / 2,
                                       top: y - ballSize / 2,
                                       child: SizedBox(
                                         width: ballSize,
@@ -271,21 +272,16 @@ class SmoothChart extends HookConsumerWidget {
                               ),
                             ),
                             Positioned(
-                              left: -moveAC.value *
-                                  (constraints.maxWidth / pointsNum),
+                              left: -moveAC.value * (constraints.maxWidth / pointsNum),
                               width: constraints.maxWidth,
                               height: constraints.maxHeight,
                               child: ClipRRect(
                                 clipper: RRectCustomClipper(
                                   (size) => RRect.fromRectAndRadius(
                                     Rect.fromLTRB(
-                                      moveAC.value *
-                                          (constraints.maxWidth / pointsNum),
+                                      moveAC.value * (constraints.maxWidth / pointsNum),
                                       0,
-                                      size.width +
-                                          moveAC.value *
-                                              (constraints.maxWidth /
-                                                  pointsNum),
+                                      size.width + moveAC.value * (constraints.maxWidth / pointsNum),
                                       size.height,
                                     ),
                                     Radius.circular(10),
@@ -301,8 +297,7 @@ class SmoothChart extends HookConsumerWidget {
                               child: Stack(
                                 children: [
                                   Positioned(
-                                    left: -moveAC.value *
-                                        (constraints.maxWidth / pointsNum),
+                                    left: -moveAC.value * (constraints.maxWidth / pointsNum),
                                     width: constraints.maxWidth,
                                     height: constraints.maxHeight,
                                     child: graph!,
@@ -311,9 +306,7 @@ class SmoothChart extends HookConsumerWidget {
                               ),
                             ),
                             Positioned(
-                              left: constraints.maxWidth -
-                                  ballOffset -
-                                  ballSize / 2,
+                              left: constraints.maxWidth - ballOffset - ballSize / 2,
                               top: y - ballSize / 2,
                               child: ClipRect(
                                 clipper: RectCustomClipper(
@@ -422,8 +415,7 @@ class _GradientPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // create outer rectangle equals size
     final outerRect = Offset.zero & size;
-    final outerRRect =
-        RRect.fromRectAndRadius(outerRect, Radius.circular(radius));
+    final outerRRect = RRect.fromRectAndRadius(outerRect, Radius.circular(radius));
 
     // create inner rectangle smaller by strokeWidth
     final innerRect = Rect.fromLTWH(

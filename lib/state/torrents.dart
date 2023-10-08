@@ -22,7 +22,7 @@ class Torrents extends StateNotifier<TorrentsState> {
               downloadLimitBytesPerSecond: null,
               uploadLimitBytesPerSecond: null,
               alternativeSpeedLimitsEnabled: false,
-              freeSpaceBytes: 0,
+              connectionString: 'Transmission',
             ),
           ),
         ) {
@@ -46,6 +46,11 @@ class Torrents extends StateNotifier<TorrentsState> {
     await transmission.stopTorrent(ids: ids);
   }
 
+  Future<void> addTorrentMagnet(String magnet) async {
+    await transmission.addTorrent(filename: magnet);
+    ref.invalidate(transmissionTorrentsProvider);
+  }
+
   Future<void> resume(List<int> ids) async {
     if (ids.isEmpty) return;
     await transmission.startTorrent(ids: ids);
@@ -61,6 +66,31 @@ class Torrents extends StateNotifier<TorrentsState> {
   Future<void> changePriority(List<int> ids, TorrentPriority newPriority) async {
     if (ids.isEmpty) return;
     await transmission.setTorrents(ids: ids, bandwidthPriority: _priorityToTransPriority(newPriority));
+    ref.invalidate(transmissionTorrentsProvider);
+  }
+
+  Future<void> changeFilePriority(int torrentId, List<int> files, TorrentPriority newPriority) async {
+    if (files.isEmpty) return;
+    switch (newPriority) {
+      case TorrentPriority.low:
+        await transmission.setTorrents(
+          ids: [torrentId],
+          priorityLow: files,
+        );
+        break;
+      case TorrentPriority.normal:
+        await transmission.setTorrents(
+          ids: [torrentId],
+          priorityNormal: files,
+        );
+        break;
+      case TorrentPriority.high:
+        await transmission.setTorrents(
+          ids: [torrentId],
+          priorityHigh: files,
+        );
+        break;
+    }
     ref.invalidate(transmissionTorrentsProvider);
   }
 
@@ -140,7 +170,7 @@ class Torrents extends StateNotifier<TorrentsState> {
         downloadLimitBytesPerSecond: downLimit,
         uploadLimitBytesPerSecond: upLimit,
         alternativeSpeedLimitsEnabled: session.altSpeedEnabled!,
-        freeSpaceBytes: 0, // TODO
+        connectionString: 'Transmission ${session.version}',
       ),
     );
   }

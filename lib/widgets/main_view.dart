@@ -13,6 +13,7 @@ import 'package:torrent_frontend/utils/equal.dart';
 import 'package:torrent_frontend/utils/multiselect_algo.dart';
 import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
 import 'package:torrent_frontend/utils/units.dart';
+import 'package:torrent_frontend/utils/use_values_changed.dart';
 import 'package:torrent_frontend/widgets/common/side_popup.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent_overview/torrent_overview.dart';
@@ -20,8 +21,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MainView extends HookConsumerWidget {
   const MainView({
+    required this.menuPlace,
+    required this.onMenuPlaceEnter,
+    required this.onMenuPlaceExit,
     super.key,
   });
+
+  final bool menuPlace;
+  final VoidCallback onMenuPlaceEnter;
+  final VoidCallback onMenuPlaceExit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -105,7 +113,8 @@ class MainView extends HookConsumerWidget {
                         SortBy.downloadSpeed => a.downloadBytesPerSecond.compareTo(b.downloadBytesPerSecond),
                         SortBy.uploadSpeed => a.uploadBytesPerSecond.compareTo(b.uploadBytesPerSecond),
                         SortBy.addedOn => (a.addedOn ?? DateTime.now()).compareTo(b.addedOn ?? DateTime.now()),
-                        SortBy.completedOn => (a.completedOn ?? DateTime.now()).compareTo(b.completedOn ?? DateTime.now()),
+                        SortBy.completedOn =>
+                          (a.completedOn ?? DateTime.now()).compareTo(b.completedOn ?? DateTime.now()),
                       };
                     });
 
@@ -140,6 +149,15 @@ class MainView extends HookConsumerWidget {
                   },
                 ),
               ),
+              if (menuPlace)
+                Positioned(
+                  width: 120,
+                  height: MediaQuery.of(context).size.height,
+                  child: MouseRegion(
+                    onExit: (e) => onMenuPlaceExit(),
+                    onEnter: (e) => onMenuPlaceEnter(),
+                  ),
+                ),
               AnimatedBuilder(
                 animation: bottomHideAC,
                 builder: (context, child) {
@@ -300,11 +318,12 @@ class MainView extends HookConsumerWidget {
 
               return Row(
                 children: [
-                  Text(
-                    'Free space: ${stringBytesWithUnits(client.freeSpaceBytes)}',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  const SizedBox(width: 20),
+                  if (client.freeSpaceBytes != null)
+                    Text(
+                      'Free space: ${stringBytesWithUnits(client.freeSpaceBytes!)}',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  if (client.freeSpaceBytes != null) const SizedBox(width: 20),
                   Text(
                     'Down: ${stringBytesWithUnits(client.downloadSpeedBytesPerSecond)}$downLimitString',
                     style: const TextStyle(fontSize: 13),
@@ -350,7 +369,11 @@ class _Tools extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final quickTorrents = ref.watch(
-      torrentsProvider.select((v) => v.quickTorrents),
+      torrentsProvider.select(
+        (v) => torrentIds.isEmpty
+            ? <TorrentQuickData>[]
+            : v.quickTorrents.where((torrent) => torrentIds.contains(torrent.id)),
+      ),
     );
     final torrent = torrentIds.length == 1
         ? ref.read(torrentsProvider).torrents.firstWhereOrNull((t) => t.id == torrentIds.first)
@@ -360,16 +383,18 @@ class _Tools extends HookConsumerWidget {
       initialValue: 1,
     );
 
-    useValueChanged<dynamic, Object>(Equal(torrentIds, const DeepCollectionEquality().equals), (_, __) {
-      if (torrentIds.length == 1) {
-        showSingleTorrentToolsAC.animateTo(1, curve: Curves.easeOutExpo);
-      } else if (torrentIds.length >= 2) {
-        showSingleTorrentToolsAC.animateTo(0, curve: Curves.easeOutExpo);
-      }
-      return null;
-    });
+    useValuesChanged(
+      [Equal(torrentIds, const DeepCollectionEquality().equals)],
+      callback: () {
+        if (torrentIds.length == 1) {
+          showSingleTorrentToolsAC.animateTo(1, curve: Curves.easeOutExpo);
+        } else if (torrentIds.length >= 2) {
+          showSingleTorrentToolsAC.animateTo(0, curve: Curves.easeOutExpo);
+        }
+      },
+    );
 
-    onSetLimits() {
+    void onSetLimits() {
       showDialog<void>(
         context: context,
         builder: (context) {
@@ -445,13 +470,27 @@ class _Tools extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Transform.flip(
-              flipY: true,
-              child: IconButton(
-                icon: const Icon(Icons.low_priority),
-                splashRadius: 20,
-                onPressed: () {},
-              ),
+            Builder(
+              builder: (context) {
+                final differentPriorities =
+                    quickTorrents.isEmpty || quickTorrents.any((t) => t.priority != quickTorrents.first.priority);
+                final currentPriority = differentPriorities ? TorrentPriority.normal : quickTorrents.first.priority;
+
+                return Transform.flip(
+                  flipY: true,
+                  child: IconButton(
+                    icon: const Icon(Icons.low_priority),
+                    splashRadius: 20,
+                    color: torrentPriorityToColor(currentPriority),
+                    onPressed: () {
+                      ref.read(torrentsProvider.notifier).changePriority(
+                            torrentIds,
+                            TorrentPriority.values[(currentPriority.index + 1) % TorrentPriority.values.length],
+                          );
+                    },
+                  ),
+                );
+              },
             ),
             _ToolsBin(
               color: Colors.redAccent,

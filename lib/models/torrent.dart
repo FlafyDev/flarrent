@@ -111,7 +111,8 @@ class ClientState with _$ClientState {
     required int? downloadLimitBytesPerSecond,
     required int? uploadLimitBytesPerSecond,
     required bool alternativeSpeedLimitsEnabled,
-    required int freeSpaceBytes,
+    required String connectionString,
+    int? freeSpaceBytes,
   }) = _ClientState;
 
   factory ClientState.fromJson(Map<String, Object?> json) => _$ClientStateFromJson(json);

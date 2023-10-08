@@ -7,6 +7,8 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
+  args: ^2.4.2
+  collection: ^1.17.1
   url_launcher: ^6.1.14
   fl_chart: ^0.62.0
   flutter:

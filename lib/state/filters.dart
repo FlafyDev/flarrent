@@ -6,6 +6,6 @@ final filtersProvider = StateProvider(
     query: '',
     states: [],
     sortBy: SortBy.addedOn,
-    ascending: true,
+    ascending: false,
   ),
 );

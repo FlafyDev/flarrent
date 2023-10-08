@@ -5,13 +5,16 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+import 'package:torrent_frontend/models/torrent.dart';
 import 'package:torrent_frontend/state/torrents.dart';
 import 'package:torrent_frontend/utils/equal.dart';
 import 'package:torrent_frontend/utils/generic_join.dart';
 import 'package:torrent_frontend/utils/multiselect_algo.dart';
+import 'package:torrent_frontend/utils/use_values_changed.dart';
 import 'package:torrent_frontend/widgets/common/button.dart';
 import 'package:torrent_frontend/widgets/common/side_popup.dart';
 import 'package:torrent_frontend/widgets/torrent/torrent.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OverviewFiles extends HookConsumerWidget {
   const OverviewFiles({
@@ -24,41 +27,86 @@ class OverviewFiles extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final path = useState(<String>[]);
-    final selectedFilesIndexes = useValueNotifier(<int>[]);
+    final selectedFilesPositions = useState(<int>[]);
     final hideRulerAC = useAnimationController(
       duration: const Duration(milliseconds: 200),
       initialValue: 1,
     );
 
-    useValueChanged<int, Object>(id, (_, __) {
-      path.value = [];
-      selectedFilesIndexes.value = [];
-      return;
-    });
+    final files = ref
+        .watch(
+          torrentsProvider.select(
+            (a) => Equal(
+              a.torrents.firstWhere((data) => data.id == id).files,
+              const DeepCollectionEquality().equals,
+            ),
+          ),
+        )
+        .value;
+    final torrentState = ref.watch(
+      torrentsProvider.select(
+        (a) => a.torrents.firstWhere((data) => data.id == id).state,
+      ),
+    );
 
-    useValueChanged<List<String>, Object>(path.value, (_, __) {
-      selectedFilesIndexes.value = [];
-      return;
-    });
+    useValuesChanged(
+      [id],
+      callback: () {
+        path.value = [];
+        selectedFilesPositions.value = [];
+      },
+    );
+
+    useValuesChanged(
+      [path.value],
+      callback: () {
+        selectedFilesPositions.value = [];
+      },
+    );
 
     useEffect(
       () {
         void callback() {
-          if (selectedFilesIndexes.value.isEmpty) {
+          if (selectedFilesPositions.value.isEmpty) {
             hideRulerAC.animateTo(1, curve: Curves.easeOutExpo);
           } else {
             hideRulerAC.animateTo(0, curve: Curves.easeOutExpo);
           }
         }
 
-        selectedFilesIndexes.addListener(callback);
-        return () => selectedFilesIndexes.removeListener(callback);
+        selectedFilesPositions.addListener(callback);
+        return () => selectedFilesPositions.removeListener(callback);
       },
       [],
     );
 
     final displayPathsList = ['/', ...path.value];
     final theme = Theme.of(context);
+
+    final hierarchy = _convertToDirectoryHierarchy(
+      files.map((e) => e.name).toList(),
+    );
+    var currentDirectory = hierarchy;
+    for (final dir in path.value) {
+      currentDirectory = currentDirectory[dir] as Map<dynamic, dynamic>;
+    }
+
+    final orderedFiles = currentDirectory;
+    final filesWithPosition = orderedFiles.entries.toList().asMap().entries.toList();
+
+    void onNodePress(int position, VoidCallback selectionDefault) {
+      selectedFilesPositions.value = multiselectAlgo(
+        selectedIndexes: selectedFilesPositions.value,
+        index: position,
+        selectionDefault: selectionDefault,
+      );
+    }
+
+    final selectedFileIndexes = _getIndexesRecursively(
+      Map<dynamic, dynamic>.fromEntries(
+        selectedFilesPositions.value.map((p) => filesWithPosition[p].value),
+      ),
+    );
 
     return Column(
       children: [
@@ -103,14 +151,31 @@ class OverviewFiles extends HookConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Transform.flip(
-                            flipY: true,
-                            child: IconButton(
-                              icon: const Icon(Icons.low_priority),
-                              splashRadius: 15,
-                              // iconSize: 18,
-                              onPressed: () {},
-                            ),
+                          Builder(
+                            builder: (context) {
+                              final selectedFiles = selectedFileIndexes.map((index) => files[index]).toList();
+                              final differentPriorities = selectedFiles.isEmpty ||
+                                  selectedFiles.any((t) => t.priority != selectedFiles.first.priority);
+                              final currentPriority =
+                                  differentPriorities ? TorrentPriority.normal : selectedFiles.first.priority;
+                              return Transform.flip(
+                                flipY: true,
+                                child: IconButton(
+                                  icon: const Icon(Icons.low_priority),
+                                  splashRadius: 15,
+                                  // iconSize: 18,
+                                  color: torrentPriorityToColor(currentPriority),
+                                  onPressed: () {
+                                    ref.read(torrentsProvider.notifier).changeFilePriority(
+                                          id,
+                                          selectedFileIndexes,
+                                          TorrentPriority
+                                              .values[(currentPriority.index + 1) % TorrentPriority.values.length],
+                                        );
+                                  },
+                                ),
+                              );
+                            },
                           ),
                           IconButton(
                             icon: const Icon(Icons.pause),
@@ -119,7 +184,7 @@ class OverviewFiles extends HookConsumerWidget {
                             onPressed: () {
                               ref.read(torrentsProvider.notifier).pauseFiles(
                                     id,
-                                    selectedFilesIndexes.value,
+                                    selectedFileIndexes,
                                   );
                             },
                           ),
@@ -130,7 +195,7 @@ class OverviewFiles extends HookConsumerWidget {
                             onPressed: () {
                               ref.read(torrentsProvider.notifier).resumeFiles(
                                     id,
-                                    selectedFilesIndexes.value,
+                                    selectedFileIndexes,
                                   );
                             },
                           ),
@@ -202,96 +267,79 @@ class OverviewFiles extends HookConsumerWidget {
                   width: double.infinity,
                   child: Consumer(
                     builder: (context, ref, child) {
-                      final files = ref
-                          .watch(
-                            torrentsProvider.select(
-                              (a) => Equal(
-                                a.torrents.firstWhere((data) => data.id == id).files,
-                                const DeepCollectionEquality().equals,
-                              ),
-                            ),
-                          )
-                          .value;
-                      final torrentState = ref.watch(
-                        torrentsProvider.select(
-                          (a) => a.torrents.firstWhere((data) => data.id == id).state,
-                        ),
-                      );
+                      return ResponsiveGridList(
+                        verticalGridMargin: 0,
+                        horizontalGridMargin: 0,
+                        horizontalGridSpacing: 4,
+                        verticalGridSpacing: 4,
+                        minItemWidth: 230,
+                        listViewBuilderOptions: ListViewBuilderOptions(),
+                        children: filesWithPosition.map(
+                          (entry) {
+                            final position = entry.key;
+                            final e = entry.value;
 
-                      final hierarchy = _convertToDirectoryHierarchy(
-                        files.map((e) => e.name).toList(),
-                      );
-                      var currentDirectory = hierarchy;
-                      for (final dir in path.value) {
-                        currentDirectory = currentDirectory[dir] as Map<dynamic, dynamic>;
-                      }
-
-                      final orderedFiles = currentDirectory;
-
-                      return ValueListenableBuilder(
-                        valueListenable: selectedFilesIndexes,
-                        builder: (context, selectedIndexes, child) {
-                          return ResponsiveGridList(
-                            verticalGridMargin: 0,
-                            horizontalGridMargin: 0,
-                            horizontalGridSpacing: 4,
-                            verticalGridSpacing: 4,
-                            minItemWidth: 230,
-                            listViewBuilderOptions: ListViewBuilderOptions(),
-                            children: orderedFiles.entries.map(
-                              (e) {
-                                if (e.value != null) {
-                                  // Directory
-                                  final name = e.key as String;
-                                  return InkButton(
-                                    key: ValueKey(name),
+                            if (e.value != null) {
+                              // Directory
+                              final name = e.key as String;
+                              return InkButton(
+                                key: ValueKey(name),
+                                borderRadius: BorderRadius.circular(5),
+                                onPressed: () => onNodePress(position, () {
+                                  path.value = [...path.value, name];
+                                }),
+                                child: Container(
+                                  decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    onPressed: () {
-                                      path.value = [...path.value, name];
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        border: Border.all(
-                                          color: theme.colorScheme.onSecondary.withOpacity(0.2),
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(5),
-                                      width: double.infinity,
-                                      child: Text(
-                                        name,
-                                        style: TextStyle(
-                                          fontFamily: 'Roboto',
-                                          color: theme.colorScheme.onSecondary.withRed(255).withGreen(255),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                    border: Border.all(
+                                      color: theme.colorScheme.onSecondary.withOpacity(0.2),
                                     ),
-                                  );
-                                }
-                                final index = e.key as int;
-
-                                final file = files[index];
-
-                                return TorrentFileTile(
-                                  key: ValueKey(index),
-                                  torrentState: torrentState,
-                                  fileData: file.copyWith(
-                                    name: file.name.split('/').last,
+                                    color: selectedFilesPositions.value.contains(position)
+                                        ? Colors.blue.withOpacity(0.2)
+                                        : Colors.transparent,
                                   ),
-                                  selected: selectedIndexes.contains(index),
-                                  onPressed: () {
-                                    selectedFilesIndexes.value = multiselectAlgo(
-                                      selectedIndexes: selectedFilesIndexes.value,
-                                      index: index,
+                                  padding: const EdgeInsets.all(5),
+                                  width: double.infinity,
+                                  child: Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      color: theme.colorScheme.onSecondary.withRed(255).withGreen(255),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            final index = e.key as int;
+
+                            final file = files[index];
+
+                            return TorrentFileTile(
+                              key: ValueKey(index),
+                              torrentState: torrentState,
+                              fileData: file.copyWith(
+                                name: file.name.split('/').last,
+                              ),
+                              selected: selectedFilesPositions.value.contains(position),
+                              onPressed: () {
+                                selectedFilesPositions.value = multiselectAlgo(
+                                  selectedIndexes: selectedFilesPositions.value,
+                                  index: position,
+                                  selectionDefault: () => onNodePress(position, () {
+                                    final torrent = ref.read(
+                                      torrentsProvider.select(
+                                        (a) => a.torrents.firstWhere((data) => data.id == id),
+                                      ),
                                     );
-                                  },
+                                    launchUrl(Uri.parse('file:${torrent.location}/${file.name}'));
+                                  }),
                                 );
                               },
-                            ).toList(), // The list of widgets in the list
-                          );
-                        },
+                            );
+                          },
+                        ).toList(), // The list of widgets in the list
                       );
                     },
                   ),
@@ -303,6 +351,22 @@ class OverviewFiles extends HookConsumerWidget {
       ],
     );
   }
+}
+
+List<int> _getIndexesRecursively(Map<dynamic, dynamic> hierarchy) {
+  final selectedIndexes = <int>[];
+
+  for (final node in hierarchy.entries) {
+    // is file
+    if (node.value == null) {
+      selectedIndexes.add(node.key as int);
+    } else {
+      // is folder
+      selectedIndexes.addAll(_getIndexesRecursively(node.value as Map<dynamic, dynamic>));
+    }
+  }
+
+  return selectedIndexes;
 }
 
 Map<dynamic, dynamic> _convertToDirectoryHierarchy(List<String> filePaths) {
