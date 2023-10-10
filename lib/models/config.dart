@@ -13,6 +13,7 @@ class Config with _$Config {
     @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color? color,
     @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color? backgroundColor,
     String? connection,
+    bool? smoothScroll,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

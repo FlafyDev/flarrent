@@ -10,6 +10,7 @@ const defaultConfig = Config(
   connection: 'transmission:http://localhost:9091/transmission/rpc',
   color: Color.fromARGB(255, 105, 188, 255),
   backgroundColor: Color.fromARGB(153, 0, 0, 0),
+  smoothScroll: false,
 );
 
 final configLocationProvider = StateProvider<String>(
@@ -36,6 +37,7 @@ final configProvider = StreamProvider((ref) async* {
       connection: newConf.connection ?? defaultConfig.connection,
       color: newConf.color ?? defaultConfig.color,
       backgroundColor: newConf.backgroundColor ?? defaultConfig.backgroundColor,
+      smoothScroll: newConf.smoothScroll ?? defaultConfig.smoothScroll,
     );
   }
 

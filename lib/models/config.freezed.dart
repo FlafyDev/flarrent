@@ -25,6 +25,7 @@ mixin _$Config {
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color? get backgroundColor => throw _privateConstructorUsedError;
   String? get connection => throw _privateConstructorUsedError;
+  bool? get smoothScroll => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -41,7 +42,8 @@ abstract class $ConfigCopyWith<$Res> {
           Color? color,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           Color? backgroundColor,
-      String? connection});
+      String? connection,
+      bool? smoothScroll});
 }
 
 /// @nodoc
@@ -60,6 +62,7 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
     Object? color = freezed,
     Object? backgroundColor = freezed,
     Object? connection = freezed,
+    Object? smoothScroll = freezed,
   }) {
     return _then(_value.copyWith(
       color: freezed == color
@@ -74,6 +77,10 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
           ? _value.connection
           : connection // ignore: cast_nullable_to_non_nullable
               as String?,
+      smoothScroll: freezed == smoothScroll
+          ? _value.smoothScroll
+          : smoothScroll // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 }
@@ -89,7 +96,8 @@ abstract class _$$_ConfigCopyWith<$Res> implements $ConfigCopyWith<$Res> {
           Color? color,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           Color? backgroundColor,
-      String? connection});
+      String? connection,
+      bool? smoothScroll});
 }
 
 /// @nodoc
@@ -105,6 +113,7 @@ class __$$_ConfigCopyWithImpl<$Res>
     Object? color = freezed,
     Object? backgroundColor = freezed,
     Object? connection = freezed,
+    Object? smoothScroll = freezed,
   }) {
     return _then(_$_Config(
       color: freezed == color
@@ -119,6 +128,10 @@ class __$$_ConfigCopyWithImpl<$Res>
           ? _value.connection
           : connection // ignore: cast_nullable_to_non_nullable
               as String?,
+      smoothScroll: freezed == smoothScroll
+          ? _value.smoothScroll
+          : smoothScroll // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -131,7 +144,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
           this.color,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           this.backgroundColor,
-      this.connection});
+      this.connection,
+      this.smoothScroll});
 
   factory _$_Config.fromJson(Map<String, dynamic> json) =>
       _$$_ConfigFromJson(json);
@@ -144,10 +158,12 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
   final Color? backgroundColor;
   @override
   final String? connection;
+  @override
+  final bool? smoothScroll;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Config(color: $color, backgroundColor: $backgroundColor, connection: $connection)';
+    return 'Config(color: $color, backgroundColor: $backgroundColor, connection: $connection, smoothScroll: $smoothScroll)';
   }
 
   @override
@@ -157,7 +173,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
       ..add(DiagnosticsProperty('type', 'Config'))
       ..add(DiagnosticsProperty('color', color))
       ..add(DiagnosticsProperty('backgroundColor', backgroundColor))
-      ..add(DiagnosticsProperty('connection', connection));
+      ..add(DiagnosticsProperty('connection', connection))
+      ..add(DiagnosticsProperty('smoothScroll', smoothScroll));
   }
 
   @override
@@ -169,7 +186,9 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
             const DeepCollectionEquality()
                 .equals(other.backgroundColor, backgroundColor) &&
             (identical(other.connection, connection) ||
-                other.connection == connection));
+                other.connection == connection) &&
+            (identical(other.smoothScroll, smoothScroll) ||
+                other.smoothScroll == smoothScroll));
   }
 
   @JsonKey(ignore: true)
@@ -178,7 +197,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
       runtimeType,
       const DeepCollectionEquality().hash(color),
       const DeepCollectionEquality().hash(backgroundColor),
-      connection);
+      connection,
+      smoothScroll);
 
   @JsonKey(ignore: true)
   @override
@@ -200,7 +220,8 @@ abstract class _Config implements Config {
           final Color? color,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           final Color? backgroundColor,
-      final String? connection}) = _$_Config;
+      final String? connection,
+      final bool? smoothScroll}) = _$_Config;
 
   factory _Config.fromJson(Map<String, dynamic> json) = _$_Config.fromJson;
 
@@ -212,6 +233,8 @@ abstract class _Config implements Config {
   Color? get backgroundColor;
   @override
   String? get connection;
+  @override
+  bool? get smoothScroll;
   @override
   @JsonKey(ignore: true)
   _$$_ConfigCopyWith<_$_Config> get copyWith =>
