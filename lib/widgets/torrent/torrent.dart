@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
 import 'package:flarrent/utils/safe_divide.dart';
 import 'package:flarrent/utils/units.dart';
 import 'package:flarrent/widgets/common/button.dart';
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 Color _stateToColor(TorrentState state) => switch (state) {
       TorrentState.queued => Colors.yellowAccent,

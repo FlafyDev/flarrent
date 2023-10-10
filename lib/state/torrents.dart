@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/config.dart';
 import 'package:flarrent/state/transmission.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:transmission_rpc/transmission_rpc.dart';
 
 final torrentsProvider = StateNotifierProvider<Torrents, TorrentsState>((ref) {

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flutter/material.dart';
 
 class SidePopup extends StatelessWidget {
   const SidePopup({

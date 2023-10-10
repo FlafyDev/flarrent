@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/state/torrents.dart';
 import 'package:flarrent/utils/capitalize_string.dart';
 import 'package:flarrent/utils/units.dart';
 import 'package:flarrent/widgets/common/responsive_horizontal_grid.dart';
 import 'package:flarrent/widgets/smooth_graph/smooth_graph.dart';
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class OverviewInfo extends HookConsumerWidget {
   const OverviewInfo({

@@ -1,6 +1,6 @@
+import 'package:flarrent/models/torrent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flarrent/models/torrent.dart';
 
 part 'filters.freezed.dart';
 part 'filters.g.dart';

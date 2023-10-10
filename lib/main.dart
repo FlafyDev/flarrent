@@ -3,9 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/cli_args.dart';
 import 'package:flarrent/state/cli_args.dart';
 import 'package:flarrent/state/config.dart';
@@ -13,6 +10,9 @@ import 'package:flarrent/state/torrents.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
 import 'package:flarrent/widgets/main_view.dart';
 import 'package:flarrent/widgets/side_view.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main(List<String> args) {
   final parser = ArgParser()

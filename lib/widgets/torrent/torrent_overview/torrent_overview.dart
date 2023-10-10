@@ -1,10 +1,8 @@
+import 'package:flarrent/widgets/torrent/torrent_overview/overview_files.dart';
+import 'package:flarrent/widgets/torrent/torrent_overview/overview_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flarrent/state/torrents.dart';
-import 'package:flarrent/state/transmission.dart';
-import 'package:flarrent/widgets/torrent/torrent_overview/overview_files.dart';
-import 'package:flarrent/widgets/torrent/torrent_overview/overview_info.dart';
 
 class TorrentOverview extends HookConsumerWidget {
   const TorrentOverview({super.key, required this.id});

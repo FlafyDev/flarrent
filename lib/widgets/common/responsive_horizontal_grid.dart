@@ -1,7 +1,8 @@
 import 'dart:math' as math;
+
+import 'package:flarrent/widgets/common/smooth_scrolling.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart' as quiver;
-import 'package:flarrent/widgets/common/smooth_scrolling.dart';
 
 class ResponsiveHorizontalGrid extends StatelessWidget {
   const ResponsiveHorizontalGrid({

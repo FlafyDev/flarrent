@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/config.dart';
 import 'package:flarrent/state/cli_args.dart';
+import 'package:flutter/widgets.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const defaultConfig = Config(
   connection: 'transmission:http://localhost:9091/transmission/rpc',

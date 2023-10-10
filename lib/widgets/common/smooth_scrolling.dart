@@ -1,5 +1,4 @@
 import 'package:flarrent/state/config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_improved_scrolling/flutter_improved_scrolling.dart';

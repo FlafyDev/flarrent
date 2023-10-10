@@ -1,10 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:responsive_grid_list/responsive_grid_list.dart';
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/torrents.dart';
 import 'package:flarrent/utils/equal.dart';
@@ -15,6 +10,11 @@ import 'package:flarrent/widgets/common/button.dart';
 import 'package:flarrent/widgets/common/side_popup.dart';
 import 'package:flarrent/widgets/common/smooth_scrolling.dart';
 import 'package:flarrent/widgets/torrent/torrent.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:responsive_grid_list/responsive_grid_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OverviewFiles extends HookConsumerWidget {

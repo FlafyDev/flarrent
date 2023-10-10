@@ -1,10 +1,6 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/filters.dart';
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/filters.dart';
@@ -18,6 +14,10 @@ import 'package:flarrent/widgets/common/side_popup.dart';
 import 'package:flarrent/widgets/common/smooth_scrolling.dart';
 import 'package:flarrent/widgets/torrent/torrent.dart';
 import 'package:flarrent/widgets/torrent/torrent_overview/torrent_overview.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MainView extends HookConsumerWidget {
@@ -85,8 +85,6 @@ class MainView extends HookConsumerWidget {
       },
       [selectedTorrentIds, bottomHideAC, rulerShowAC],
     );
-
-    final scrollController = useScrollController();
 
     final theme = Theme.of(context);
 

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/torrents.dart';
 import 'package:flarrent/utils/timer_stream.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:transmission_rpc/transmission_rpc.dart';
 
 class TransmissionTorrents extends Torrents {
