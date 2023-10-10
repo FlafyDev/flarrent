@@ -3,6 +3,7 @@
   flutter,
   cacert,
   makeDesktopItem,
+  copyDesktopItems,
 }:
 flutter.buildFlutterApplication rec {
   pname = "flarrent";
@@ -10,23 +11,25 @@ flutter.buildFlutterApplication rec {
 
   src = ../.;
 
+  nativeBuildInputs = [copyDesktopItems];
+
   depsListFile = ./deps.json;
   vendorHash = "sha256-j4qV4UeEH+51P/y58b2ONR9iANQHGAdECmGwsEWEK+M=";
 
   pubGetScript = "dart --root-certs-file=${cacert}/etc/ssl/certs/ca-bundle.crt pub get";
 
   desktopItems = makeDesktopItem {
-    type = "Application";
     name = pname;
-    desktopName = "Flarrent";
-    genericName = "Transmission Frontend";
-    exec = pname;
     comment = meta.description;
+    exec = "${pname} --torrent %U";
     terminal = false;
-    mimeTypes = [ "application/x-bittorrent" "x-scheme-handler/magnet" ];
+    type = "Application";
+    mimeTypes = ["application/x-bittorrent" "x-scheme-handler/magnet"];
     categories = ["Network" "FileTransfer" "P2P" "X-Flutter"];
     keywords = ["p2p" "bittorrent" "transmission" "rpc"];
     startupWMClass = "flarrent";
+    desktopName = "Flarrent";
+    genericName = "Transmission Frontend";
   };
 
   meta = with lib; {
