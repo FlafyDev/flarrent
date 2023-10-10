@@ -1,21 +1,27 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/models/filters.dart';
-import 'package:torrent_frontend/models/torrent.dart';
-import 'package:torrent_frontend/state/filters.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/capitalize_string.dart';
-import 'package:torrent_frontend/utils/use_values_changed.dart';
+import 'package:flarrent/models/filters.dart';
+import 'package:flarrent/models/torrent.dart';
+import 'package:flarrent/state/filters.dart';
+import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/capitalize_string.dart';
+import 'package:flarrent/utils/use_values_changed.dart';
+import 'package:xdg_desktop_portal/xdg_desktop_portal.dart';
 
 class SideView extends HookConsumerWidget {
   const SideView({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.all(10),
       children: [
@@ -35,7 +41,24 @@ class SideView extends HookConsumerWidget {
                 ),
                 SizedBox(height: 6),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['torrent'],
+                    );
+
+                    final futures = <Future<void>>[];
+                    for (final file in result?.files ?? <PlatformFile>[]) {
+                      if (file.path == null) continue;
+                      futures.add(
+                        ref.read(torrentsProvider.notifier).addTorrentBase64(
+                              Base64Encoder().convert(File(file.path!).readAsBytesSync()),
+                            ),
+                      );
+                    }
+
+                    await Future.wait(futures);
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(6),
                     child: Row(
@@ -50,7 +73,7 @@ class SideView extends HookConsumerWidget {
                 TextButton(
                   onPressed: () {
                     Clipboard.getData('text/plain').then((value) {
-                      final text = value?.text;
+                      final text = value?.text?.trim();
                       if (text == null || !text.startsWith('magnet:')) return;
                       ref.read(torrentsProvider.notifier).addTorrentMagnet(text);
                     });
@@ -103,7 +126,7 @@ class SideView extends HookConsumerWidget {
                       return TextButton(
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.all(10),
-                          backgroundColor: Colors.lightBlue.withOpacity(selected ? 0.5 : 0.2),
+                          backgroundColor: selected ? theme.colorScheme.surface : theme.colorScheme.surfaceVariant,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(100),
                           ),

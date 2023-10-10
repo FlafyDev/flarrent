@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/models/torrent.dart';
-import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
-import 'package:torrent_frontend/utils/safe_divide.dart';
-import 'package:torrent_frontend/utils/units.dart';
-import 'package:torrent_frontend/widgets/common/button.dart';
+import 'package:flarrent/models/torrent.dart';
+import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flarrent/utils/safe_divide.dart';
+import 'package:flarrent/utils/units.dart';
+import 'package:flarrent/widgets/common/button.dart';
 
 Color _stateToColor(TorrentState state) => switch (state) {
       TorrentState.queued => Colors.yellowAccent,
@@ -28,6 +28,7 @@ class _Shell extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.child,
+    // ignore: unused_element
     super.key,
   });
 
@@ -50,7 +51,7 @@ class _Shell extends StatelessWidget {
               border: Border.all(
                 color: theme.colorScheme.onSecondary.withOpacity(0.2),
               ),
-              color: selected ? Colors.blue.withOpacity(0.2) : null,
+              color: selected ? theme.colorScheme.onSecondary.withOpacity(0.2) : null,
             ),
           ),
         ),
@@ -126,9 +127,7 @@ class TorrentTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 10.0;
     final theme = Theme.of(context);
-    final progress = safeDivide(
-      quickData.downloadedBytes / quickData.sizeToDownloadBytes,
-    );
+    final progress = safeDivide(quickData.downloadedBytes / quickData.sizeToDownloadBytes, 1);
     final color = _stateToColor(quickData.state);
 
     return DecoratedBox(
@@ -176,10 +175,10 @@ class TorrentTile extends HookConsumerWidget {
                 Row(
                   children: [
                     Text(
-                      '''${stringBytesOfWithUnits(quickData.downloadedBytes, quickData.sizeBytes)}    ${(progress * 100).floor()}%''',
-                      style: const TextStyle(
+                      '''${_stringBytesOfDoneWithUnits(quickData.downloadedBytes, quickData.sizeToDownloadBytes, quickData.sizeBytes)}    ${(progress * 100).floor()}%''',
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color.fromARGB(255, 62, 107, 159),
+                        color: ColorTween(begin: theme.colorScheme.onSecondary, end: Colors.black).transform(0.4),
                       ),
                     ),
                     const Spacer(),
@@ -269,19 +268,21 @@ class TorrentFileTile extends HookConsumerWidget {
     required this.torrentState,
     required this.fileData,
     required this.selected,
+    this.titleColor,
     this.onPressed,
   });
 
   final TorrentState torrentState;
   final TorrentFileData fileData;
   final bool selected;
+  final Color? titleColor;
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 5.0;
     final theme = Theme.of(context);
-    final progress = safeDivide(fileData.downloadedBytes / fileData.sizeBytes);
+    final progress = safeDivide(fileData.downloadedBytes / fileData.sizeBytes, 1);
     final color = _stateToColor(
       fileData.state == TorrentState.downloading && torrentState != TorrentState.downloading
           ? TorrentState.paused
@@ -311,7 +312,7 @@ class TorrentFileTile extends HookConsumerWidget {
                         text: fileData.name,
                         style: TextStyle(
                           fontFamily: 'Roboto',
-                          color: theme.colorScheme.onSecondary,
+                          color: titleColor ?? theme.colorScheme.onSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -323,10 +324,10 @@ class TorrentFileTile extends HookConsumerWidget {
                       ),
                       TextSpan(
                         text:
-                            '''${stringBytesOfWithUnits(fileData.downloadedBytes, fileData.sizeBytes)} (${(progress * 100).floor()}%)''',
-                        style: const TextStyle(
+                            '''${_stringBytesOfWithUnits(fileData.downloadedBytes, fileData.sizeBytes)} (${(progress * 100).floor()}%)''',
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color.fromARGB(255, 62, 107, 159),
+                          color: ColorTween(begin: theme.colorScheme.onSecondary, end: Colors.black).transform(0.4),
                         ),
                       ),
                       WidgetSpan(
@@ -398,5 +399,40 @@ class _PriorityIcon extends StatelessWidget {
       color: torrentPriorityToColor(priority),
       size: size,
     );
+  }
+}
+
+
+String _stringBytesOfWithUnits(int bytes1, int bytes2, {Unit? unit}) {
+  final u1 = detectUnit(bytes1).name;
+  final u2 = detectUnit(bytes2).name;
+  final b1 = fromBytesToUnit(bytes1, unit: unit);
+  final b2 = fromBytesToUnit(bytes2, unit: unit);
+
+  if (u1 == u2) {
+    return '$b1 of $b2 $u2';
+  } else {
+    return '$b1 $u1 of $b2 $u2';
+  }
+}
+
+String _stringBytesOfDoneWithUnits(int bytes1, int bytes2, int bytes3, {Unit? unit}) {
+  if (bytes3 == bytes2) return _stringBytesOfWithUnits(bytes1, bytes2, unit: unit);
+ 
+  final u1 = detectUnit(bytes1).name;
+  final u2 = detectUnit(bytes2).name;
+  final u3 = detectUnit(bytes3).name;
+  final b1 = fromBytesToUnit(bytes1, unit: unit);
+  final b2 = fromBytesToUnit(bytes2, unit: unit);
+  final b3 = fromBytesToUnit(bytes3, unit: unit);
+
+  if (u1 == u2 && u1 == u3) {
+    return '$b1 of $b2 ($b3) $u2';
+  } else if (u1 == u2 && u1 != u3) {
+    return '$b1 of $b2 $u2 ($b3 $u3)';
+  } else if (u1 != u2 && u1 == u3) {
+    return '$b1 $u1 of $b2 ($b3) $u2 ';
+  } else {
+    return '$b1 $u1 of $b2 $u2 ($b3 $u3)';
   }
 }

@@ -1,11 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/capitalize_string.dart';
-import 'package:torrent_frontend/utils/units.dart';
-import 'package:torrent_frontend/widgets/common/responsive_horizontal_grid.dart';
-import 'package:torrent_frontend/widgets/smooth_graph/smooth_graph.dart';
-import 'package:collection/collection.dart';
+import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/capitalize_string.dart';
+import 'package:flarrent/utils/units.dart';
+import 'package:flarrent/widgets/common/responsive_horizontal_grid.dart';
+import 'package:flarrent/widgets/smooth_graph/smooth_graph.dart';
 
 class OverviewInfo extends HookConsumerWidget {
   const OverviewInfo({
@@ -40,10 +40,6 @@ class OverviewInfo extends HookConsumerWidget {
                       isDownload: i == 0,
                     );
                   },
-                  // const SizedBox(
-                  //   height: 100,
-                  //   child: SmoothChart(),
-                  // ),
                 ),
               ),
             ),
@@ -85,9 +81,6 @@ class OverviewInfo extends HookConsumerWidget {
                           _TorrentInfoTile('Downloaded ever', stringBytesWithUnits(data.downloadedEverBytes!)),
                         if (data.uploadedEverBytes != null)
                           _TorrentInfoTile('Uploaded ever', stringBytesWithUnits(data.uploadedEverBytes!)),
-                        // _TorrentInfoTile('Origin', data.origin ?? 'N/A'),
-                        // _TorrentInfoTile('Comment', ''),
-                        // _TorrentInfoTile('Limit', ''),
                         if (data.location != null) _TorrentInfoTile('location', data.location!),
                       ],
                     ),
@@ -107,6 +100,7 @@ class _TorrentGraph extends HookConsumerWidget {
     required this.id,
     required this.theme,
     required this.isDownload,
+    // ignore: unused_element
     super.key,
   });
 
@@ -197,6 +191,7 @@ class _TorrentInfoTile extends StatelessWidget {
   const _TorrentInfoTile(
     this.title,
     this.value, {
+    // ignore: unused_element
     super.key,
   });
 

@@ -9,11 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
-import 'package:torrent_frontend/utils/use_values_changed.dart';
-import 'package:torrent_frontend/widgets/smooth_graph/get_y_from_x.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent.dart';
+import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flarrent/utils/use_values_changed.dart';
+import 'package:flarrent/widgets/smooth_graph/get_y_from_x.dart';
 
 class SmoothChart extends HookConsumerWidget {
   const SmoothChart({
@@ -39,26 +37,10 @@ class SmoothChart extends HookConsumerWidget {
       upperBound: double.infinity,
     );
     final lastT = useRef<double>(0);
-    // final torrentDownloadSpeed = ref.watch(torrentDownloadSpeedProvider(100));
 
     final points = useState(
       <FlSpot>[],
-      // List.generate(
-      //   pointsNum + 4,
-      //   (i) => FlSpot(
-      //     i * pointSpace - pointSpace,
-      //     getInitialPointsY(i),
-      //   ),
-      // ),
     );
-
-    // useEffect(
-    //   () {
-    //
-    //     return;
-    //   },
-    //   [getInitialPointsY],
-    // );
 
     final mod = useRef<double>(1);
 
@@ -75,7 +57,6 @@ class SmoothChart extends HookConsumerWidget {
                   FlSpot(
                     1 + pointSpace * 2,
                     getNextPointY(),
-                    // Random().nextDouble() * 0.4 + 0.3 * mod.value,
                   ),
                 ];
             maxYAC.animateTo(
@@ -117,14 +98,6 @@ class SmoothChart extends HookConsumerWidget {
         return;
       },
     );
-
-    // useEffect(
-    //   () {
-    //     moveAC.forward();
-    //     return;
-    //   },
-    //   [],
-    // );
 
     return KeyboardListener(
       focusNode: FocusNode(),
@@ -284,7 +257,7 @@ class SmoothChart extends HookConsumerWidget {
                                       size.width + moveAC.value * (constraints.maxWidth / pointsNum),
                                       size.height,
                                     ),
-                                    Radius.circular(10),
+                                    const Radius.circular(10),
                                   ),
                                 ),
                                 child: graphGlow,

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart' as quiver;
+import 'package:flarrent/widgets/common/smooth_scrolling.dart';
 
 class ResponsiveHorizontalGrid extends StatelessWidget {
   const ResponsiveHorizontalGrid({
@@ -54,37 +55,31 @@ class ResponsiveHorizontalGrid extends StatelessWidget {
               (i) {
                 return SizedBox(
                   width: sectionWidth,
-                  child: ListView(
-                    // mainAxisAlignment: MainAxisAlignment.start,
-                    children: i < sectionedChildren.length
-                        ? (sectionedChildren[i] +
-                                (i == 0 ? abandonedChildren : <Widget>[]))
-                            .map<Widget>(
-                              (child) => SizedBox(
-                                width: sectionWidth,
-                                height: widgetHeight,
-                                child: child,
-                              ),
-                            )
-                            .toList()
-                        : [],
+                  child: SmoothScrolling(
+                    multiplier: 1,
+                    builder: (context, scrollController, physics) {
+                      return ListView(
+                        controller: scrollController,
+                        physics: physics,
+                        children: i < sectionedChildren.length
+                            ? (sectionedChildren[i] +
+                                    (i == 0 ? abandonedChildren : <Widget>[]))
+                                .map<Widget>(
+                                  (child) => SizedBox(
+                                    width: sectionWidth,
+                                    height: widgetHeight,
+                                    child: child,
+                                  ),
+                                )
+                                .toList()
+                            : [],
+                      );
+                    },
                   ),
                 );
               },
             ),
           ),
-          // child: ListView.builder(
-          //   scrollDirection: Axis.horizontal,
-          //   itemCount: sectionsCount,
-          //   itemBuilder: (context, index) {
-          //     return Container(
-          //       width: contraints.maxWidth,
-          //       child: Column(
-          //         children: children,
-          //       ),
-          //     );
-          //   },
-          // ),
         );
       },
     );

@@ -5,18 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/models/filters.dart';
-import 'package:torrent_frontend/models/torrent.dart';
-import 'package:torrent_frontend/state/filters.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/equal.dart';
-import 'package:torrent_frontend/utils/multiselect_algo.dart';
-import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
-import 'package:torrent_frontend/utils/units.dart';
-import 'package:torrent_frontend/utils/use_values_changed.dart';
-import 'package:torrent_frontend/widgets/common/side_popup.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent_overview/torrent_overview.dart';
+import 'package:flarrent/models/filters.dart';
+import 'package:flarrent/models/torrent.dart';
+import 'package:flarrent/state/filters.dart';
+import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/equal.dart';
+import 'package:flarrent/utils/multiselect_algo.dart';
+import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flarrent/utils/units.dart';
+import 'package:flarrent/utils/use_values_changed.dart';
+import 'package:flarrent/widgets/common/side_popup.dart';
+import 'package:flarrent/widgets/common/smooth_scrolling.dart';
+import 'package:flarrent/widgets/torrent/torrent.dart';
+import 'package:flarrent/widgets/torrent/torrent_overview/torrent_overview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MainView extends HookConsumerWidget {
@@ -82,8 +83,10 @@ class MainView extends HookConsumerWidget {
         selectedTorrentIds.addListener(callback);
         return () => selectedTorrentIds.removeListener(callback);
       },
-      [],
+      [selectedTorrentIds, bottomHideAC, rulerShowAC],
     );
+
+    final scrollController = useScrollController();
 
     final theme = Theme.of(context);
 
@@ -121,28 +124,36 @@ class MainView extends HookConsumerWidget {
                     return ValueListenableBuilder(
                       valueListenable: selectedTorrentIds,
                       builder: (context, ids, child) {
-                        return ListView.separated(
-                          padding: const EdgeInsets.all(10).copyWith(bottom: 0),
-                          separatorBuilder: (context, index) => const SizedBox(
-                            height: 10,
+                        return SmoothScrolling(
+                          builder: (context, scrollController, physics) => ListView.separated(
+                            controller: scrollController,
+                            physics: physics,
+                            padding: const EdgeInsets.all(10).copyWith(bottom: 0),
+                            separatorBuilder: (context, index) => const SizedBox(
+                              height: 10,
+                            ),
+                            itemCount: orderedTorrents.length,
+                            itemBuilder: (context, index) {
+                              return TorrentTile(
+                                selected: ids.contains(orderedTorrents[index].id),
+                                quickData: orderedTorrents[index],
+                                onPressed: () async {
+                                  final newIds = multiselectAlgo(
+                                    selectedIndexes: selectedTorrentIds.value
+                                        .map(
+                                          (id) => orderedTorrents.indexWhere((e) => e.id == id),
+                                        )
+                                        .toList(),
+                                    index: index,
+                                  ).map((i) => orderedTorrents[i].id).toList();
+                                  if (newIds.length <= 1) {
+                                    await ref.read(torrentsProvider.notifier).setMainTorrents(newIds);
+                                  }
+                                  selectedTorrentIds.value = newIds;
+                                },
+                              );
+                            },
                           ),
-                          itemCount: orderedTorrents.length,
-                          itemBuilder: (context, index) {
-                            return TorrentTile(
-                              selected: ids.contains(orderedTorrents[index].id),
-                              quickData: orderedTorrents[index],
-                              onPressed: () {
-                                selectedTorrentIds.value = multiselectAlgo(
-                                  selectedIndexes: selectedTorrentIds.value
-                                      .map(
-                                        (id) => orderedTorrents.indexWhere((e) => e.id == id),
-                                      )
-                                      .toList(),
-                                  index: index,
-                                ).map((i) => orderedTorrents[i].id).toList();
-                              },
-                            );
-                          },
                         );
                       },
                     );
@@ -602,6 +613,7 @@ class _ToolsBin extends HookConsumerWidget {
   const _ToolsBin({
     required this.color,
     required this.onPressed,
+    // ignore: unused_element
     super.key,
   });
 

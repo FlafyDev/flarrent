@@ -1,5 +1,5 @@
-name: torrent_frontend
-description: Frontend torrent client
+name: flarrent
+description: Torrent frontend for Transmission
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,27 +9,31 @@ environment:
 dependencies:
   args: ^2.4.2
   collection: ^1.17.1
-  url_launcher: ^6.1.14
+  dotted_border: ^2.1.0
+  file_picker: ^5.5.0
   fl_chart: ^0.62.0
   flutter:
     sdk: flutter
   flutter_hooks: ^0.18.6
+  flutter_improved_scrolling: ^0.0.3
   freezed_annotation: ^2.2.0
   hooks_riverpod: ^2.3.6
   json_annotation: ^4.8.1
+  quiver: ^3.2.1
   responsive_grid_list: ^1.3.2
-  simple_grid: ^0.1.2
-  dotted_border: ^2.1.0
   transmission_rpc:
-    path: /home/flafy/repos/flafydev/transmission_rpc
+    git: https://github.com/flafydev/transmission_rpc.git
+  url_launcher: ^6.1.14
+  xdg_desktop_portal: ^0.1.12
 
 dev_dependencies:
-  very_good_analysis: ^5.0.0+1
-  custom_lint: ^0.4.0
-  riverpod_lint: ^1.3.2
   build_runner: ^2.4.6
+  custom_lint: ^0.4.0
+  dependency_validator: ^3.0.0
   freezed: ^2.3.5
   json_serializable: ^6.7.1
+  riverpod_lint: ^1.3.2
+  very_good_analysis: ^5.0.0+1
 
 flutter:
   uses-material-design: true

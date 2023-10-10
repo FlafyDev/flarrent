@@ -5,15 +5,16 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-import 'package:torrent_frontend/models/torrent.dart';
-import 'package:torrent_frontend/state/torrents.dart';
-import 'package:torrent_frontend/utils/equal.dart';
-import 'package:torrent_frontend/utils/generic_join.dart';
-import 'package:torrent_frontend/utils/multiselect_algo.dart';
-import 'package:torrent_frontend/utils/use_values_changed.dart';
-import 'package:torrent_frontend/widgets/common/button.dart';
-import 'package:torrent_frontend/widgets/common/side_popup.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent.dart';
+import 'package:flarrent/models/torrent.dart';
+import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/equal.dart';
+import 'package:flarrent/utils/generic_join.dart';
+import 'package:flarrent/utils/multiselect_algo.dart';
+import 'package:flarrent/utils/use_values_changed.dart';
+import 'package:flarrent/widgets/common/button.dart';
+import 'package:flarrent/widgets/common/side_popup.dart';
+import 'package:flarrent/widgets/common/smooth_scrolling.dart';
+import 'package:flarrent/widgets/torrent/torrent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OverviewFiles extends HookConsumerWidget {
@@ -237,7 +238,7 @@ class OverviewFiles extends HookConsumerWidget {
                           ),
                           child: InkButton(
                             padding: const EdgeInsets.all(6),
-                            color: Colors.blue.withOpacity(0.2),
+                            color: theme.colorScheme.surface,
                             borderRadius: radiuses,
                             onPressed: () {
                               path.value = path.value.sublist(0, e.key);
@@ -267,79 +268,118 @@ class OverviewFiles extends HookConsumerWidget {
                   width: double.infinity,
                   child: Consumer(
                     builder: (context, ref, child) {
-                      return ResponsiveGridList(
-                        verticalGridMargin: 0,
-                        horizontalGridMargin: 0,
-                        horizontalGridSpacing: 4,
-                        verticalGridSpacing: 4,
-                        minItemWidth: 230,
-                        listViewBuilderOptions: ListViewBuilderOptions(),
-                        children: filesWithPosition.map(
-                          (entry) {
-                            final position = entry.key;
-                            final e = entry.value;
+                      return SmoothScrolling(
+                        multiplier: 1,
+                        builder: (context, scrollController, physics) {
+                          return ResponsiveGridList(
+                            verticalGridMargin: 0,
+                            horizontalGridMargin: 0,
+                            horizontalGridSpacing: 4,
+                            verticalGridSpacing: 4,
+                            minItemWidth: 230,
+                            listViewBuilderOptions: ListViewBuilderOptions(
+                              controller: scrollController,
+                              physics: physics,
+                            ),
+                            children: filesWithPosition.map(
+                              (entry) {
+                                final position = entry.key;
+                                final e = entry.value;
 
-                            if (e.value != null) {
-                              // Directory
-                              final name = e.key as String;
-                              return InkButton(
-                                key: ValueKey(name),
-                                borderRadius: BorderRadius.circular(5),
-                                onPressed: () => onNodePress(position, () {
-                                  path.value = [...path.value, name];
-                                }),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(
-                                      color: theme.colorScheme.onSecondary.withOpacity(0.2),
+                                if (e.value != null) {
+                                  // Directory
+                                  final indexes = _getIndexesRecursively(e.value as Map<dynamic, dynamic>);
+                                  final inFiles = indexes.map((index) => files[index]).toList();
+                                  final inWantedFiles = inFiles.where((f) => f.state != TorrentState.paused).toList();
+                                  final name = e.key as String;
+
+                                  final downloadedBytes = inWantedFiles.fold(
+                                    0,
+                                    (previousValue, element) => previousValue + element.downloadedBytes,
+                                  );
+                                  final sizeBytes = inWantedFiles.fold(
+                                    0,
+                                    (previousValue, element) => previousValue + element.sizeBytes,
+                                  );
+                                  return TorrentFileTile(
+                                    titleColor: Colors.yellow,
+                                    torrentState: torrentState,
+                                    selected: selectedFilesPositions.value.contains(position),
+                                    onPressed: () => onNodePress(position, () {
+                                      path.value = [...path.value, name];
+                                    }),
+                                    fileData: TorrentFileData(
+                                      name: name,
+                                      downloadedBytes: downloadedBytes,
+                                      sizeBytes: sizeBytes,
+                                      priority: TorrentPriority.normal,
+                                      state: sizeBytes == downloadedBytes
+                                          ? TorrentState.completed
+                                          : inWantedFiles.any((f) => f.state == TorrentState.downloading)
+                                              ? TorrentState.downloading
+                                              : TorrentState.paused,
                                     ),
-                                    color: selectedFilesPositions.value.contains(position)
-                                        ? Colors.blue.withOpacity(0.2)
-                                        : Colors.transparent,
-                                  ),
-                                  padding: const EdgeInsets.all(5),
-                                  width: double.infinity,
-                                  child: Text(
-                                    name,
-                                    style: TextStyle(
-                                      fontFamily: 'Roboto',
-                                      color: theme.colorScheme.onSecondary.withRed(255).withGreen(255),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                            final index = e.key as int;
+                                  );
+                                  // return InkButton(
+                                  //   key: ValueKey(name),
+                                  //   borderRadius: BorderRadius.circular(5),
+                                  //   onPressed: () => onNodePress(position, () {
+                                  //     path.value = [...path.value, name];
+                                  //   }),
+                                  //   child: Container(
+                                  //     decoration: BoxDecoration(
+                                  //       borderRadius: BorderRadius.circular(5),
+                                  //       border: Border.all(
+                                  //         color: theme.colorScheme.onSecondary.withOpacity(0.2),
+                                  //       ),
+                                  //       color: selectedFilesPositions.value.contains(position)
+                                  //           ? Colors.blue.withOpacity(0.2)
+                                  //           : Colors.transparent,
+                                  //     ),
+                                  //     padding: const EdgeInsets.all(5),
+                                  //     width: double.infinity,
+                                  //     child: Text(
+                                  //       name,
+                                  //       style: TextStyle(
+                                  //         fontFamily: 'Roboto',
+                                  //         color: theme.colorScheme.onSecondary.withRed(255).withGreen(255),
+                                  //         fontSize: 12,
+                                  //         fontWeight: FontWeight.bold,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // );
+                                }
 
-                            final file = files[index];
+                                final index = e.key as int;
+                                final file = files[index];
 
-                            return TorrentFileTile(
-                              key: ValueKey(index),
-                              torrentState: torrentState,
-                              fileData: file.copyWith(
-                                name: file.name.split('/').last,
-                              ),
-                              selected: selectedFilesPositions.value.contains(position),
-                              onPressed: () {
-                                selectedFilesPositions.value = multiselectAlgo(
-                                  selectedIndexes: selectedFilesPositions.value,
-                                  index: position,
-                                  selectionDefault: () => onNodePress(position, () {
-                                    final torrent = ref.read(
-                                      torrentsProvider.select(
-                                        (a) => a.torrents.firstWhere((data) => data.id == id),
-                                      ),
+                                return TorrentFileTile(
+                                  key: ValueKey(index),
+                                  torrentState: torrentState,
+                                  fileData: file.copyWith(
+                                    name: file.name.split('/').last,
+                                  ),
+                                  selected: selectedFilesPositions.value.contains(position),
+                                  onPressed: () {
+                                    selectedFilesPositions.value = multiselectAlgo(
+                                      selectedIndexes: selectedFilesPositions.value,
+                                      index: position,
+                                      selectionDefault: () => onNodePress(position, () {
+                                        final torrent = ref.read(
+                                          torrentsProvider.select(
+                                            (a) => a.torrents.firstWhere((data) => data.id == id),
+                                          ),
+                                        );
+                                        launchUrl(Uri.parse('file:${torrent.location}/${file.name}'));
+                                      }),
                                     );
-                                    launchUrl(Uri.parse('file:${torrent.location}/${file.name}'));
-                                  }),
+                                  },
                                 );
                               },
-                            );
-                          },
-                        ).toList(), // The list of widgets in the list
+                            ).toList(), // The list of widgets in the list
+                          );
+                        },
                       );
                     },
                   ),

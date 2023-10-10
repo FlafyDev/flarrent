@@ -1,1 +1,1 @@
-double safeDivide(double res) => res.isFinite ? res : 0;
+double safeDivide(double res, [double def = 0]) => res.isFinite ? res : def;

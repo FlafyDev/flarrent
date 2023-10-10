@@ -1,3 +1,5 @@
+// ignore_for_file: implementation_imports
+
 import 'dart:math';
 import 'dart:ui';
 
@@ -36,9 +38,15 @@ import 'package:fl_chart/src/chart/line_chart/line_chart_painter.dart';
     /// next point
     final next = Offset(
       instance.getPixelX(
-          barSpots[i + 1 < size ? i + 1 : i].x, viewSize, holder),
+        barSpots[i + 1 < size ? i + 1 : i].x,
+        viewSize,
+        holder,
+      ),
       instance.getPixelY(
-          barSpots[i + 1 < size ? i + 1 : i].y, viewSize, holder),
+        barSpots[i + 1 < size ? i + 1 : i].y,
+        viewSize,
+        holder,
+      ),
     );
 
     final controlPoint1 = previous + temp;
@@ -51,14 +59,12 @@ import 'package:fl_chart/src/chart/line_chart/line_chart_painter.dart';
 
     if (barData.preventCurveOverShooting) {
       if ((next - current).dy <= barData.preventCurveOvershootingThreshold ||
-          (current - previous).dy <=
-              barData.preventCurveOvershootingThreshold) {
+          (current - previous).dy <= barData.preventCurveOvershootingThreshold) {
         temp = Offset(temp.dx, 0);
       }
 
       if ((next - current).dx <= barData.preventCurveOvershootingThreshold ||
-          (current - previous).dx <=
-              barData.preventCurveOvershootingThreshold) {
+          (current - previous).dx <= barData.preventCurveOvershootingThreshold) {
         temp = Offset(0, temp.dy);
       }
     }
@@ -75,8 +81,7 @@ import 'package:fl_chart/src/chart/line_chart/line_chart_painter.dart';
         initialT: initialT,
         epsilon: 1e-1,
       );
-      final y =
-          cubicBezierCurveY(t, previous, controlPoint1, controlPoint2, current);
+      final y = cubicBezierCurveY(t, previous, controlPoint1, controlPoint2, current);
 
       return (y, t);
     }
@@ -86,10 +91,7 @@ import 'package:fl_chart/src/chart/line_chart/line_chart_painter.dart';
 }
 
 double cubicBezierCurveY(double t, Offset p0, Offset p1, Offset p2, Offset p3) {
-  final y = pow(1 - t, 3) * p0.dy +
-      3 * pow(1 - t, 2) * t * p1.dy +
-      3 * (1 - t) * pow(t, 2) * p2.dy +
-      pow(t, 3) * p3.dy;
+  final y = pow(1 - t, 3) * p0.dy + 3 * pow(1 - t, 2) * t * p1.dy + 3 * (1 - t) * pow(t, 2) * p2.dy + pow(t, 3) * p3.dy;
   return y;
 }
 

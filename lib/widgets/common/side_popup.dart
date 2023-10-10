@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
+import 'package:flarrent/utils/rect_custom_clipper.dart';
 
 class SidePopup extends StatelessWidget {
   const SidePopup({
@@ -41,7 +41,6 @@ class _PathPainter extends CustomPainter {
 
   final Paint _paint = Paint();
   final Paint _paint2 = Paint();
-  final Paint _paint3 = Paint();
   final Color color;
   final double smoothLength;
 
@@ -57,15 +56,6 @@ class _PathPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = Colors.black;
 
-    _paint3
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 6
-      ..color = color.withOpacity(0.5)
-      ..maskFilter = const MaskFilter.blur(
-        BlurStyle.normal,
-        10,
-      );
-
     final path = Path()
       ..moveTo(0, size.height + 1)
       ..cubicTo(
@@ -77,12 +67,7 @@ class _PathPainter extends CustomPainter {
         0,
       )
       ..lineTo(size.width, stroke);
-    // canvas.drawPath(, _paint);
     canvas
-      // ..drawPath(
-      //   path,
-      //   _paint3,
-      // )
       ..drawPath(
         Path.from(path)..lineTo(size.width, size.height + 1),
         _paint2,

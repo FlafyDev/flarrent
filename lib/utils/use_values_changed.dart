@@ -1,8 +1,9 @@
-import 'package:collection/equality.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+
+// This code is a modified version of useValueChanged from flutter_hooks
 
 void useValuesChanged(List<Object?> values, {bool firstTime = false, required VoidCallback callback}) {
   return use(_ValuesChangedHook(values, callback, firstTime: firstTime));

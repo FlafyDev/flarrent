@@ -14,20 +14,23 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [
+          self.overlays.default
+        ];
       };
     in {
-      packages = rec {
-        flarrent = pkgs.callPackage ./nix/package.nix {};
-        default = flarrent;
+      packages = {
+        inherit (pkgs) flarrent;
+        default = pkgs.flarrent;
       };
+
       devShell = pkgs.mkShell {
         nativeBuildInputs = with pkgs; [flutter];
       };
     })
     // {
-      overlays.default = final: prev: {
+      overlays.default = _final: prev: {
         flarrent = prev.callPackage ./nix/package.nix {};
       };
-      # homeManagerModules.default = import ./nix/hm-module.nix self;
     };
 }

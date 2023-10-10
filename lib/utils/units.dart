@@ -23,11 +23,9 @@ String fromBytesToUnit(int bytes, {Unit? unit}) {
   final dBytes = bytes.toDouble();
   switch (unit ?? detectUnit(bytes)) {
     case Unit.GiB:
-      return (dBytes / 1024 / 1024 / 1024)
-          .toStringAsFixed(dBytes / 1024 / 1024 / 1024 > 100 ? 1 : 2);
+      return (dBytes / 1024 / 1024 / 1024).toStringAsFixed(dBytes / 1024 / 1024 / 1024 > 100 ? 1 : 2);
     case Unit.MiB:
-      return (dBytes / 1024 / 1024)
-          .toStringAsFixed(dBytes / 1024 / 1024 > 100 ? 1 : 2);
+      return (dBytes / 1024 / 1024).toStringAsFixed(dBytes / 1024 / 1024 > 100 ? 1 : 2);
     case Unit.KiB:
       return (dBytes / 1024).toStringAsFixed(0);
     case Unit.B:
@@ -39,19 +37,6 @@ String stringBytesWithUnits(int bytes, {Unit? unit}) {
   unit ??= detectUnit(bytes);
 
   return '''${fromBytesToUnit(bytes, unit: unit)} ${unit.name}''';
-}
-
-String stringBytesOfWithUnits(int bytes1, int bytes2, {Unit? unit}) {
-  var unit1 = detectUnit(bytes1).name;
-  final unit2 = detectUnit(bytes2).name;
-
-  if (unit1 == unit2) {
-    unit1 = '';
-  } else {
-    unit1 = ' $unit1';
-  }
-
-  return '''${fromBytesToUnit(bytes1, unit: unit)}$unit1 of ${fromBytesToUnit(bytes2, unit: unit)} $unit2''';
 }
 
 String formatDuration(Duration duration) {

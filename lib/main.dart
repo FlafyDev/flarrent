@@ -1,24 +1,52 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:torrent_frontend/utils/rect_custom_clipper.dart';
-import 'package:torrent_frontend/widgets/common/side_popup.dart';
-import 'package:torrent_frontend/widgets/main_view.dart';
-import 'package:torrent_frontend/widgets/side_view.dart';
-import 'package:torrent_frontend/widgets/torrent/torrent.dart';
+import 'package:flarrent/models/cli_args.dart';
+import 'package:flarrent/state/cli_args.dart';
+import 'package:flarrent/state/config.dart';
+import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flarrent/widgets/main_view.dart';
+import 'package:flarrent/widgets/side_view.dart';
 
 void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('config')
-    ..addMultiOption('torrent')
-    ..addFlag('verbose', defaultsTo: true);
+    ..addMultiOption('torrent');
   final results = parser.parse(args);
 
-  runApp(const ProviderScope(child: MyApp()));
+  final container = ProviderContainer(
+    overrides: [
+      cliArgsProvider.overrideWithValue(
+        CliArgs(
+          configLocation: results['config'] as String?,
+          torrentsLinks: results['torrent'] as List<String>?,
+        ),
+      )
+    ],
+  );
+
+  for (final link in container.read(cliArgsProvider).torrentsLinks ?? <String>[]) {
+    if (link.startsWith('magnet:')) {
+      container.read(torrentsProvider.notifier).addTorrentMagnet(link);
+    } else if (File(link).existsSync()) {
+      container.read(torrentsProvider.notifier).addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
+    } else {
+      container.read(torrentsProvider.notifier).addTorrentBase64(link);
+    }
+  }
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends HookConsumerWidget {
@@ -26,18 +54,28 @@ class MyApp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final config = ref.watch(configProvider).valueOrNull;
+    if (config == null) {
+      return const SizedBox();
+    }
+
+    final color = config.color!;
+
     return MaterialApp(
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(Color.getAlphaFromOpacity(0.6), 0, 0, 0),
+        scaffoldBackgroundColor: config.backgroundColor,
         colorScheme: ColorScheme.dark(
           primary: Colors.white,
           secondary: Colors.transparent,
           background: Colors.transparent,
-          surface: Colors.transparent,
+          // surface: Colors.transparent,
           onPrimary: Colors.white,
           shadow: Colors.black.withOpacity(0.2),
-          onSecondary: const Color.fromARGB(255, 85, 188, 228),
+          onSecondary: color,
+          surfaceVariant: HSLColor.fromColor(color).withSaturation(0.2).withLightness(0.2).toColor(),
+          surface: HSLColor.fromColor(color).withSaturation(1).withLightness(0.2).toColor(),
         ),
+        // splashColor: color,
         dropdownMenuTheme: DropdownMenuThemeData(
           menuStyle: MenuStyle(
             backgroundColor: MaterialStateProperty.all(Colors.black),
@@ -47,12 +85,12 @@ class MyApp extends HookConsumerWidget {
           focusColor: Colors.white,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color.fromARGB(255, 85, 188, 228)),
+            borderSide: BorderSide(color: color),
           ),
           hoverColor: Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color.fromARGB(055, 85, 188, 228)),
+            borderSide: BorderSide(color: color.withAlpha(055)),
           ),
         ),
         shadowColor: Colors.black.withOpacity(0.2),
@@ -76,9 +114,9 @@ class AppEntry extends HookConsumerWidget {
     final prevOnTop = useRef(true);
     final sideOpenAC = useAnimationController(
       duration: const Duration(milliseconds: 300),
-      initialValue: 0,
     );
     final openSideTimer = useRef<Timer?>(null);
+    final theme = Theme.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -113,14 +151,14 @@ class AppEntry extends HookConsumerWidget {
                       widthFactor: sideOpen,
                       child: SizedBox(
                         width: 300,
-                        child: const Stack(
+                        child: Stack(
                           children: [
-                            SideView(),
+                            const SideView(),
                             Align(
                               alignment: Alignment.centerRight,
                               child: VerticalDivider(
                                 width: 1,
-                                color: Colors.lightBlue,
+                                color: theme.colorScheme.onSecondary,
                               ),
                             ),
                           ],
@@ -129,26 +167,6 @@ class AppEntry extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                // Container(
-                //   width: 300,
-                //   child: Stack(
-                //     children: [
-                //       Positioned(
-                //         child: SizedBox(
-                //           width: 300,
-                //           child: SideView(),
-                //         ),
-                //       ),
-                //       const Align(
-                //         alignment: Alignment.centerRight,
-                //         child: VerticalDivider(
-                //           width: 1,
-                //           color: Colors.lightBlue,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 Positioned(
                   left: sideOnTop ? 0 : sideWidth,
                   top: 0,
@@ -183,48 +201,6 @@ class AppEntry extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                // Positioned.fill(
-                //   child: ColoredBox(
-                //     color: Colors.black.withOpacity(0.5),
-                //     child: Center(
-                //       child: Container(
-                //         width: 300,
-                //         height: 300,
-                //         decoration: BoxDecoration(
-                //           borderRadius: BorderRadius.circular(10),
-                //           border: Border.all(
-                //             color: Colors.white,
-                //             width: 2,
-                //           ),
-                //           color: Colors.black,
-                //         ),
-                //         padding: const EdgeInsets.all(10),
-                //         child: Text('test'),
-                //       ),
-                //     ),
-                //   ),
-                // )
-                // if (sideOpenAC.value == 0)
-                //   Positioned(
-                //     width: 120,
-                //     height: MediaQuery.of(context).size.height,
-                //     child: MouseRegion(
-                //       onExit: (e) {
-                //         openSideTimer.value?.cancel();
-                //         openSideTimer.value = null;
-                //       },
-                //       onEnter: (e) {
-                //         openSideTimer.value ??= Timer(const Duration(milliseconds: 100), () {
-                //           sideOpenAC.animateTo(
-                //             1,
-                //             curve: Curves.easeOutExpo,
-                //           );
-                //           openSideTimer.value?.cancel();
-                //           openSideTimer.value = null;
-                //         });
-                //       },
-                //     ),
-                //   ),
               ],
             );
           },
