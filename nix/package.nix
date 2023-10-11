@@ -14,7 +14,7 @@ flutter.buildFlutterApplication rec {
   nativeBuildInputs = [copyDesktopItems];
 
   depsListFile = ./deps.json;
-  vendorHash = "sha256-j4qV4UeEH+51P/y58b2ONR9iANQHGAdECmGwsEWEK+M=";
+  vendorHash = "sha256-Fyg3AKWbq8Q8sbrKCQ9ptFBlYxa9AMeJY/r1W/21uyY=";
 
   pubGetScript = "dart --root-certs-file=${cacert}/etc/ssl/certs/ca-bundle.crt pub get";
 

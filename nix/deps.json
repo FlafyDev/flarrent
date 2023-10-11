@@ -20,6 +20,7 @@
       "responsive_grid_list",
       "transmission_rpc",
       "url_launcher",
+      "window_manager",
       "xdg_desktop_portal",
       "build_runner",
       "custom_lint",
@@ -966,48 +967,23 @@
     "dependencies": []
   },
   {
-    "name": "url_launcher",
-    "version": "6.1.14",
+    "name": "window_manager",
+    "version": "0.3.7",
     "kind": "direct",
     "source": "hosted",
     "dependencies": [
       "flutter",
-      "url_launcher_android",
-      "url_launcher_ios",
-      "url_launcher_linux",
-      "url_launcher_macos",
-      "url_launcher_platform_interface",
-      "url_launcher_web",
-      "url_launcher_windows"
+      "path",
+      "screen_retriever"
     ]
   },
   {
-    "name": "url_launcher_windows",
-    "version": "3.0.8",
+    "name": "screen_retriever",
+    "version": "0.1.9",
     "kind": "transitive",
     "source": "hosted",
     "dependencies": [
-      "flutter",
-      "url_launcher_platform_interface"
-    ]
-  },
-  {
-    "name": "url_launcher_platform_interface",
-    "version": "2.1.5",
-    "kind": "transitive",
-    "source": "hosted",
-    "dependencies": [
-      "flutter",
-      "plugin_platform_interface"
-    ]
-  },
-  {
-    "name": "plugin_platform_interface",
-    "version": "2.1.6",
-    "kind": "transitive",
-    "source": "hosted",
-    "dependencies": [
-      "meta"
+      "flutter"
     ]
   },
   {
@@ -1052,6 +1028,51 @@
     "kind": "transitive",
     "source": "hosted",
     "dependencies": []
+  },
+  {
+    "name": "url_launcher",
+    "version": "6.1.14",
+    "kind": "direct",
+    "source": "hosted",
+    "dependencies": [
+      "flutter",
+      "url_launcher_android",
+      "url_launcher_ios",
+      "url_launcher_linux",
+      "url_launcher_macos",
+      "url_launcher_platform_interface",
+      "url_launcher_web",
+      "url_launcher_windows"
+    ]
+  },
+  {
+    "name": "url_launcher_windows",
+    "version": "3.0.8",
+    "kind": "transitive",
+    "source": "hosted",
+    "dependencies": [
+      "flutter",
+      "url_launcher_platform_interface"
+    ]
+  },
+  {
+    "name": "url_launcher_platform_interface",
+    "version": "2.1.5",
+    "kind": "transitive",
+    "source": "hosted",
+    "dependencies": [
+      "flutter",
+      "plugin_platform_interface"
+    ]
+  },
+  {
+    "name": "plugin_platform_interface",
+    "version": "2.1.6",
+    "kind": "transitive",
+    "source": "hosted",
+    "dependencies": [
+      "meta"
+    ]
   },
   {
     "name": "url_launcher_web",
