@@ -7,6 +7,7 @@ import 'package:flarrent/models/cli_args.dart';
 import 'package:flarrent/state/cli_args.dart';
 import 'package:flarrent/state/config.dart';
 import 'package:flarrent/state/torrents.dart';
+import 'package:flarrent/utils/filter_unknown_arguments.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
 import 'package:flarrent/widgets/main_view.dart';
 import 'package:flarrent/widgets/side_view.dart';
@@ -18,7 +19,7 @@ void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('config')
     ..addMultiOption('torrent');
-  final results = parser.parse(args);
+  final results = parser.parse(filterUnknownArguments(args, parser));
 
   final container = ProviderContainer(
     overrides: [
