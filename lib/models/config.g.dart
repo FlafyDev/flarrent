@@ -11,6 +11,7 @@ _$_Config _$$_ConfigFromJson(Map<String, dynamic> json) => _$_Config(
       backgroundColor: _colorFromJson(json['backgroundColor'] as String),
       connection: json['connection'] as String?,
       smoothScroll: json['smoothScroll'] as bool?,
+      animateOnlyOnFocus: json['animateOnlyOnFocus'] as bool?,
     );
 
 Map<String, dynamic> _$$_ConfigToJson(_$_Config instance) => <String, dynamic>{
@@ -18,4 +19,5 @@ Map<String, dynamic> _$$_ConfigToJson(_$_Config instance) => <String, dynamic>{
       'backgroundColor': _colorToJson(instance.backgroundColor),
       'connection': instance.connection,
       'smoothScroll': instance.smoothScroll,
+      'animateOnlyOnFocus': instance.animateOnlyOnFocus,
     };

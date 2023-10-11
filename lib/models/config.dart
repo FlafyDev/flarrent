@@ -14,6 +14,7 @@ class Config with _$Config {
     @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color? backgroundColor,
     String? connection,
     bool? smoothScroll,
+    bool? animateOnlyOnFocus,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

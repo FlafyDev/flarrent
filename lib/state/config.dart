@@ -11,6 +11,7 @@ const defaultConfig = Config(
   color: Color.fromARGB(255, 105, 188, 255),
   backgroundColor: Color.fromARGB(153, 0, 0, 0),
   smoothScroll: false,
+  animateOnlyOnFocus: true,
 );
 
 final configLocationProvider = StateProvider<String>(
@@ -38,6 +39,7 @@ final configProvider = StreamProvider((ref) async* {
       color: newConf.color ?? defaultConfig.color,
       backgroundColor: newConf.backgroundColor ?? defaultConfig.backgroundColor,
       smoothScroll: newConf.smoothScroll ?? defaultConfig.smoothScroll,
+      animateOnlyOnFocus: newConf.animateOnlyOnFocus ?? defaultConfig.animateOnlyOnFocus,
     );
   }
 

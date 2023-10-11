@@ -5,7 +5,10 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:fl_chart/src/chart/base/base_chart/base_chart_painter.dart';
 import 'package:fl_chart/src/chart/line_chart/line_chart_painter.dart';
+import 'package:flarrent/state/config.dart';
+import 'package:flarrent/state/focused.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
+import 'package:flarrent/utils/timer_stream.dart';
 import 'package:flarrent/utils/use_values_changed.dart';
 import 'package:flarrent/widgets/smooth_graph/get_y_from_x.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +32,10 @@ class SmoothChart extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final focused = ref.watch(focusedProvider).valueOrNull ?? true;
+    final animateOnlyOnFocus = ref.watch(configProvider.select((c) => c.valueOrNull!.animateOnlyOnFocus!));
+    final animate = (!animateOnlyOnFocus) || focused;
+
     const pointsNum = 35;
     const pointSpace = 1 / pointsNum;
     final moveAC = useAnimationController(duration: const Duration(milliseconds: 500));
@@ -38,9 +45,7 @@ class SmoothChart extends HookConsumerWidget {
     );
     final lastT = useRef<double>(0);
 
-    final points = useState(
-      <FlSpot>[],
-    );
+    final points = useState(<FlSpot>[]);
 
     final mod = useRef<double>(1);
 
@@ -49,9 +54,11 @@ class SmoothChart extends HookConsumerWidget {
         void moveACListener() {
           if (moveAC.status == AnimationStatus.completed) {
             lastT.value = 0;
-            moveAC
-              ..reset()
-              ..forward();
+            if (animate) {
+              moveAC
+                ..reset()
+                ..forward();
+            }
             points.value = points.value.skip(1).map((p) => p.copyWith(x: p.x - pointSpace)).toList() +
                 [
                   FlSpot(
@@ -70,19 +77,31 @@ class SmoothChart extends HookConsumerWidget {
           }
         }
 
-        moveAC.addListener(moveACListener);
-
-        return () => moveAC.removeListener(moveACListener);
+        if (animate) {
+          moveAC.addListener(moveACListener);
+          return () => moveAC.removeListener(moveACListener);
+        } else {
+          final sub = timerStream(const Duration(seconds: 1)).listen((_) => moveACListener());
+          return sub.cancel;
+        }
       },
-      [getInitialPointsY, getNextPointY],
+      [animate, getNextPointY],
+    );
+
+    useValuesChanged(
+      [animate, id],
+      firstTime: true,
+      callback: () {
+        if (animate) {
+          moveAC.forward(from: 0);
+        }
+      },
     );
 
     useValuesChanged(
       [id],
       firstTime: true,
       callback: () {
-        moveAC.forward(from: 0);
-
         points.value = List.generate(
           pointsNum + 4,
           (i) => FlSpot(

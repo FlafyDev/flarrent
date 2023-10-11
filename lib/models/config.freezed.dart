@@ -26,6 +26,7 @@ mixin _$Config {
   Color? get backgroundColor => throw _privateConstructorUsedError;
   String? get connection => throw _privateConstructorUsedError;
   bool? get smoothScroll => throw _privateConstructorUsedError;
+  bool? get animateOnlyOnFocus => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,7 +44,8 @@ abstract class $ConfigCopyWith<$Res> {
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           Color? backgroundColor,
       String? connection,
-      bool? smoothScroll});
+      bool? smoothScroll,
+      bool? animateOnlyOnFocus});
 }
 
 /// @nodoc
@@ -63,6 +65,7 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
     Object? backgroundColor = freezed,
     Object? connection = freezed,
     Object? smoothScroll = freezed,
+    Object? animateOnlyOnFocus = freezed,
   }) {
     return _then(_value.copyWith(
       color: freezed == color
@@ -81,6 +84,10 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
           ? _value.smoothScroll
           : smoothScroll // ignore: cast_nullable_to_non_nullable
               as bool?,
+      animateOnlyOnFocus: freezed == animateOnlyOnFocus
+          ? _value.animateOnlyOnFocus
+          : animateOnlyOnFocus // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 }
@@ -97,7 +104,8 @@ abstract class _$$_ConfigCopyWith<$Res> implements $ConfigCopyWith<$Res> {
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           Color? backgroundColor,
       String? connection,
-      bool? smoothScroll});
+      bool? smoothScroll,
+      bool? animateOnlyOnFocus});
 }
 
 /// @nodoc
@@ -114,6 +122,7 @@ class __$$_ConfigCopyWithImpl<$Res>
     Object? backgroundColor = freezed,
     Object? connection = freezed,
     Object? smoothScroll = freezed,
+    Object? animateOnlyOnFocus = freezed,
   }) {
     return _then(_$_Config(
       color: freezed == color
@@ -132,6 +141,10 @@ class __$$_ConfigCopyWithImpl<$Res>
           ? _value.smoothScroll
           : smoothScroll // ignore: cast_nullable_to_non_nullable
               as bool?,
+      animateOnlyOnFocus: freezed == animateOnlyOnFocus
+          ? _value.animateOnlyOnFocus
+          : animateOnlyOnFocus // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -145,7 +158,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           this.backgroundColor,
       this.connection,
-      this.smoothScroll});
+      this.smoothScroll,
+      this.animateOnlyOnFocus});
 
   factory _$_Config.fromJson(Map<String, dynamic> json) =>
       _$$_ConfigFromJson(json);
@@ -160,10 +174,12 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
   final String? connection;
   @override
   final bool? smoothScroll;
+  @override
+  final bool? animateOnlyOnFocus;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Config(color: $color, backgroundColor: $backgroundColor, connection: $connection, smoothScroll: $smoothScroll)';
+    return 'Config(color: $color, backgroundColor: $backgroundColor, connection: $connection, smoothScroll: $smoothScroll, animateOnlyOnFocus: $animateOnlyOnFocus)';
   }
 
   @override
@@ -174,7 +190,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
       ..add(DiagnosticsProperty('color', color))
       ..add(DiagnosticsProperty('backgroundColor', backgroundColor))
       ..add(DiagnosticsProperty('connection', connection))
-      ..add(DiagnosticsProperty('smoothScroll', smoothScroll));
+      ..add(DiagnosticsProperty('smoothScroll', smoothScroll))
+      ..add(DiagnosticsProperty('animateOnlyOnFocus', animateOnlyOnFocus));
   }
 
   @override
@@ -188,7 +205,9 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
             (identical(other.connection, connection) ||
                 other.connection == connection) &&
             (identical(other.smoothScroll, smoothScroll) ||
-                other.smoothScroll == smoothScroll));
+                other.smoothScroll == smoothScroll) &&
+            (identical(other.animateOnlyOnFocus, animateOnlyOnFocus) ||
+                other.animateOnlyOnFocus == animateOnlyOnFocus));
   }
 
   @JsonKey(ignore: true)
@@ -198,7 +217,8 @@ class _$_Config with DiagnosticableTreeMixin implements _Config {
       const DeepCollectionEquality().hash(color),
       const DeepCollectionEquality().hash(backgroundColor),
       connection,
-      smoothScroll);
+      smoothScroll,
+      animateOnlyOnFocus);
 
   @JsonKey(ignore: true)
   @override
@@ -221,7 +241,8 @@ abstract class _Config implements Config {
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
           final Color? backgroundColor,
       final String? connection,
-      final bool? smoothScroll}) = _$_Config;
+      final bool? smoothScroll,
+      final bool? animateOnlyOnFocus}) = _$_Config;
 
   factory _Config.fromJson(Map<String, dynamic> json) = _$_Config.fromJson;
 
@@ -235,6 +256,8 @@ abstract class _Config implements Config {
   String? get connection;
   @override
   bool? get smoothScroll;
+  @override
+  bool? get animateOnlyOnFocus;
   @override
   @JsonKey(ignore: true)
   _$$_ConfigCopyWith<_$_Config> get copyWith =>

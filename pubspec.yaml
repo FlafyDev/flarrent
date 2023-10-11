@@ -24,6 +24,7 @@ dependencies:
   transmission_rpc:
     git: https://github.com/flafydev/transmission_rpc.git
   url_launcher: ^6.1.14
+  window_manager: ^0.3.7
   xdg_desktop_portal: ^0.1.12
 
 dev_dependencies:
