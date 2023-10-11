@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:collection/collection.dart';
 import 'package:flarrent/models/cli_args.dart';
 import 'package:flarrent/state/cli_args.dart';
 import 'package:flarrent/state/config.dart';
@@ -19,7 +20,8 @@ void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('config')
     ..addMultiOption('torrent');
-  final results = parser.parse(filterUnknownArguments(args, parser));
+  final results = parser
+      .parse(const IterableEquality<String>().equals(args, ['--torrent']) ? [] : filterUnknownArguments(args, parser));
 
   final container = ProviderContainer(
     overrides: [
@@ -36,7 +38,9 @@ void main(List<String> args) {
     if (link.startsWith('magnet:')) {
       container.read(torrentsProvider.notifier).addTorrentMagnet(link);
     } else if (File(link).existsSync()) {
-      container.read(torrentsProvider.notifier).addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
+      container
+          .read(torrentsProvider.notifier)
+          .addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
     } else {
       container.read(torrentsProvider.notifier).addTorrentBase64(link);
     }
