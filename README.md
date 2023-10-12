@@ -7,7 +7,7 @@ Platforms: Linux
 
 ## Video
 
-https://github.com/FlafyDev/flarrent/assets/44374434/947c457a-f853-4b3f-b02f-69944c4c4937
+https://github.com/FlafyDev/flarrent/assets/44374434/c068209f-fda6-401e-860c-a94962e2b793
 
 ## Usage
 
