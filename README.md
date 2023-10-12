@@ -5,7 +5,7 @@ This app will not run Transmission for you. It can only connect to a Transmissio
 
 Platforms: Linux
 
-## Video
+## Showcase
 
 https://github.com/FlafyDev/flarrent/assets/44374434/c068209f-fda6-401e-860c-a94962e2b793
 
