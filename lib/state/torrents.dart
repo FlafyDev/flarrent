@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/config.dart';
@@ -30,6 +32,16 @@ abstract class Torrents extends StateNotifier<TorrentsState> {
   Torrents(this.ref, TorrentsState state) : super(state);
 
   final StateNotifierProviderRef<Torrents, TorrentsState> ref;
+
+  Future<void> addTorrent(String link) async {
+    if (link.startsWith('magnet:')) {
+      await addTorrentMagnet(link);
+    } else if (File(link).existsSync()) {
+     await addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
+    } else {
+      await addTorrentBase64(link);
+    }
+  }
 
   Future<void> pause(List<int> ids);
 

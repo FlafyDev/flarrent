@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-void main(List<String> args) {
+void main(List<String> args) async {
   final parser = ArgParser()
     ..addOption('config')
     ..addMultiOption('torrent');
@@ -35,21 +35,46 @@ void main(List<String> args) {
   );
 
   for (final link in container.read(cliArgsProvider).torrentsLinks ?? <String>[]) {
-    if (link.startsWith('magnet:')) {
-      container.read(torrentsProvider.notifier).addTorrentMagnet(link);
-    } else if (File(link).existsSync()) {
-      container
-          .read(torrentsProvider.notifier)
-          .addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
-    } else {
-      container.read(torrentsProvider.notifier).addTorrentBase64(link);
-    }
+    unawaited(container.read(torrentsProvider.notifier).addTorrent(link));
   }
+
+  final sockFile = File('/tmp/flarrent.sock');
+  if (sockFile.existsSync()) {
+    sockFile.deleteSync();
+  }
+
+  final server = await ServerSocket.bind(
+    InternetAddress(
+      sockFile.path,
+      type: InternetAddressType.unix,
+    ),
+    0,
+  );
+
+  server.listen((socket) {
+    socket.listen((data) {
+      final messages = String.fromCharCodes(data).trim().split(';')..removeWhere((element) => element.isEmpty);
+      for (final message in messages) {
+        if (message.startsWith('torrent ')) {
+          container.read(torrentsProvider.notifier).addTorrent(message.substring('torrent '.length));
+        }
+      }
+    });
+  });
 
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const MyApp(),
+      child: HookBuilder(
+        builder: (context) {
+          useOnAppLifecycleStateChange((prev, next) {
+            if (next == AppLifecycleState.detached) {
+              server.close();
+            }
+          });
+          return const MyApp();
+        },
+      ),
     ),
   );
 }

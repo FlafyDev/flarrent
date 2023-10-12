@@ -1,8 +1,13 @@
 #include "my_application.h"
 
 #include <flutter_linux/flutter_linux.h>
-
+#include <iostream>
+#include <cstring>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
 #include "flutter/generated_plugin_registrant.h"
+#include <vector>
 
 struct _MyApplication {
   GtkApplication parent_instance;
@@ -43,6 +48,15 @@ static void method_call_cb(FlMethodChannel *channel, FlMethodCall *method_call, 
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
+
+  GList *list = gtk_application_get_windows(GTK_APPLICATION(application));
+  GtkWindow* existing_window = list ? GTK_WINDOW(list->data) : NULL;
+
+  if (existing_window) {
+    gtk_window_present(existing_window);
+    return;
+  }
+
   window = GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
 
   gboolean use_header_bar = FALSE;
@@ -86,9 +100,53 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
 
+static void send_torrents(char** arguments) {
+  std::vector<std::string> torrentArgs;
+
+  for (int i = 0; arguments[i] != NULL; i++) {
+    const char* argument = arguments[i];
+
+    if (strcmp(argument, "--torrent") == 0 && arguments[i + 1] != NULL) {
+        torrentArgs.push_back(arguments[i + 1]);
+    }
+  }
+
+  // Create a socket
+  int sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (sockfd == -1) {
+      perror("socket");
+      return;
+  }
+
+  // Set up the server address structure
+  struct sockaddr_un server_address;
+  server_address.sun_family = AF_UNIX;
+  strcpy(server_address.sun_path, "/tmp/flarrent.sock");
+
+  // Connect to the server
+  if (connect(sockfd, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
+      perror("connect");
+      close(sockfd);
+      return;
+  }
+
+  for (const std::string& argument : torrentArgs) {
+    // Data to send
+    const std::string message = "torrent " + argument;
+
+    // Send the data
+    send(sockfd, message.c_str(), message.length(), 0);
+    send(sockfd, ";", 1, 0);
+  }
+
+  // Close the socket
+  close(sockfd);
+}
+
 // Implements GApplication::local_command_line.
 static gboolean my_application_local_command_line(GApplication* application, gchar*** arguments, int* exit_status) {
   MyApplication* self = MY_APPLICATION(application);
+
   // Strip out the first argument as it is the binary name.
   self->dart_entrypoint_arguments = g_strdupv(*arguments + 1);
 
@@ -97,6 +155,10 @@ static gboolean my_application_local_command_line(GApplication* application, gch
      g_warning("Failed to register: %s", error->message);
      *exit_status = 1;
      return TRUE;
+  }
+
+  if (g_application_get_is_remote(application)) {
+    send_torrents(self->dart_entrypoint_arguments);
   }
 
   g_application_activate(application);
@@ -123,6 +185,5 @@ static void my_application_init(MyApplication* self) {}
 MyApplication* my_application_new() {
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID,
-                                     "flags", G_APPLICATION_NON_UNIQUE,
                                      nullptr));
 }
