@@ -1,11 +1,11 @@
 {
   lib,
-  flutter,
+  flutter316,
   cacert,
   makeDesktopItem,
   copyDesktopItems,
 }:
-flutter.buildFlutterApplication rec {
+flutter316.buildFlutterApplication rec {
   pname = "flarrent";
   version = "0.1.0";
 
@@ -13,8 +13,10 @@ flutter.buildFlutterApplication rec {
 
   nativeBuildInputs = [copyDesktopItems];
 
-  depsListFile = ./deps.json;
-  vendorHash = "sha256-Fyg3AKWbq8Q8sbrKCQ9ptFBlYxa9AMeJY/r1W/21uyY=";
+  autoPubspecLock = src + "/pubspec.lock";
+  gitHashes = {
+    transmission_rpc = "sha256-0y5vjoa/Md2mpIk9Kx67yLhd9V4n4q7naAooL3mtRBw=";
+  };
 
   pubGetScript = "dart --root-certs-file=${cacert}/etc/ssl/certs/ca-bundle.crt pub get";
 
