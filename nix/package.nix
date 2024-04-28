@@ -1,11 +1,11 @@
 {
   lib,
-  flutter316,
+  flutter319,
   cacert,
   makeDesktopItem,
   copyDesktopItems,
 }:
-flutter316.buildFlutterApplication rec {
+flutter319.buildFlutterApplication rec {
   pname = "flarrent";
   version = "0.1.0";
 

@@ -25,7 +25,7 @@
       };
 
       devShell = pkgs.mkShell {
-        nativeBuildInputs = with pkgs; [flutter316];
+        nativeBuildInputs = with pkgs; [flutter319];
       };
     })
     // {
