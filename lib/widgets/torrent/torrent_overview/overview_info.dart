@@ -125,7 +125,7 @@ class _TorrentGraph extends HookConsumerWidget {
             Expanded(
               child: SmoothChart(
                 tint: isDownload ? Colors.lightBlue : Colors.purple,
-                id: id,
+                key: ValueKey(id),
                 getInitialPointsY: (i) {
                   return read()[i].toDouble() / 1024 / 1024;
                 },

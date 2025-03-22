@@ -1,11 +1,11 @@
 {
   lib,
-  flutter319,
+  flutter327,
   cacert,
   makeDesktopItem,
   copyDesktopItems,
 }:
-flutter319.buildFlutterApplication rec {
+flutter327.buildFlutterApplication rec {
   pname = "flarrent";
   version = "0.1.0";
 
@@ -15,7 +15,7 @@ flutter319.buildFlutterApplication rec {
 
   autoPubspecLock = src + "/pubspec.lock";
   gitHashes = {
-    transmission_rpc = "sha256-0y5vjoa/Md2mpIk9Kx67yLhd9V4n4q7naAooL3mtRBw=";
+    transmission_rpc = "";
   };
 
   pubGetScript = "dart --root-certs-file=${cacert}/etc/ssl/certs/ca-bundle.crt pub get";

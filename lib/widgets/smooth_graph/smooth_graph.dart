@@ -22,12 +22,10 @@ class SmoothChart extends HookConsumerWidget {
     required this.getInitialPointsY,
     required this.getNextPointY,
     required this.tint,
-    required this.id,
   });
 
   final double Function(int index) getInitialPointsY;
   final double Function() getNextPointY;
-  final int id;
   final Color tint;
 
   @override
@@ -89,7 +87,7 @@ class SmoothChart extends HookConsumerWidget {
     );
 
     useValuesChanged(
-      [animate, id],
+      [animate],
       firstTime: true,
       callback: () {
         if (animate) {
@@ -99,7 +97,7 @@ class SmoothChart extends HookConsumerWidget {
     );
 
     useValuesChanged(
-      [id],
+      [],
       firstTime: true,
       callback: () {
         points.value = List.generate(
@@ -167,7 +165,7 @@ class SmoothChart extends HookConsumerWidget {
                     Size(constraints.maxWidth, constraints.maxHeight),
                     barData,
                     barData.spots,
-                    PaintHolder(data, data, 1),
+                    PaintHolder(data, data, TextScaler.noScaling),
                   ),
                   color: tint,
                   glow: false,
@@ -179,7 +177,7 @@ class SmoothChart extends HookConsumerWidget {
                     Size(constraints.maxWidth, constraints.maxHeight),
                     barData,
                     barData.spots,
-                    PaintHolder(data, data, 1),
+                    PaintHolder(data, data, TextScaler.noScaling),
                   ),
                   color: tint,
                   glow: true,
@@ -197,7 +195,7 @@ class SmoothChart extends HookConsumerWidget {
                     Size(constraints.maxWidth, constraints.maxHeight),
                     barData,
                     barData.spots.skip(barData.spots.length - 4).toList(),
-                    PaintHolder(data, data, 1),
+                    PaintHolder(data, data, TextScaler.noScaling),
                   );
                   return CustomPaint(
                     painter: _GradientPainter(
@@ -224,7 +222,6 @@ class SmoothChart extends HookConsumerWidget {
                       builder: (context, constraints) {
                         lastT.value = t;
                         return Stack(
-                          clipBehavior: Clip.none,
                           children: [
                             Positioned(
                               // left: constraints.maxWidth/2 -
@@ -273,7 +270,7 @@ class SmoothChart extends HookConsumerWidget {
                                     Rect.fromLTRB(
                                       moveAC.value * (constraints.maxWidth / pointsNum),
                                       0,
-                                      size.width + moveAC.value * (constraints.maxWidth / pointsNum),
+                                      size.width + moveAC.value * (constraints.maxWidth / pointsNum) + 1000,
                                       size.height,
                                     ),
                                     const Radius.circular(10),

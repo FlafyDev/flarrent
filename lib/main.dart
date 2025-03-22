@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -20,8 +19,11 @@ void main(List<String> args) async {
   final parser = ArgParser()
     ..addOption('config')
     ..addMultiOption('torrent');
-  final results = parser
-      .parse(const IterableEquality<String>().equals(args, ['--torrent']) ? [] : filterUnknownArguments(args, parser));
+  final results = parser.parse(
+    const IterableEquality<String>().equals(args, ['--torrent'])
+        ? []
+        : filterUnknownArguments(args, parser),
+  );
 
   final container = ProviderContainer(
     overrides: [
@@ -30,11 +32,12 @@ void main(List<String> args) async {
           configLocation: results['config'] as String?,
           torrentsLinks: results['torrent'] as List<String>?,
         ),
-      )
+      ),
     ],
   );
 
-  for (final link in container.read(cliArgsProvider).torrentsLinks ?? <String>[]) {
+  for (final link
+      in container.read(cliArgsProvider).torrentsLinks ?? <String>[]) {
     unawaited(container.read(torrentsProvider.notifier).addTorrent(link));
   }
 
@@ -53,10 +56,13 @@ void main(List<String> args) async {
 
   server.listen((socket) {
     socket.listen((data) {
-      final messages = String.fromCharCodes(data).trim().split(';')..removeWhere((element) => element.isEmpty);
+      final messages = String.fromCharCodes(data).trim().split(';')
+        ..removeWhere((element) => element.isEmpty);
       for (final message in messages) {
         if (message.startsWith('torrent ')) {
-          container.read(torrentsProvider.notifier).addTorrent(message.substring('torrent '.length));
+          container
+              .read(torrentsProvider.notifier)
+              .addTorrent(message.substring('torrent '.length));
         }
       }
     });
@@ -102,8 +108,14 @@ class MyApp extends HookConsumerWidget {
           onPrimary: Colors.white,
           shadow: Colors.black.withOpacity(0.2),
           onSecondary: color,
-          surfaceVariant: HSLColor.fromColor(color).withSaturation(0.2).withLightness(0.2).toColor(),
-          surface: HSLColor.fromColor(color).withSaturation(1).withLightness(0.2).toColor(),
+          surfaceVariant: HSLColor.fromColor(color)
+              .withSaturation(0.2)
+              .withLightness(0.2)
+              .toColor(),
+          surface: HSLColor.fromColor(color)
+              .withSaturation(1)
+              .withLightness(0.2)
+              .toColor(),
         ),
         // splashColor: color,
         dropdownMenuTheme: DropdownMenuThemeData(
@@ -200,7 +212,9 @@ class AppEntry extends HookConsumerWidget {
                 Positioned(
                   left: sideOnTop ? 0 : sideWidth,
                   top: 0,
-                  width: sideOnTop ? constraints.maxWidth : constraints.maxWidth - sideWidth,
+                  width: sideOnTop
+                      ? constraints.maxWidth
+                      : constraints.maxWidth - sideWidth,
                   height: constraints.maxHeight,
                   child: ClipRect(
                     clipper: RectCustomClipper(
@@ -219,7 +233,8 @@ class AppEntry extends HookConsumerWidget {
                       },
                       onMenuPlaceEnter: () {
                         openSideTimer.value?.cancel();
-                        openSideTimer.value = Timer(const Duration(milliseconds: 100), () {
+                        openSideTimer.value =
+                            Timer(const Duration(milliseconds: 100), () {
                           sideOpenAC.animateTo(
                             1,
                             curve: Curves.easeOutExpo,
