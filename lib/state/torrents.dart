@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flarrent/models/torrent.dart';
 import 'package:flarrent/state/config.dart';
 import 'package:flarrent/state/transmission.dart';
+import 'package:flarrent/utils/torrent_input.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:transmission_rpc/transmission_rpc.dart';
 
@@ -33,15 +32,11 @@ abstract class Torrents extends StateNotifier<TorrentsState> {
 
   final StateNotifierProviderRef<Torrents, TorrentsState> ref;
 
-  Future<void> addTorrent(String link) async {
-    if (link.startsWith('magnet:')) {
-      await addTorrentMagnet(link);
-    } else if (File(link).existsSync()) {
-     await addTorrentBase64(const Base64Encoder().convert(File(link).readAsBytesSync()));
-    } else {
-      await addTorrentBase64(link);
-    }
-  }
+  Future<void> addTorrent(String link) => dispatchTorrentInput(
+        link,
+        addMagnet: addTorrentMagnet,
+        addBase64: addTorrentBase64,
+      );
 
   Future<void> pause(List<int> ids);
 

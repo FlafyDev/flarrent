@@ -1,4 +1,5 @@
 import 'package:flarrent/models/torrent.dart';
+import 'package:flarrent/state/ordered_downloads.dart';
 import 'package:flarrent/utils/rect_custom_clipper.dart';
 import 'package:flarrent/utils/safe_divide.dart';
 import 'package:flarrent/utils/units.dart';
@@ -127,6 +128,9 @@ class TorrentTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const borderRadius = 10.0;
     final theme = Theme.of(context);
+    final ordered = ref.watch(
+      orderedDownloadsProvider.select((value) => value.valueOrNull?.torrents[quickData.id] ?? false),
+    );
     final progress = safeDivide(quickData.downloadedBytes / quickData.sizeToDownloadBytes, 1);
     final color = _stateToColor(quickData.state);
 
@@ -186,6 +190,11 @@ class TorrentTile extends HookConsumerWidget {
                       quickData.priority,
                       size: 16,
                     ),
+                    if (ordered)
+                      const Tooltip(
+                        message: 'Ordered downloads enabled',
+                        child: Icon(Icons.format_list_numbered, color: Colors.lightBlue, size: 16),
+                      ),
                     const SizedBox(
                       width: 5,
                     ),

@@ -18,7 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 void main(List<String> args) async {
   final parser = ArgParser()
     ..addOption('config')
-    ..addMultiOption('torrent');
+    ..addMultiOption('torrent', splitCommas: false);
   final results = parser.parse(
     const IterableEquality<String>().equals(args, ['--torrent'])
         ? []
@@ -36,6 +36,8 @@ void main(List<String> args) async {
     ],
   );
 
+  // Resolve --config before looking up the notifier, which selects the backend.
+  await container.read(configProvider.future);
   for (final link
       in container.read(cliArgsProvider).torrentsLinks ?? <String>[]) {
     unawaited(container.read(torrentsProvider.notifier).addTorrent(link));

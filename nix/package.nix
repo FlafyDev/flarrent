@@ -1,11 +1,11 @@
 {
   lib,
-  flutter327,
+  flutter,
   cacert,
   makeDesktopItem,
   copyDesktopItems,
 }:
-flutter327.buildFlutterApplication rec {
+flutter.buildFlutterApplication rec {
   pname = "flarrent";
   version = "0.1.0";
 
@@ -21,7 +21,7 @@ flutter327.buildFlutterApplication rec {
   desktopItems = makeDesktopItem {
     name = pname;
     comment = meta.description;
-    exec = "${pname} --torrent %U";
+    exec = "${pname} --torrent %u";
     terminal = false;
     type = "Application";
     mimeTypes = ["application/x-bittorrent" "x-scheme-handler/magnet"];

@@ -12,6 +12,7 @@ import 'package:flarrent/utils/units.dart';
 import 'package:flarrent/utils/use_values_changed.dart';
 import 'package:flarrent/widgets/common/side_popup.dart';
 import 'package:flarrent/widgets/common/smooth_scrolling.dart';
+import 'package:flarrent/widgets/ordered_downloads_button.dart';
 import 'package:flarrent/widgets/torrent/torrent.dart';
 import 'package:flarrent/widgets/torrent/torrent_overview/torrent_overview.dart';
 import 'package:flutter/material.dart';
@@ -479,6 +480,7 @@ class _Tools extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
+            OrderedDownloadsButton(torrentIds: torrentIds),
             Builder(
               builder: (context) {
                 final differentPriorities =

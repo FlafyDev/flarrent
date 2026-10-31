@@ -28,7 +28,7 @@ Currently the only way to get a Desktop file is by building with Nix. `result/sh
 Alternatively, you can build with Nix: `nix build github:flafydev/flarrent`.
 
 ## Cli Args
-`--torrent <arg>` - Add a torrent. `<arg>` can be a magnet link, file path, or the base64 of a torrent file.
+`--torrent <arg>` - Add a torrent. `<arg>` can be a magnet link, local file URI, file path, or the base64 of a torrent file.
 
 `--config <arg>` - Change the location of the config file.
 
